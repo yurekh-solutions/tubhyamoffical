@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Search, ShoppingBag, Menu, X, Instagram, Phone } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/looo.png';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -71,9 +71,9 @@ const Navbar = () => {
                 <span>+91 70393 82706</span>
               </a>
             </div>
-            <div className="text-muted-foreground">
+            {/* <div className="text-muted-foreground">
               Free Shipping on Orders Above ₹2000
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -89,8 +89,8 @@ const Navbar = () => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Tubhyam" className="h-12 w-auto" />
+            <Link to="/" className="flex items-center gap-3 bg-transparent">
+              <img src={logo} alt="Tubhyam" className="h-12 w-12 object-cover rounded-md" />
               <div className="hidden sm:block">
                 <h1 className="font-heading text-2xl font-semibold text-gradient-gold">Tubhyam</h1>
                 <p className="text-[10px] text-muted-foreground tracking-widest">तुम्हारे लिए</p>
