@@ -27,9 +27,11 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'All Products', path: '/products' },
-    { name: 'Formal', path: '/products?category=formal' },
-    { name: 'Jeans', path: '/products?category=jeans' },
-    { name: 'Track Pants', path: '/products?category=track' },
+    { name: 'About', path: '/about' },
+    { name: 'Blog', path: '/blog' },
+    { name: 'FAQ', path: '/faq' },
+        { name: 'Contact', path: '/Contact' },
+
   ];
 
   const handleSearch = (e: React.FormEvent) => {

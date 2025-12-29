@@ -86,11 +86,25 @@
 
   html {
     scroll-behavior: smooth;
+    /* Hide scrollbar while keeping scrolling functionality */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  html::-webkit-scrollbar {
+    display: none;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Montserrat', sans-serif;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -184,21 +198,19 @@
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    display: none;
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(var(--background));
+    display: none;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted));
-    border-radius: 4px;
+    display: none;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
+    display: none;
   }
 }
 

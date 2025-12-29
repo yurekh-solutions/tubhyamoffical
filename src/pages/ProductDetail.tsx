@@ -60,6 +60,17 @@ const ProductDetail = () => {
     <div className="min-h-screen">
       <Navbar />
 
+      {/* Back to Shop */}
+      <div className="container mx-auto px-4 pt-4 pb-2">
+        <Link 
+          to="/products" 
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
+        >
+          <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Shop</span>
+        </Link>
+      </div>
+
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-4">
         <nav className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -145,7 +156,7 @@ const ProductDetail = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium">Select Size</h4>
-                <button className="text-sm text-primary hover:underline">Size Guide</button>
+                <Link to="/size-guide" className="text-sm text-primary hover:underline">Size Guide</Link>
               </div>
               <div className="flex flex-wrap gap-3">
                 {product.sizes.map((size) => (
