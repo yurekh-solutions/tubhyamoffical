@@ -25,9 +25,11 @@ const Navbar = () => {
   }, [location]);
 
   const navLinks = [
-    { name: 'All Products', path: '/products' },
-    { name: 'Contact', path: '/contact' },
+    { name: 'Shop', path: '/products' },
+    { name: 'Collections', path: '/collections' },
+    { name: 'Lookbook', path: '/lookbook' },
     { name: 'World of Tubhyam', path: '/world-of-tubhyam' },
+    { name: 'Contact', path: '/contact' },
   ];
 
   const handleSearch = (e: React.FormEvent) => {

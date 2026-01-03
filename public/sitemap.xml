@@ -6,17 +6,57 @@
   <!-- Homepage -->
   <url>
     <loc>https://tubhyam.com/</loc>
-    <lastmod>2025-12-29</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
+
+  <!-- World of Tubhyam -->
+  <url>
+    <loc>https://tubhyam.com/world-of-tubhyam</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
   </url>
 
   <!-- Products Page -->
   <url>
     <loc>https://tubhyam.com/products</loc>
-    <lastmod>2025-12-29</lastmod>
+    <lastmod>2026-01-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
+  </url>
+
+  <!-- Cart Page -->
+  <url>
+    <loc>https://tubhyam.com/cart</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Video Call Shopping -->
+  <url>
+    <loc>https://tubhyam.com/video-call</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Lookbook/Gallery -->
+  <url>
+    <loc>https://tubhyam.com/lookbook</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Collections -->
+  <url>
+    <loc>https://tubhyam.com/collections</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- Product Detail Pages -->
