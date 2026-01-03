@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Quote, Star } from 'lucide-react';
 
 const testimonials = [
   {
@@ -46,82 +46,97 @@ const TestimonialsSlider = () => {
     return () => clearInterval(interval);
   }, [isAutoPlaying]);
 
-  const next = () => {
-    setIsAutoPlaying(false);
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-  };
-
-  const prev = () => {
-    setIsAutoPlaying(false);
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
-
   return (
-    <section className="py-20 bg-secondary/20">
+    <section className="py-20 bg-gradient-to-br from-secondary/30 via-background to-secondary/20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <p className="text-primary uppercase tracking-widest text-sm mb-4">Testimonials</p>
-          <h2 className="font-heading text-4xl md:text-5xl font-semibold">
-            What Our <span className="text-gradient-gold">Customers Say</span>
+        <div className="text-center mb-16">
+          <p className="text-primary uppercase tracking-widest text-sm mb-4 font-semibold">Testimonials</p>
+          <h2 className="font-heading text-4xl md:text-5xl font-bold">
+            Loved by Our <span className="text-gradient-gold">Premium Customers</span>
           </h2>
+          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">Experience the Tubhyam difference through the words of our satisfied customers</p>
         </div>
 
-        <div className="relative max-w-4xl mx-auto">
-          {/* Main Testimonial */}
-          <div className="glass-card p-8 md:p-12 text-center relative overflow-hidden">
-            <Quote className="absolute top-4 left-4 w-12 h-12 text-primary/20" />
-            
-            <div className="relative z-10">
-              {/* Customer Image */}
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full overflow-hidden ring-4 ring-primary/30">
-                <img
-                  src={testimonials[currentIndex].image}
-                  alt={testimonials[currentIndex].name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+        <div className="flex justify-center items-center">
+          {/* Testimonial Card */}
+          <div className="w-full max-w-2xl">
+            <div className="relative">
+              {/* Premium Glass Card with gradient border */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20 rounded-2xl blur-lg opacity-50"></div>
+              
+              <div className="relative glass-card border border-primary/20 p-8 md:p-12 rounded-2xl backdrop-blur-xl bg-background/40 shadow-2xl">
+                {/* Decorative Quote */}
+                <div className="absolute top-6 left-6 opacity-10">
+                  <Quote className="w-16 h-16 text-primary" />
+                </div>
 
-              {/* Quote */}
-              <p className="text-lg md:text-xl text-foreground/90 mb-6 italic leading-relaxed">
-                "{testimonials[currentIndex].text}"
-              </p>
+                {/* Star Rating */}
+                <div className="flex justify-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-primary text-primary" />
+                  ))}
+                </div>
 
-              {/* Customer Info */}
-              <div>
-                <p className="font-heading text-xl font-semibold">{testimonials[currentIndex].name}</p>
-                <p className="text-muted-foreground">{testimonials[currentIndex].location}</p>
+                {/* Quote Text */}
+                <p className="text-lg md:text-2xl text-foreground font-light leading-relaxed mb-8 text-center italic">
+                  "{testimonials[currentIndex].text}"
+                </p>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+                </div>
+
+                {/* Customer Info */}
+                <div className="flex flex-col items-center gap-4">
+                  {/* Customer Avatar */}
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/50 rounded-full blur-lg opacity-50"></div>
+                    <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-primary/30 border-2 border-primary/20 shadow-lg">
+                      <img
+                        src={testimonials[currentIndex].image}
+                        alt={testimonials[currentIndex].name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Name and Location */}
+                  <div className="text-center">
+                    <p className="font-heading text-xl md:text-2xl font-semibold text-foreground">
+                      {testimonials[currentIndex].name}
+                    </p>
+                    <p className="text-primary/70 font-medium">{testimonials[currentIndex].location}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Navigation Buttons */}
-          <button
-            onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 p-3 glass-card rounded-full hover:bg-primary/20 transition-all"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 p-3 glass-card rounded-full hover:bg-primary/20 transition-all"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
+            {/* Dot Navigation */}
+            <div className="flex justify-center gap-3 mt-10">
+              {testimonials.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setIsAutoPlaying(false);
+                    setCurrentIndex(idx);
+                  }}
+                  className={`transition-all duration-500 rounded-full ${
+                    idx === currentIndex
+                      ? 'w-10 h-3 bg-gradient-to-r from-primary to-primary/70 shadow-lg'
+                      : 'w-3 h-3 bg-muted-foreground/40 hover:bg-muted-foreground/60'
+                  }`}
+                  aria-label={`Go to testimonial ${idx + 1}`}
+                />
+              ))}
+            </div>
 
-          {/* Dots */}
-          <div className="flex justify-center gap-2 mt-8">
-            {testimonials.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setIsAutoPlaying(false);
-                  setCurrentIndex(idx);
-                }}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  idx === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'
-                }`}
-              />
-            ))}
+            {/* Auto-play indicator */}
+            <div className="flex justify-center mt-6">
+              <p className="text-xs text-muted-foreground">
+                {currentIndex + 1} of {testimonials.length}
+              </p>
+            </div>
           </div>
         </div>
       </div>
