@@ -2,7 +2,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Check, Mail } from 'lucide-react';
+import { useState } from 'react';
 
 const collections = [
   {
@@ -44,6 +45,35 @@ const collections = [
 ];
 
 const Collections = () => {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleNotifyMe = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      setSuccessMessage('Please enter a valid email address');
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+      return;
+    }
+
+    setIsLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setSuccessMessage('✓ You will be notified when new collections drop!');
+      setShowSuccess(true);
+      setEmail('');
+      setIsLoading(false);
+      
+      // Auto-hide after 4 seconds
+      setTimeout(() => setShowSuccess(false), 4000);
+    }, 1000);
+  };
+
   return (
     <>
       <SEO
@@ -129,7 +159,7 @@ const Collections = () => {
       </section>
 
       {/* Newsletter CTA */}
-      <section className="py-20 bg-gradient-to-br from-primary/20 via-background to-accent/10">
+      <section className="py-20 bg-gradient-to-br from-primary/20 via-background to-accent/10 relative">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-heading text-4xl md:text-5xl font-semibold mb-6">
             Stay <span className="text-gradient-gold">Ahead of Trends</span>
@@ -137,17 +167,64 @@ const Collections = () => {
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             Be the first to know when new collections drop. Join our exclusive mailing list.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <form onSubmit={handleNotifyMe} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 px-6 py-4 bg-card/80 backdrop-blur border border-border/50 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="flex-1 px-6 py-4 bg-card/80 backdrop-blur border border-border/50 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+              disabled={isLoading}
             />
-            <button className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105 whitespace-nowrap">
-              Notify Me
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105 whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <>
+                  <Mail size={18} />
+                  Notify Me
+                </>
+              )}
             </button>
-          </div>
+          </form>
         </div>
+
+        {/* Success Popup */}
+        {showSuccess && (
+          <div className="fixed bottom-8 right-8 z-50 animate-in slide-in-from-bottom-5 duration-300">
+            <div className={`flex items-center gap-4 px-6 py-4 rounded-full glass-card backdrop-blur-xl border-2 ${
+              successMessage.startsWith('✓')
+                ? 'border-green-500/50 bg-green-500/10'
+                : 'border-amber-500/50 bg-amber-500/10'
+            }`}>
+              <div className={`flex items-center justify-center w-6 h-6 rounded-full ${
+                successMessage.startsWith('✓')
+                  ? 'bg-green-500/20'
+                  : 'bg-amber-500/20'
+              }`}>
+                <Check className={`w-4 h-4 ${
+                  successMessage.startsWith('✓')
+                    ? 'text-green-500'
+                    : 'text-amber-500'
+                }`} />
+              </div>
+              <p className={`font-medium whitespace-nowrap ${
+                successMessage.startsWith('✓')
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-amber-600 dark:text-amber-400'
+              }`}>
+                {successMessage}
+              </p>
+            </div>
+          </div>
+        )}
       </section>
 
       <Footer />
