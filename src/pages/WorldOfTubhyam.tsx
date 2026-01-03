@@ -180,7 +180,7 @@ const WorldOfTubhyam = () => {
               with meticulous attention to detail, using only the finest fabrics and craftsmanship.
             </p>
             <Link 
-              to="/world-of-tubhyam"
+              to="/discover-our-world"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
             >
               Discover Our World
