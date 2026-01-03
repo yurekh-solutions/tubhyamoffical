@@ -25,7 +25,7 @@ const Shipping = () => {
           {/* Highlights */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Truck, title: 'Free Shipping', desc: 'On orders above ₹2000' },
+              { icon: Truck, title: 'Fast Delivery', desc: 'Quick & reliable shipping' },
               { icon: Clock, title: '5-7 Days', desc: 'Standard delivery time' },
               { icon: MapPin, title: 'Pan India', desc: 'We ship across India' },
               { icon: Package, title: 'Secure Packaging', desc: 'Safe & protected' },

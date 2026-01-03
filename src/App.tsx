@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
-import CartSidebar from "@/components/CartSidebar";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
@@ -18,6 +17,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import Shipping from "./pages/Shipping";
 import Returns from "./pages/Returns";
+import VideoCall from "./pages/VideoCall";
+import Cart from "./pages/Cart";
+import WorldOfTubhyam from "./pages/WorldOfTubhyam";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,18 +30,25 @@ const App = () => (
       <CartProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <CartSidebar />
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/world-of-tubhyam" element={<WorldOfTubhyam />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/size-guide" element={<SizeGuide />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/video-call" element={<VideoCall />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/shipping" element={<Shipping />} />

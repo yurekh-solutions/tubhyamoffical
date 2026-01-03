@@ -14,8 +14,8 @@ const About = () => {
     },
     {
       icon: Zap,
-      title: "Free Shipping",
-      description: "On all orders above ₹2000 across India"
+      title: "Fast Delivery",
+      description: "Quick & reliable shipping across India"
     },
     {
       icon: Users,

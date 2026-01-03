@@ -254,7 +254,7 @@ const ProductDetail = () => {
             <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border">
               <div className="text-center">
                 <Truck size={24} className="mx-auto text-primary mb-2" />
-                <p className="text-xs text-muted-foreground">Free Shipping</p>
+                <p className="text-xs text-muted-foreground">Fast Delivery</p>
               </div>
               <div className="text-center">
                 <Shield size={24} className="mx-auto text-primary mb-2" />

@@ -10,7 +10,7 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
-  const { totalItems, setIsCartOpen } = useCart();
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,13 +25,9 @@ const Navbar = () => {
   }, [location]);
 
   const navLinks = [
-    { name: 'Home', path: '/' },
     { name: 'All Products', path: '/products' },
-    { name: 'About', path: '/about' },
-    { name: 'Blog', path: '/blog' },
-    { name: 'FAQ', path: '/faq' },
-        { name: 'Contact', path: '/Contact' },
-
+    { name: 'Contact', path: '/contact' },
+    { name: 'World of Tubhyam', path: '/world-of-tubhyam' },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -53,7 +49,9 @@ const Navbar = () => {
         {/* Top bar */}
         <div className="hidden md:block border-b border-border/50 bg-secondary/30">
           <div className="container mx-auto px-4 py-2 flex justify-between items-center text-xs">
-            <div className="flex items-center gap-4">
+           
+          <div></div>
+             <div className="flex  gap-4">
               <a 
                 href="https://www.instagram.com/tubhyamofficial/" 
                 target="_blank" 
@@ -63,17 +61,8 @@ const Navbar = () => {
                 <Instagram size={14} />
                 <span>@tubhyamofficial</span>
               </a>
-              <a 
-                href="tel:+917039382706" 
-                className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Phone size={14} />
-                <span>+91 70393 82706</span>
-              </a>
+              
             </div>
-            {/* <div className="text-muted-foreground">
-              Free Shipping on Orders Above ₹2000
-            </div> */}
           </div>
         </div>
 
@@ -89,11 +78,11 @@ const Navbar = () => {
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 bg-transparent">
-              <img src={logo} alt="Tubhyam" className="h-12 w-12 object-cover rounded-md" />
-              <div className="hidden sm:block">
-                <h1 className="font-heading text-2xl font-semibold text-gradient-gold">Tubhyam</h1>
-                <p className="text-[10px] text-muted-foreground tracking-widest">तुम्हारे लिए</p>
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 bg-transparent">
+              <img src={logo} alt="Tubhyam" className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md" />
+              <div className="hidden xs:block sm:block">
+                <h1 className="font-heading text-lg sm:text-2xl font-semibold text-gradient-gold">Tubhyam</h1>
+                <p className="text-[8px] sm:text-[10px] text-muted-foreground tracking-widest">तुम्हारे लिए</p>
               </div>
             </Link>
 
@@ -115,44 +104,49 @@ const Navbar = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-4">
-              {/* Search */}
-              <div className="relative">
-                {isSearchOpen ? (
-                  <form onSubmit={handleSearch} className="absolute right-0 top-1/2 -translate-y-1/2">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search products..."
-                      className="w-48 sm:w-64 bg-secondary/80 backdrop-blur border border-border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 animate-fade-in"
-                      autoFocus
-                      onBlur={() => !searchQuery && setIsSearchOpen(false)}
-                    />
-                  </form>
-                ) : (
-                  <button 
-                    onClick={() => setIsSearchOpen(true)}
-                    className="p-2 hover:bg-secondary/50 rounded-full transition-colors"
-                  >
-                    <Search size={20} />
-                  </button>
-                )}
-              </div>
+            <div className="flex items-center gap-2 sm:gap-4">
+  {/* Search */}
+  <div className="flex items-center gap-2">
+    <form
+      onSubmit={handleSearch}
+      className="w-48 sm:w-64"
+    >
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search products..."
+        className="w-full bg-secondary/80 backdrop-blur border border-border rounded-full
+                   pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2
+                   focus:ring-primary/50 animate-fade-in"
+        autoFocus
+        onBlur={() => !searchQuery && setIsSearchOpen(false)}
+      />
+    </form>
 
-              {/* Cart */}
-              <button 
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-2 hover:bg-secondary/50 rounded-full transition-colors"
-              >
-                <ShoppingBag size={20} />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
-                    {totalItems}
-                  </span>
-                )}
-              </button>
-            </div>
+    <button
+      onClick={handleSearch}
+      className="p-2 hover:bg-secondary/50 border border-border rounded-full transition-colors flex items-center justify-center"
+      type="submit"
+    >
+      <Search size={20} />
+    </button>
+  </div>
+
+  {/* Cart */}
+  <Link
+    to="/cart"
+    className="relative p-2 hover:bg-secondary/50 rounded-full transition-colors"
+  >
+    <ShoppingBag size={20} />
+    {totalItems > 0 && (
+      <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
+        {totalItems}
+      </span>
+    )}
+  </Link>
+</div>
+
           </div>
         </div>
       </nav>
