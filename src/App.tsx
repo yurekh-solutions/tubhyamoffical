@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import ScrollToTop from "@/components/ScrollToTop";
-import Index from "./pages/Index";
+import Index from "./pages/WorldOfTubhyam";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Contact from "./pages/Contact";
@@ -19,7 +19,7 @@ import Shipping from "./pages/Shipping";
 import Returns from "./pages/Returns";
 import VideoCall from "./pages/VideoCall";
 import Cart from "./pages/Cart";
-import WorldOfTubhyam from "./pages/WorldOfTubhyam";
+import WorldOfTubhyam from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,8 +38,8 @@ const App = () => (
         >
           <ScrollToTop />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/world-of-tubhyam" element={<WorldOfTubhyam />} />
+            <Route path="/" element={<WorldOfTubhyam />} />
+            <Route path="/world-of-tubhyam" element={<Index/>} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
