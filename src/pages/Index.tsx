@@ -9,6 +9,8 @@ import FeaturedProducts from '@/components/FeaturedProducts';
 import TestimonialsSlider from '@/components/TestimonialsSlider';
 import InstagramFeed from '@/components/InstagramFeed';
 import NewsletterSection from '@/components/NewsletterSection';
+import WhyChooseTubhyam from '@/components/WhyChooseTubhyam';
+import StyleQuiz from '@/components/StyleQuiz';
 
 const Index = () => {
   return (
@@ -133,11 +135,17 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Why Choose Tubhyam */}
+      <WhyChooseTubhyam />
+
       {/* New Arrivals */}
       <FeaturedProducts type="new" />
 
       {/* Testimonials */}
       <TestimonialsSlider />
+
+      {/* Style Quiz */}
+      <StyleQuiz />
 
       {/* Instagram Feed */}
       <InstagramFeed />
