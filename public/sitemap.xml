@@ -59,6 +59,14 @@
     <priority>0.85</priority>
   </url>
 
+  <!-- Discover Our World -->
+  <url>
+    <loc>https://tubhyam.com/discover-our-world</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
   <!-- Product Detail Pages -->
   <url>
     <loc>https://tubhyam.com/product/fp-001</loc>
