@@ -30,12 +30,36 @@ import cargofront from "@/assets/Tracks/cargofront.png";
 import slimfit from "@/assets/Tracks/slimfit.png";
 import trousers from "@/assets/Tracks/trousers.png";
 import trousersgrey from "@/assets/Tracks/trousersgrey.png";
+
+// Formal pants from formals folder
+import beigeFormal from "@/assets/formals/beige formal.jpeg";
+import beltFormalBlack from "@/assets/formals/belt formal balck.jpeg";
+import beltFormalBeige from "@/assets/formals/belt formal beige.jpeg";
+import beltFormalBeige1 from "@/assets/formals/belt formal beige1.jpeg";
+import beltFormalBeige2 from "@/assets/formals/belt formal beige2.jpeg";
+import beltImported from "@/assets/formals/belt imported.jpeg";
+import bothImported from "@/assets/formals/both imported.jpeg";
+import bothOliveFormal from "@/assets/formals/both olive, formal belt.jpeg";
+import brownFormal from "@/assets/formals/brown formal.jpeg";
+import brown from "@/assets/formals/brown.jpeg";
+import brown1Formal from "@/assets/formals/brown1 formal.jpeg";
+import importedBeggyBlackFormal from "@/assets/formals/imported beggy black formal.jpeg";
+import importedBeggyBlack from "@/assets/formals/imported beggy black.jpeg";
+import importedBeggyGrayFormal from "@/assets/formals/imported beggy gray formal.jpeg";
+import importedBeggyGray from "@/assets/formals/imported beggy gray.jpeg";
+import oliveFormalBelt from "@/assets/formals/olive fomral belt.jpeg";
+import oliveFormalBelt2 from "@/assets/formals/olive formal belt.jpeg";
+import premiumBlack from "@/assets/formals/preuim black.jpeg";
+import premiumDarkBrown from "@/assets/formals/preuim dark brown.jpeg";
+import premiumGray from "@/assets/formals/preuim gray.jpeg";
+import slimfitFormalBlackGrey from "@/assets/formals/slimfit formal pants black,grey.jpeg";
+import whiteFormalBelt from "@/assets/formals/white formal belt.jpeg";
 export interface Product {
   id: string;
   name: string;
   price: number;
   originalPrice?: number;
-  category: 'formal' | 'jeans' | 'track' | 'pants';
+  category: 'formal' | 'jeans' | 'track';
   image: string;
   images: string[];
   description: string;
@@ -55,7 +79,7 @@ export const products: Product[] = [
 
   name: "Relaxed Fit Elastic Waist Trousers",
 
-  category: "pants",
+  category: "track",
 
   price: 1899,
 
@@ -85,7 +109,7 @@ export const products: Product[] = [
 {
   id: "pt-005",
   name: "Drawstring Relaxed Fit Pants",
-  category: "pants",
+  category: "track",
   price: 1999,
   image: blankpants,
   images: [blankpants],
@@ -363,6 +387,187 @@ export const products: Product[] = [
     sizes: ["XS", "S", "M", "L"],
     colors: ["Teal", "Peacock", "Turquoise"],
     material: "Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-009",
+    name: "Premium Beige Formal Pants",
+    category: "formal",
+    price: 2699,
+    image: beigeFormal,
+    images: [beigeFormal],
+    description: "Classic beige formal pants with elegant design. Perfect for professional settings with comfortable fit and premium fabric quality.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Beige", "Cream"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+  },
+  {
+    id: "fp-010",
+    name: "Belt Formal Pants - Black",
+    category: "formal",
+    price: 2899,
+    image: beltFormalBlack,
+    images: [beltFormalBlack],
+    description: "Sleek black formal pants with belt loops and tailored fit. Features side pockets and premium finish for office and formal occasions.",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Black"],
+    material: "Premium Cotton Blend",
+    inStock: true,
+    isBestSeller: true,
+  },
+  {
+    id: "fp-011",
+    name: "Belt Formal Pants - Beige",
+    category: "formal",
+    price: 2799,
+    image: beltFormalBeige,
+    images: [beltFormalBeige, beltFormalBeige1, beltFormalBeige2],
+    description: "Elegant beige formal pants with belt design. Tailored cut with comfortable waistband and sophisticated styling for business wear.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Beige", "Sand", "Cream"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-012",
+    name: "Imported Belt Formal Pants",
+    category: "formal",
+    price: 3299,
+    originalPrice: 4199,
+    image: beltImported,
+    images: [beltImported, bothImported],
+    description: "Premium imported formal pants with belt styling. Features superior fabric quality and impeccable tailoring for the modern professional.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Multiple"],
+    material: "Imported Premium Fabric",
+    inStock: true,
+    isBestSeller: true,
+  },
+  {
+    id: "fp-013",
+    name: "Olive Formal Belt Pants",
+    category: "formal",
+    price: 2899,
+    image: oliveFormalBelt,
+    images: [oliveFormalBelt, oliveFormalBelt2, bothOliveFormal],
+    description: "Sophisticated olive formal pants with belt design. Perfect blend of style and comfort for executive and professional settings.",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Olive Green", "Sage"],
+    material: "Premium Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-014",
+    name: "Brown Formal Pants",
+    category: "formal",
+    price: 2699,
+    image: brownFormal,
+    images: [brownFormal, brown, brown1Formal],
+    description: "Classic brown formal pants with refined tailoring. Features comfortable fit and timeless design for versatile professional styling.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Brown", "Dark Brown", "Tan"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+  },
+  {
+    id: "fp-015",
+    name: "Imported Baggy Formal - Black",
+    category: "formal",
+    price: 3099,
+    originalPrice: 3899,
+    image: importedBeggyBlackFormal,
+    images: [importedBeggyBlackFormal, importedBeggyBlack],
+    description: "Trendy imported baggy formal pants in black. Modern relaxed fit with premium fabric and contemporary styling for fashion-forward professionals.",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Black"],
+    material: "Imported Premium Fabric",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-016",
+    name: "Imported Baggy Formal - Gray",
+    category: "formal",
+    price: 3099,
+    originalPrice: 3899,
+    image: importedBeggyGrayFormal,
+    images: [importedBeggyGrayFormal, importedBeggyGray],
+    description: "Stylish imported baggy formal pants in gray. Features relaxed comfortable fit with premium quality fabric for modern business casual wear.",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Gray", "Charcoal"],
+    material: "Imported Premium Fabric",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-017",
+    name: "Premium Black Formal Pants",
+    category: "formal",
+    price: 2999,
+    image: premiumBlack,
+    images: [premiumBlack],
+    description: "Premium black formal pants with superior tailoring. Classic design with modern fit for ultimate professional elegance.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Black"],
+    material: "Premium Wool Blend",
+    inStock: true,
+    isBestSeller: true,
+  },
+  {
+    id: "fp-018",
+    name: "Premium Dark Brown Formal Pants",
+    category: "formal",
+    price: 2999,
+    image: premiumDarkBrown,
+    images: [premiumDarkBrown],
+    description: "Luxurious dark brown formal pants with premium finish. Sophisticated styling perfect for executive meetings and formal events.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Dark Brown", "Chocolate"],
+    material: "Premium Wool Blend",
+    inStock: true,
+  },
+  {
+    id: "fp-019",
+    name: "Premium Gray Formal Pants",
+    category: "formal",
+    price: 2999,
+    image: premiumGray,
+    images: [premiumGray],
+    description: "Elegant gray formal pants with premium quality fabric. Features refined tailoring and comfortable fit for sophisticated business attire.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Gray", "Silver"],
+    material: "Premium Wool Blend",
+    inStock: true,
+  },
+  {
+    id: "fp-020",
+    name: "Slim Fit Formal Pants - Black/Grey",
+    category: "formal",
+    price: 2799,
+    image: slimfitFormalBlackGrey,
+    images: [slimfitFormalBlackGrey],
+    description: "Modern slim fit formal pants available in black and grey. Tailored cut with stretch fabric for comfort and sophisticated professional styling.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Black", "Grey"],
+    material: "Stretch Polyester Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-021",
+    name: "White Formal Belt Pants",
+    category: "formal",
+    price: 2799,
+    image: whiteFormalBelt,
+    images: [whiteFormalBelt],
+    description: "Crisp white formal pants with belt design. Fresh, elegant styling perfect for summer business wear and formal occasions.",
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["White", "Off-White"],
+    material: "Premium Cotton Blend",
     inStock: true,
     isNew: true,
   },
