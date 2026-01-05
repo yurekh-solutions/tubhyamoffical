@@ -157,7 +157,6 @@ const About = () => {
             whileInView={{ opacity: 1 }}
             className="text-4xl font-heading font-bold text-center mb-16 text-gradient-gold"
           >
-            Why Choose Tubhyam?
           </motion.h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
             {features.map((feature, index) => {

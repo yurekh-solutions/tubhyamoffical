@@ -18,27 +18,86 @@ import formalPants3 from "@/assets/products/formal-pants-3.jpg";
 import jeans6 from "@/assets/products/jeans-22.jpg";
 import jeans7 from "@/assets/products/jeans-8.jpg";
 import jeans8  from "@/assets/products/jeans-33.jpg";
-import trackPants1 from "@/assets/products/track-pants-1.jpg";
-import trackPants2 from "@/assets/products/track-pants-2.jpg";
 
+// Track pants from Tracks folder
+import trackPants1 from "@/assets/Tracks/track-pants-1.jpg";
+import trackPants2 from "@/assets/Tracks/track-pants-2.jpg";
+import greenpants from "@/assets/Tracks/greenpants.jpeg";
+import blankpants from "@/assets/Tracks/blankpants.jpeg";
+import cargo from "@/assets/Tracks/cargo.png";
+import cargoblack from "@/assets/Tracks/cargoblack.png";
+import cargofront from "@/assets/Tracks/cargofront.png";
+import slimfit from "@/assets/Tracks/slimfit.png";
+import trousers from "@/assets/Tracks/trousers.png";
+import trousersgrey from "@/assets/Tracks/trousersgrey.png";
 export interface Product {
   id: string;
   name: string;
   price: number;
   originalPrice?: number;
-  category: 'formal' | 'jeans' | 'track';
+  category: 'formal' | 'jeans' | 'track' | 'pants';
   image: string;
   images: string[];
   description: string;
   sizes: string[];
   colors: string[];
   material: string;
+
   inStock: boolean;
   isNew?: boolean;
   isBestSeller?: boolean;
 }
 
 export const products: Product[] = [
+  {
+
+  id: "pt-004",
+
+  name: "Relaxed Fit Elastic Waist Trousers",
+
+  category: "pants",
+
+  price: 1899,
+
+  image: greenpants,
+
+  images: [greenpants],
+
+  description:
+
+    "Minimalist relaxed-fit trousers featuring an elastic waistband for all-day comfort. Designed with a straight wide-leg silhouette, these trousers offer a clean, effortless look suitable for casual and semi-formal wear.",
+
+  sizes: ["S", "M", "L", "XL", "XXL"],
+
+  colors: ["Olive Green", "Khaki"],
+
+  material: "Cotton Blend Fabric",
+
+
+
+
+
+
+
+  inStock: true,
+
+},
+{
+  id: "pt-005",
+  name: "Drawstring Relaxed Fit Pants",
+  category: "pants",
+  price: 1999,
+  image: blankpants,
+  images: [blankpants],
+  description:
+    "Comfort-first relaxed fit pants featuring an elastic waistband with contrast drawstring detailing. Designed with a straight-leg silhouette and soft fabric for effortless everyday styling and maximum comfort.",
+  sizes: ["S", "M", "L", "XL", "XXL"],
+  colors: ["Black", "Charcoal"],
+  material: "Soft Cotton Blend",
+  inStock: true,
+},
+
+
   {
     id: "fp-001",
     name: "Elegance Wide-Leg Trousers",
@@ -152,6 +211,75 @@ export const products: Product[] = [
     material: "Premium Cotton Blend",
     inStock: true,
     isNew: true,
+  },
+  {
+    id: "tp-003",
+    name: "Utility Cargo Joggers - Beige",
+    category: "track",
+    price: 2199,
+    originalPrice: 2799,
+    image: cargo,
+    images: [cargo, cargofront],
+    description: "Premium cargo joggers with multiple utility pockets. Perfect blend of style and functionality with tapered fit and elastic cuffs. Ideal for casual outings and everyday wear.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Beige", "Khaki", "Tan"],
+    material: "Cotton Twill Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "tp-004",
+    name: "Utility Cargo Joggers - Black",
+    category: "track",
+    price: 2199,
+    image: cargoblack,
+    images: [cargoblack],
+    description: "Sleek black cargo joggers with tactical pocket design. Features durable fabric, adjustable drawstring waist, and tapered legs. Perfect for urban streetwear style.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Charcoal"],
+    material: "Cotton Twill Blend",
+    inStock: true,
+    isBestSeller: true,
+  },
+  {
+    id: "tp-005",
+    name: "Slim Fit Ankle Joggers",
+    category: "track",
+    price: 1899,
+    image: slimfit,
+    images: [slimfit],
+    description: "Modern slim-fit joggers with ankle-length design. Features elastic waistband with contrast drawstring and side pockets. Perfect for athleisure and casual styling.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Black", "Grey", "Navy"],
+    material: "Performance Stretch Fabric",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "tp-006",
+    name: "Classic Grey Trousers",
+    category: "track",
+    price: 1799,
+    image: trousersgrey,
+    images: [trousersgrey, trousers],
+    description: "Comfortable grey trousers with relaxed fit. Features elastic waistband and side pockets. Perfect for loungewear and casual everyday comfort.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Grey", "Charcoal"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+  },
+  {
+    id: "tp-007",
+    name: "Classic Beige Trousers",
+    category: "track",
+    price: 1799,
+    image: trousers,
+    images: [trousers],
+    description: "Versatile beige trousers with comfortable fit. Features elastic waistband and practical pocket design. Ideal for casual wear and relaxed styling.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Beige", "Sand", "Cream"],
+    material: "Soft Cotton Blend",
+    inStock: true,
   },
   {
     id: "fp-004",
