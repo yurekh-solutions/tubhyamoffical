@@ -70,18 +70,18 @@ const Navbar = () => {
 
         {/* Main nav */}
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             {/* Mobile menu button */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 hover:bg-secondary/50 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-secondary/50 rounded-lg transition-colors flex-shrink-0"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 bg-transparent">
-              <img src={logo} alt="Tubhyam" className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md" />
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 bg-transparent flex-1 lg:flex-none justify-center lg:justify-start">
+              <img src={logo} alt="Tubhyam" className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md flex-shrink-0" />
               <div className="hidden xs:block sm:block">
                 <h1 className="font-heading text-lg sm:text-2xl font-semibold text-gradient-gold">Tubhyam</h1>
                 <p className="text-[8px] sm:text-[10px] text-muted-foreground tracking-widest">तुम्हारे लिए</p>
@@ -106,52 +106,90 @@ const Navbar = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2 sm:gap-4">
-  {/* Search */}
-  <div className="flex items-center gap-2">
-    <form
-      onSubmit={handleSearch}
-      className="w-48 sm:w-64"
-    >
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search products..."
-        className="w-full bg-secondary/80 backdrop-blur border border-border rounded-full
-                   pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2
-                   focus:ring-primary/50 animate-fade-in"
-        autoFocus
-        onBlur={() => !searchQuery && setIsSearchOpen(false)}
-      />
-    </form>
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+              {/* Search - Hidden on mobile, shown on desktop */}
+              <div className="hidden md:flex items-center gap-2">
+                <form
+                  onSubmit={handleSearch}
+                  className="w-48 lg:w-64"
+                >
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full bg-secondary/80 backdrop-blur border border-border rounded-full
+                               pl-4 pr-10 py-2 text-sm focus:outline-none focus:ring-2
+                               focus:ring-primary/50 animate-fade-in"
+                    autoFocus
+                    onBlur={() => !searchQuery && setIsSearchOpen(false)}
+                  />
+                </form>
 
-    <button
-      onClick={handleSearch}
-      className="p-2 hover:bg-secondary/50 border border-border rounded-full transition-colors flex items-center justify-center"
-      type="submit"
-    >
-      <Search size={20} />
-    </button>
-  </div>
+                <button
+                  onClick={handleSearch}
+                  className="p-2 hover:bg-secondary/50 border border-border rounded-full transition-colors flex items-center justify-center"
+                  type="submit"
+                >
+                  <Search size={20} />
+                </button>
+              </div>
 
-  {/* Cart */}
-  <Link
-    to="/cart"
-    className="relative p-2 hover:bg-secondary/50 rounded-full transition-colors"
-  >
-    <ShoppingBag size={20} />
-    {totalItems > 0 && (
-      <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
-        {totalItems}
-      </span>
-    )}
-  </Link>
-</div>
+              {/* Mobile Search Icon */}
+              <button
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="md:hidden p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
+              >
+                <Search size={20} />
+              </button>
 
+              {/* Cart */}
+              <Link
+                to="/cart"
+                className="relative p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
+              >
+                <ShoppingBag size={20} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Search Bar */}
+      {isSearchOpen && (
+        <div className="md:hidden fixed top-20 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border p-4 animate-in slide-in-from-top-5">
+          <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="flex-1 bg-secondary/80 backdrop-blur border border-border rounded-full
+                         pl-4 pr-4 py-2 text-sm focus:outline-none focus:ring-2
+                         focus:ring-primary/50"
+              autoFocus
+            />
+            <button
+              type="submit"
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-full font-medium hover:shadow-elegant transition-all"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(false)}
+              className="p-2 hover:bg-secondary/50 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* Mobile Menu */}
       <div 
