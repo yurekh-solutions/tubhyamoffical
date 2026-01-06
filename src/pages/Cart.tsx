@@ -37,18 +37,18 @@ const Cart = () => {
       <div className="min-h-screen bg-background py-8">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6 md:mb-8">
             <Link 
               to="/products" 
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-4"
+              className="inline-flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-primary transition-colors mb-4"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={18} className="md:w-5 md:h-5" />
               <span>Continue Shopping</span>
             </Link>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="font-heading text-4xl font-bold mb-2">Shopping Cart</h1>
-                <p className="text-muted-foreground">{totalItems} {totalItems === 1 ? 'item' : 'items'} in your cart</p>
+                <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Shopping Cart</h1>
+                <p className="text-sm md:text-base text-muted-foreground">{totalItems} {totalItems === 1 ? 'item' : 'items'} in your cart</p>
               </div>
             </div>
           </div>
@@ -77,11 +77,11 @@ const Cart = () => {
                 {items.map((item) => (
                   <div 
                     key={`${item.product.id}-${item.size}-${item.color}`}
-                    className="glass-card p-6 flex gap-6 hover:shadow-lg transition-all"
+                    className="glass-card p-4 md:p-6 flex flex-col sm:flex-row gap-4 md:gap-6 hover:shadow-lg transition-all"
                   >
                     <Link 
                       to={`/product/${item.product.id}`}
-                      className="w-32 h-40 flex-shrink-0 overflow-hidden rounded-lg border border-border/30 hover:border-primary/50 transition-colors"
+                      className="w-full sm:w-24 md:w-32 h-32 sm:h-32 md:h-40 flex-shrink-0 overflow-hidden rounded-lg border border-border/30 hover:border-primary/50 transition-colors"
                     >
                       <img 
                         src={item.product.image} 
@@ -92,14 +92,14 @@ const Cart = () => {
                     
                     <div className="flex-1 flex flex-col">
                       <div className="flex justify-between gap-4 mb-3">
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <Link 
                             to={`/product/${item.product.id}`}
-                            className="font-heading text-lg font-semibold hover:text-primary transition-colors line-clamp-2"
+                            className="font-heading text-base md:text-lg font-semibold hover:text-primary transition-colors line-clamp-2"
                           >
                             {item.product.name}
                           </Link>
-                          <div className="flex gap-3 mt-2 text-sm text-muted-foreground">
+                          <div className="flex flex-wrap gap-2 md:gap-3 mt-2 text-xs md:text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               Size: <span className="font-medium text-foreground">{item.size}</span>
                             </span>
@@ -110,40 +110,40 @@ const Cart = () => {
                         </div>
                         <button
                           onClick={() => removeFromCart(item.product.id, item.size, item.color)}
-                          className="p-2 h-fit text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                          className="p-2 h-fit text-destructive hover:bg-destructive/10 rounded-lg transition-colors flex-shrink-0"
                           aria-label="Remove item"
                         >
-                          <Trash2 size={20} />
+                          <Trash2 size={18} className="md:w-5 md:h-5" />
                         </button>
                       </div>
                       
-                      <div className="flex items-end justify-between mt-auto">
+                      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mt-auto">
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-muted-foreground">Quantity:</span>
-                          <div className="flex items-center gap-2 bg-secondary/50 rounded-lg">
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <span className="text-xs md:text-sm text-muted-foreground">Qty:</span>
+                          <div className="flex items-center gap-1 md:gap-2 bg-secondary/50 rounded-lg">
                             <button
                               onClick={() => updateQuantity(item.product.id, item.size, item.color, item.quantity - 1)}
-                              className="p-2 hover:bg-secondary transition-colors rounded-l-lg"
+                              className="p-1.5 md:p-2 hover:bg-secondary transition-colors rounded-l-lg"
                               aria-label="Decrease quantity"
                             >
-                              <Minus size={16} />
+                              <Minus size={14} className="md:w-4 md:h-4" />
                             </button>
-                            <span className="w-12 text-center font-medium">{item.quantity}</span>
+                            <span className="w-10 md:w-12 text-center text-sm md:text-base font-medium">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.product.id, item.size, item.color, item.quantity + 1)}
-                              className="p-2 hover:bg-secondary transition-colors rounded-r-lg"
+                              className="p-1.5 md:p-2 hover:bg-secondary transition-colors rounded-r-lg"
                               aria-label="Increase quantity"
                             >
-                              <Plus size={16} />
+                              <Plus size={14} className="md:w-4 md:h-4" />
                             </button>
                           </div>
                         </div>
                         
                         {/* Price */}
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">Price</p>
-                          <p className="font-heading text-2xl font-bold text-primary">
+                        <div className="text-left sm:text-right">
+                          <p className="text-xs md:text-sm text-muted-foreground">Price</p>
+                          <p className="font-heading text-xl md:text-2xl font-bold text-primary">
                             {formatPrice(item.product.price * item.quantity)}
                           </p>
                         </div>
@@ -155,22 +155,22 @@ const Cart = () => {
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="glass-card p-6 sticky top-24">
-                  <h2 className="font-heading text-xl font-semibold mb-6">Order Summary</h2>
+                <div className="glass-card p-4 md:p-6 lg:sticky lg:top-24">
+                  <h2 className="font-heading text-lg md:text-xl font-semibold mb-4 md:mb-6">Order Summary</h2>
                   
-                  <div className="space-y-4 mb-6">
-                    <div className="flex justify-between text-sm">
+                  <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Subtotal ({totalItems} items)</span>
                       <span className="font-medium">{formatPrice(totalPrice)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium">Calculated at checkout</span>
+                      <span className="font-medium text-xs md:text-sm">Calculated at checkout</span>
                     </div>
-                    <div className="border-t border-border pt-4">
+                    <div className="border-t border-border pt-3 md:pt-4">
                       <div className="flex justify-between items-center">
-                        <span className="font-heading text-lg font-semibold">Total</span>
-                        <span className="font-heading text-2xl font-bold text-primary">
+                        <span className="font-heading text-base md:text-lg font-semibold">Total</span>
+                        <span className="font-heading text-xl md:text-2xl font-bold text-primary">
                           {formatPrice(totalPrice)}
                         </span>
                       </div>
@@ -179,9 +179,9 @@ const Cart = () => {
 
                   <button
                     onClick={handleWhatsAppCheckout}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-xl font-medium transition-all hover:scale-105 shadow-lg hover:shadow-xl mb-4"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 md:py-4 rounded-xl text-sm md:text-base font-medium transition-all hover:scale-105 shadow-lg hover:shadow-xl mb-3 md:mb-4"
                   >
-                    <Phone size={20} />
+                    <Phone size={18} className="md:w-5 md:h-5" />
                     Order via WhatsApp
                   </button>
 
