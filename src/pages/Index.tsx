@@ -10,6 +10,7 @@ import TestimonialsSlider from '@/components/TestimonialsSlider';
 import InstagramFeed from '@/components/InstagramFeed';
 import NewsletterSection from '@/components/NewsletterSection';
 import StyleQuiz from '@/components/StyleQuiz';
+import ShopTheLook from '@/components/ShopTheLook';
 
 const Index = () => {
   return (
@@ -23,6 +24,10 @@ const Index = () => {
       <Navbar />
       <Hero />
       <Categories />
+      
+      {/* Shop The Look */}
+      <ShopTheLook />
+
        <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
