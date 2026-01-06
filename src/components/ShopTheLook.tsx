@@ -61,7 +61,7 @@ const ShopTheLook = () => {
         </div>
 
         {/* Carousel Container */}
-        <div className="relative h-[500px] md:h-[600px]">
+        <div className="relative h-[420px] sm:h-[500px] md:h-[600px]">
           <div className="absolute inset-0 flex items-center justify-center">
             {lookProducts.map((product, index) => {
               const position = getSlidePosition(index);
@@ -77,7 +77,14 @@ const ShopTheLook = () => {
                   className="absolute transition-all duration-700 ease-out"
                   style={{
                     transform: `
-                      translateX(${position * 280}px)
+                      translateX(${
+                        position *
+                        (window.innerWidth < 640
+                          ? 200
+                          : window.innerWidth < 768
+                          ? 240
+                          : 280)
+                      }px)
                       translateZ(${isActive ? 0 : -200}px)
                       scale(${isActive ? 1 : isAdjacent ? 0.85 : 0.7})
                     `,
@@ -90,7 +97,9 @@ const ShopTheLook = () => {
                   {/* Card */}
                   <div 
                     className={`relative overflow-hidden rounded-2xl transition-all duration-700 ${
-                      isActive ? 'w-72 h-96 md:w-80 md:h-[480px]' : 'w-64 h-80 md:w-72 md:h-96'
+                      isActive
+                        ? 'w-64 h-80 sm:w-72 sm:h-96 md:w-80 md:h-[480px]'
+                        : 'w-56 h-72 sm:w-64 sm:h-80 md:w-72 md:h-96'
                     }`}
                   >
                     {/* Image with zoom effect */}
@@ -124,16 +133,16 @@ const ShopTheLook = () => {
 
                       {/* Product Info Overlay - Only on active slide */}
                       {isActive && (
-                        <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                          <h3 className="font-heading text-xl font-bold text-white mb-2 line-clamp-2">
+                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                          <h3 className="font-heading text-lg md:text-xl font-bold text-white mb-1 md:mb-2 line-clamp-2">
                             {product.name}
                           </h3>
-                          <p className="text-white/80 text-sm mb-4 line-clamp-1">
+                          <p className="text-white/80 text-xs md:text-sm mb-3 md:mb-4 line-clamp-1 capitalize">
                             {product.category}
                           </p>
                           <Link
-                            to={`/products/${product.id}`}
-                            className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
+                            to={`/product/${product.id}`}
+                            className="inline-flex items-center gap-2 bg-white text-black px-4 md:px-6 py-2 md:py-3 rounded-full text-sm md:text-base font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
                           >
                             <ShoppingBag size={18} />
                             View Details
@@ -155,20 +164,20 @@ const ShopTheLook = () => {
           {/* Navigation Buttons */}
           <button
             onClick={handlePrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 p-4 glass-card border border-primary/20 rounded-full hover:border-primary/50 transition-all duration-300 hover:scale-110 group"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-40 p-2 sm:p-3 md:p-4 glass-card border border-primary/20 rounded-full hover:border-primary/50 transition-all duration-300 hover:scale-110 group"
           >
-            <ChevronLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
+            <ChevronLeft size={20} className="sm:w-6 sm:h-6 group-hover:-translate-x-1 transition-transform" />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 p-4 glass-card border border-primary/20 rounded-full hover:border-primary/50 transition-all duration-300 hover:scale-110 group"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-40 p-2 sm:p-3 md:p-4 glass-card border border-primary/20 rounded-full hover:border-primary/50 transition-all duration-300 hover:scale-110 group"
           >
-            <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
+            <ChevronRight size={20} className="sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
         {/* Dots Navigation */}
-        <div className="flex justify-center gap-2 mt-12">
+        <div className="flex justify-center gap-2 mt-8 md:mt-12">
           {lookProducts.map((_, index) => (
             <button
               key={index}
@@ -178,19 +187,12 @@ const ShopTheLook = () => {
               }}
               className={`transition-all duration-500 rounded-full ${
                 index === activeSlide
-                  ? 'w-10 h-3 bg-gradient-to-r from-primary to-primary/70'
-                  : 'w-3 h-3 bg-muted-foreground/40 hover:bg-muted-foreground/60'
+                  ? 'w-8 md:w-10 h-2 md:h-3 bg-gradient-to-r from-primary to-primary/70'
+                  : 'w-2 md:w-3 h-2 md:h-3 bg-muted-foreground/40 hover:bg-muted-foreground/60'
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
-        </div>
-
-        {/* Auto-play indicator */}
-        <div className="text-center mt-4">
-          <p className="text-xs text-muted-foreground">
-            {isAutoPlaying ? 'Auto-playing' : 'Paused'} • {activeSlide + 1} of {lookProducts.length}
-          </p>
         </div>
       </div>
     </section>
