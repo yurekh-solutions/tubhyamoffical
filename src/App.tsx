@@ -23,7 +23,6 @@ import VideoCall from "./pages/VideoCall";
 import Cart from "./pages/Cart";
 import Lookbook from "./pages/Lookbook";
 import Collections from "./pages/Collections";
-import DiscoverOurWorld from "./pages/DiscoverOurWorld";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,7 +49,6 @@ const App = () => (
               <Route path="/cart" element={<Cart />} />
               <Route path="/lookbook" element={<Lookbook />} />
               <Route path="/collections" element={<Collections />} />
-              <Route path="/discover-our-world" element={<DiscoverOurWorld />} />
               <Route path="/about" element={<About />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/faq" element={<FAQ />} />
