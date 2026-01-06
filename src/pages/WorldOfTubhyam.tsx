@@ -491,7 +491,7 @@ const WorldOfTubhyam = () => {
               Experience Tubhyam Today
               <ArrowRight size={20} className="sm:w-6 sm:h-6" />
             </Link>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-4 sm:mt-6">Free shipping on orders above ₹999 | Easy 7-day returns | COD available</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-4 sm:mt-6">Shipping on orders above ₹999 | Easy 7-day returns | COD available</p>
           </div>
         </div>
       </section>
