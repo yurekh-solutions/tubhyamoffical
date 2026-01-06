@@ -7,7 +7,7 @@ import { useState } from 'react';
 import formal1 from '@/assets/formals/formal-7.jpeg';
 import formal2 from '@/assets/formals/belt-formal-beige.jpeg';
 import jeans1 from '@/assets/products/jeans-1.jpg';
-import track1 from '@/assets/Tracks/cargo.png';
+import track1 from '@/assets/Tracks/track-pants-1.jpg';
 
 const collections = [
   {

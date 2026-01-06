@@ -9,8 +9,8 @@ import formal3 from '@/assets/formals/brown-formal.jpeg';
 import formal4 from '@/assets/formals/olive-formal-belt.jpeg';
 import jeans1 from '@/assets/products/jeans-1.jpg';
 import jeans2 from '@/assets/products/jeans-2.jpg';
-import track1 from '@/assets/Tracks/cargo.png';
-import track2 from '@/assets/Tracks/slimfit.png';
+import track1 from '@/assets/Tracks/track-pants-1.jpg';
+import track2 from '@/assets/Tracks/track-pants-2.jpg';
 
 const lookbookImages = [
   {
