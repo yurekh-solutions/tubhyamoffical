@@ -1,13 +1,8 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
-import { Heart, Users, Palette, Ruler, Sparkles, Award, Shield, Leaf, ArrowRight, Check, Star, ShoppingBag, Truck, RefreshCw, Phone, Video, BookOpen } from 'lucide-react';
+import { Heart, Users, Palette, Ruler, Sparkles, Award, Shield, Leaf, ArrowRight, Check, Star, ShoppingBag, Gem, Crown, Feather } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import heroImage from '@/assets/formals/formal-7.jpeg';
-import diversityImage1 from '@/assets/formals/brown-formal.jpeg';
-import diversityImage2 from '@/assets/formals/belt-formal-beige.jpeg';
-import diversityImage3 from '@/assets/formals/olive-formal-belt.jpeg';
-import qualityImage from '@/assets/formals/preuim-black.jpeg';
 
 const WorldOfTubhyam = () => {
   return (
@@ -20,14 +15,21 @@ const WorldOfTubhyam = () => {
       />
       <Navbar />
       {/* Hero Section - Heartfelt Introduction */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background z-10" />
-          <img 
-            src={heroImage}
-            alt="Every Woman Deserves Elegance - Tubhyam"
-            className="w-full h-full object-cover"
-          />
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/20">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-primary/20 rounded-full animate-float"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${5 + Math.random() * 5}s`,
+              }}
+            />
+          ))}
         </div>
 
         <div className="relative z-20 container mx-auto px-4 text-center">
@@ -205,7 +207,7 @@ const WorldOfTubhyam = () => {
         </div>
       </section>
 
-      {/* Visual Diversity Showcase */}
+      {/* Visual Diversity Showcase - Content Focused */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
@@ -214,40 +216,40 @@ const WorldOfTubhyam = () => {
                 Beauty Has <span className="text-gradient-gold">No Standard</span>
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                Real women. Real bodies. Real elegance. See yourself in our diverse collection.
+                Real women. Real bodies. Real elegance. Our collection is designed to celebrate every unique you.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
-              <div className="group relative overflow-hidden rounded-2xl aspect-[3/4]">
-                <img 
-                  src={diversityImage1}
-                  alt="Elegant formal wear for all women"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 sm:p-6">
-                  <p className="text-white font-medium text-sm sm:text-base">Formal Elegance for Every Occasion</p>
+            {/* Feature Cards Grid */}
+            <div className="grid md:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-12 md:mb-16">
+              <div className="glass-card p-6 sm:p-8 rounded-2xl text-center hover:shadow-xl transition-all duration-300 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                  <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                 </div>
+                <h3 className="font-heading text-xl sm:text-2xl font-semibold mb-3">Formal Elegance</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  Step into any room with confidence. Our formal collection is crafted for the modern woman who commands attention.
+                </p>
               </div>
-              <div className="group relative overflow-hidden rounded-2xl aspect-[3/4]">
-                <img 
-                  src={diversityImage2}
-                  alt="Comfortable premium pants for all body types"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 sm:p-6">
-                  <p className="text-white font-medium text-sm sm:text-base">Comfort That Doesn't Compromise Style</p>
+              
+              <div className="glass-card p-6 sm:p-8 rounded-2xl text-center hover:shadow-xl transition-all duration-300 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                  <Feather className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                 </div>
+                <h3 className="font-heading text-xl sm:text-2xl font-semibold mb-3">Effortless Comfort</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  Style shouldn't compromise comfort. Our breathable fabrics and thoughtful designs ensure you feel amazing all day.
+                </p>
               </div>
-              <div className="group relative overflow-hidden rounded-2xl aspect-[3/4]">
-                <img 
-                  src={diversityImage3}
-                  alt="Premium colors for every skin tone"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4 sm:p-6">
-                  <p className="text-white font-medium text-sm sm:text-base">Colors That Celebrate Your Skin Tone</p>
+              
+              <div className="glass-card p-6 sm:p-8 rounded-2xl text-center hover:shadow-xl transition-all duration-300 group">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                  <Gem className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                 </div>
+                <h3 className="font-heading text-xl sm:text-2xl font-semibold mb-3">Radiant Colors</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  Every shade in our collection is carefully chosen to complement and celebrate every beautiful skin tone.
+                </p>
               </div>
             </div>
 

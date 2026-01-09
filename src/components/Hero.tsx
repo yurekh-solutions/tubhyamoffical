@@ -64,10 +64,10 @@ const Hero = () => {
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link 
-              to="/products?category=formal"
+              to="/contact"
               className="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-full font-medium hover:border-primary/30 transition-all duration-300"
             >
-              Formal Pants
+              Contact Us
             </Link>
           </div>
 

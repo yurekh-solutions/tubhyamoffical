@@ -70,8 +70,8 @@ const Navbar = () => {
 
         {/* Main nav */}
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between gap-2">
-            {/* Mobile menu button */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Mobile menu button - Left */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 hover:bg-secondary/50 rounded-lg transition-colors flex-shrink-0"
@@ -79,17 +79,20 @@ const Navbar = () => {
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 bg-transparent flex-1 lg:flex-none justify-center lg:justify-start">
-              <img src={logo} alt="Tubhyam" className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md flex-shrink-0" />
-              <div className="hidden xs:block sm:block">
-                <h1 className="font-heading text-lg sm:text-2xl font-semibold text-gradient-gold">Tubhyam</h1>
-                <p className="text-[8px] sm:text-[10px] text-muted-foreground tracking-widest">तुम्हारे लिए</p>
+            {/* Logo - Left side next to hamburger */}
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
+            >
+              <img src={logo} alt="Tubhyam" className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md" />
+              <div>
+                <h1 className="font-heading text-base sm:text-2xl font-semibold text-gradient-gold whitespace-nowrap">Tubhyam</h1>
+                <p className="text-[8px] sm:text-[10px] text-muted-foreground tracking-widest whitespace-nowrap">तुम्हारे लिए</p>
               </div>
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className="hidden lg:flex items-center gap-8">
+            <div className="hidden lg:flex items-center gap-8 ml-40">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -105,8 +108,8 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            {/* Actions - Right side with margin-left auto to push to right */}
+            <div className="flex items-center gap-2 sm:gap-3 ml-auto flex-shrink-0">
               {/* Search - Hidden on mobile, shown on desktop */}
               <div className="hidden md:flex items-center gap-2">
                 <form
