@@ -1,17 +1,29 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
+import heroVideo from '@/assets/video.mp4';
 
 const Hero = () => {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+      {/* Background Video */}
       <div className="absolute inset-0">
-        <img 
-          src={heroBg} 
-          alt="Tubhyam Collection"
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="w-full h-full object-cover"
-        />
+          poster={heroBg}
+        >
+          <source src={heroVideo} type="video/mp4" />
+          {/* Fallback image */}
+          <img 
+            src={heroBg} 
+            alt="Tubhyam Collection"
+            className="w-full h-full object-cover"
+          />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
       </div>
