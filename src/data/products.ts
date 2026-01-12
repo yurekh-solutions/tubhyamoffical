@@ -30,8 +30,6 @@ import cargofront from "@/assets/Tracks/cargofront.png";
 import slimfit from "@/assets/Tracks/slimfit.png";
 import trousers from "@/assets/Tracks/trousers.png";
 import trousersgrey from "@/assets/Tracks/trousersgrey.png";
-import blackcargo1 from "@/assets/Tracks/blackcargo1.png";
-import blackcargo2 from "@/assets/Tracks/blackcargo2.png";
 
 // Formal pants from formals folder
 import beigeFormal from "@/assets/formals/beige-formal.jpeg";
@@ -56,10 +54,6 @@ import premiumDarkBrown from "@/assets/formals/preuim-dark-brown.jpeg";
 import premiumGray from "@/assets/formals/preuim-gray.jpeg";
 import slimfitFormalBlackGrey from "@/assets/formals/slimfit-formal-pants-black,grey.jpeg";
 import whiteFormalBelt from "@/assets/formals/white-formal-belt.jpeg";
-import brownbelt1 from "@/assets/formals/brownbelt1.png";
-import brownbelt2 from "@/assets/formals/brownbelt2.png";
-import brownbelt3 from "@/assets/formals/brownbelt3.png";
-import brownbelt4 from "@/assets/formals/brownbelt4.png";
 export interface Product {
   id: string;
   name: string;
@@ -545,37 +539,6 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["White", "Off-White"],
     material: "Premium Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "fp-022",
-    name: "Premium Brown Belt Formal Pants",
-    category: "formal",
-    price: 3999,
-    originalPrice: 4500,
-    image: brownbelt1,
-    images: [brownbelt1, brownbelt2, brownbelt3, brownbelt4],
-    description: "Luxurious brown formal pants with elegant belt design. Features refined tailoring and premium fabric for sophisticated professional styling. Perfect for executive meetings and formal occasions with impeccable finish.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Brown", "Dark Brown", "Tan"],
-    material: "Premium Wool Blend",
-    inStock: true,
-    isNew: true,
-    isBestSeller: true,
-  },
-  {
-    id: "tp-009",
-    name: "Classic Black Cargo Pants",
-    category: "track",
-    price: 1200,
-    originalPrice: 1499,
-    image: blackcargo1,
-    images: [blackcargo1, blackcargo2],
-    description: "Modern black cargo pants featuring multiple utility pockets and relaxed fit. Crafted with durable fabric for everyday comfort and versatile styling. Perfect for casual outings and streetwear looks.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black", "Charcoal"],
-    material: "Premium Cotton Twill",
     inStock: true,
     isNew: true,
   },

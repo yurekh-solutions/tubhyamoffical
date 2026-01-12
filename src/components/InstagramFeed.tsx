@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Heart, MessageCircle, Play, ArrowRight } from 'lucide-react';
+import { Heart, MessageCircle, Play, ArrowRight, Instagram } from 'lucide-react';
 import logo from '@/assets/looo.png';
 
 // Import actual product images for Instagram grid (fallback)
@@ -156,7 +156,9 @@ const InstagramFeed = () => {
                   <div className="flex items-center gap-4 sm:gap-6 text-sm sm:text-base">
                     <span className="font-semibold"><strong className="text-foreground">24</strong> <span className="text-muted-foreground font-normal">posts</span></span>
                     <span className="font-semibold"><strong className="text-foreground">28.9K</strong> <span className="text-muted-foreground font-normal">followers</span></span>
+                    <span className="font-semibold"><strong className="text-foreground">0</strong> <span className="text-muted-foreground font-normal">following</span></span>
                   </div>
+                  
                 </div>
                 
                 {/* Follow Button */}
@@ -241,11 +243,7 @@ const InstagramFeed = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-3.5 glass-card border-2 border-primary/30 hover:border-primary rounded-xl text-base font-semibold hover:bg-primary/5 transition-all duration-300 hover:scale-105 hover:shadow-lg group"
               >
-                <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/>
-                  <circle cx="12" cy="12" r="3.2"/>
-                  <circle cx="18.4" cy="5.6" r="1.44"/>
-                </svg>
+                <Instagram className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
                 <span>View More on Instagram</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </a>

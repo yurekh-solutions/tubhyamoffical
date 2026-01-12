@@ -7,17 +7,10 @@ const ShopTheLook = () => {
   const [activeSlide, setActiveSlide] = useState(2); // Start with center item
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Get only 8 featured products for lookbook
+  // Get featured products with images for the lookbook
   const lookProducts = products
     .filter(p => p.images.length > 0 && (p.isBestSeller || p.isNew))
-    .slice(0, 8)
-    .map(p => ({
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      image: p.image,
-      product: p
-    }));
+    .slice(0, 8);
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -70,7 +63,7 @@ const ShopTheLook = () => {
         {/* Carousel Container */}
         <div className="relative h-[420px] sm:h-[500px] md:h-[600px]">
           <div className="absolute inset-0 flex items-center justify-center">
-            {lookProducts.map((item, index) => {
+            {lookProducts.map((product, index) => {
               const position = getSlidePosition(index);
               const isActive = position === 0;
               const isAdjacent = Math.abs(position) === 1;
@@ -80,7 +73,7 @@ const ShopTheLook = () => {
 
               return (
                 <div
-                  key={`${item.id}-${index}`}
+                  key={product.id}
                   className="absolute transition-all duration-700 ease-out"
                   style={{
                     transform: `
@@ -112,8 +105,8 @@ const ShopTheLook = () => {
                     {/* Image with zoom effect */}
                     <div className="relative w-full h-full overflow-hidden group">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={product.image}
+                        alt={product.name}
                         className={`w-full h-full object-cover transition-transform duration-700 ${
                           isActive ? 'group-hover:scale-110' : ''
                         }`}
@@ -125,12 +118,12 @@ const ShopTheLook = () => {
                       {/* Badges */}
                       {isActive && (
                         <div className="absolute top-4 left-4 flex flex-col gap-2">
-                          {item.product.isNew && (
+                          {product.isNew && (
                             <span className="bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
                               New
                             </span>
                           )}
-                          {item.product.isBestSeller && (
+                          {product.isBestSeller && (
                             <span className="bg-accent text-accent-foreground text-xs px-3 py-1 rounded-full font-medium">
                               Bestseller
                             </span>
@@ -142,13 +135,13 @@ const ShopTheLook = () => {
                       {isActive && (
                         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
                           <h3 className="font-heading text-lg md:text-xl font-bold text-white mb-1 md:mb-2 line-clamp-2">
-                            {item.name}
+                            {product.name}
                           </h3>
                           <p className="text-white/80 text-xs md:text-sm mb-3 md:mb-4 line-clamp-1 capitalize">
-                            {item.category}
+                            {product.category}
                           </p>
                           <Link
-                            to={`/product/${item.id}`}
+                            to={`/product/${product.id}`}
                             className="inline-flex items-center gap-2 bg-white text-black px-4 md:px-6 py-2 md:py-3 rounded-full text-sm md:text-base font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
                           >
                             <ShoppingBag size={18} />
@@ -183,7 +176,7 @@ const ShopTheLook = () => {
           </button>
         </div>
 
-        {/* Dots Navigation - Only 8 dots */}
+        {/* Dots Navigation */}
         <div className="flex justify-center gap-2 mt-8 md:mt-12">
           {lookProducts.map((_, index) => (
             <button
