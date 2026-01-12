@@ -154,7 +154,7 @@ const InstagramFeed = () => {
                   
                   {/* Stats Row */}
                   <div className="flex items-center gap-4 sm:gap-6 text-sm sm:text-base">
-                    <span className="font-semibold"><strong className="text-foreground">20</strong> <span className="text-muted-foreground font-normal">posts</span></span>
+                    <span className="font-semibold"><strong className="text-foreground">24</strong> <span className="text-muted-foreground font-normal">posts</span></span>
                     <span className="font-semibold"><strong className="text-foreground">28.9K</strong> <span className="text-muted-foreground font-normal">followers</span></span>
                   </div>
                 </div>
