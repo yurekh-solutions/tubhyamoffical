@@ -8,7 +8,20 @@ interface FeaturedProductsProps {
 }
 
 const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
-  const products = type === 'bestsellers' ? getBestSellers() : getNewArrivals();
+  const allProducts = type === 'bestsellers' ? getBestSellers() : getNewArrivals();
+  
+  // Filter and prioritize: Formal, Jeans, Track. Exclude Joggers.
+  const filteredProducts = allProducts.filter(p => !p.name.toLowerCase().includes('jogger'));
+  
+  const prioritizedProducts = [
+    ...filteredProducts.filter(p => p.category === 'formal'),
+    ...filteredProducts.filter(p => p.category === 'jeans'),
+    ...filteredProducts.filter(p => p.category === 'track')
+  ];
+
+  // Remove duplicates while maintaining order
+  const displayProducts = Array.from(new Set(prioritizedProducts)).slice(0, 4);
+
   const title = type === 'bestsellers' ? 'Best Sellers' : 'New Arrivals';
   const subtitle = type === 'bestsellers' 
     ? 'Our most loved styles, handpicked for you'
@@ -36,7 +49,7 @@ const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.slice(0, 4).map((product, index) => (
+          {displayProducts.map((product, index) => (
             <div 
               key={product.id}
               className="animate-fade-in-up"

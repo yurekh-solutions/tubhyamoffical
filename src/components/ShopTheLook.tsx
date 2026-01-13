@@ -7,9 +7,9 @@ const ShopTheLook = () => {
   const [activeSlide, setActiveSlide] = useState(2); // Start with center item
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Get featured products with images for the lookbook
+  // Get unique products for Shop The Look - exclude bestsellers and new arrivals
   const lookProducts = products
-    .filter(p => p.images.length > 0 && (p.isBestSeller || p.isNew))
+    .filter(p => p.images.length > 0 && !p.isBestSeller && !p.isNew)
     .slice(0, 8);
 
   useEffect(() => {
@@ -17,19 +17,21 @@ const ShopTheLook = () => {
     
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % lookProducts.length);
-    }, 3500);
+    }, 4000); // Slightly longer interval for better viewing
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, lookProducts.length]);
 
   const handlePrevious = () => {
-    setIsAutoPlaying(false);
     setActiveSlide((prev) => (prev - 1 + lookProducts.length) % lookProducts.length);
+    // Reset autoplay after 10 seconds of inactivity
+    setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const handleNext = () => {
-    setIsAutoPlaying(false);
     setActiveSlide((prev) => (prev + 1) % lookProducts.length);
+    // Reset autoplay after 10 seconds of inactivity
+    setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const getSlidePosition = (index: number) => {
@@ -182,8 +184,9 @@ const ShopTheLook = () => {
             <button
               key={index}
               onClick={() => {
-                setIsAutoPlaying(false);
                 setActiveSlide(index);
+                // Resume autoplay after 8 seconds
+                setTimeout(() => setIsAutoPlaying(true), 8000);
               }}
               className={`transition-all duration-500 rounded-full ${
                 index === activeSlide
