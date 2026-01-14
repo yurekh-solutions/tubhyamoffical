@@ -32,6 +32,10 @@ import blackcargo2 from "@/assets/Tracks/blackcargo2.png";
 import slimfit from "@/assets/Tracks/slimfit.png";
 import trousers from "@/assets/Tracks/trousers.png";
 import trousersgrey from "@/assets/Tracks/trousersgrey.png";
+import olivecomfort from "@/assets/Tracks/olivecomfort.png";
+import olivecomfort1 from "@/assets/Tracks/olivecomfort1.png";
+import olivecomfort2 from "@/assets/Tracks/olivecomfort2.png";
+import olivecomfort3 from "@/assets/Tracks/olivecomfort3.png";
 
 // Formal pants from formals folder
 import beigeFormal from "@/assets/formals/beige-formal.jpeg";
@@ -80,38 +84,19 @@ export interface Product {
 
 export const products: Product[] = [
   {
-
-  id: "pt-004",
-
-  name: "Relaxed Fit Elastic Waist Trousers",
-
-  category: "track",
-
-  price: 1899,
-
-  image: greenpants,
-
-  images: [greenpants],
-
-  description:
-
-    "Minimalist relaxed-fit trousers featuring an elastic waistband for all-day comfort. Designed with a straight wide-leg silhouette, these trousers offer a clean, effortless look suitable for casual and semi-formal wear.",
-
-  sizes: ["S", "M", "L", "XL", "XXL"],
-
-  colors: ["Olive Green", "Khaki"],
-
-  material: "Cotton Blend Fabric",
-
-
-
-
-
-
-
-  inStock: true,
-
-},
+    id: "pt-004",
+    name: "Relaxed Fit Elastic Waist Trousers",
+    category: "track",
+    price: 1899,
+    image: olivecomfort3,
+    images: [olivecomfort3, olivecomfort, olivecomfort1, olivecomfort2, greenpants],
+    description:
+      "Minimalist relaxed-fit trousers featuring an elastic waistband for all-day comfort. Designed with a straight wide-leg silhouette, these trousers offer a clean, effortless look suitable for casual and semi-formal wear.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Olive Green", "Khaki"],
+    material: "Cotton Blend Fabric",
+    inStock: true,
+  },
 {
   id: "pt-005",
   name: "Drawstring Relaxed Fit Pants",
@@ -305,8 +290,8 @@ export const products: Product[] = [
     category: "formal",
     price: 2899,
     originalPrice: 3799,
-    image: formal4,
-    images: [formal4],
+    image: importedBeggyBlack,
+    images: [importedBeggyBlack, slimfitFormalBlackGrey, beltFormalBlack],
     description: "Sophisticated black formal trousers with a sleek silhouette and premium finish. Features a modern flat-front design with perfect tailoring for contemporary business wear.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Black"],

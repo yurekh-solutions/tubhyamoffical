@@ -4,10 +4,15 @@ import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Check, Mail } from 'lucide-react';
 import { useState } from 'react';
-import formal1 from '@/assets/formals/formal-7.jpeg';
-import formal2 from '@/assets/formals/belt-formal-beige.jpeg';
-import jeans1 from '@/assets/products/jeans-1.jpg';
-import track1 from '@/assets/Tracks/track-pants-1.jpg';
+// Premium Collection Images
+import formal1 from '@/assets/formals/brownbelt1.png';
+import formal2 from '@/assets/formals/belt-formal-beige1.jpeg';
+import formal3 from '@/assets/formals/olive-formal-belt.jpeg';
+import formal4 from '@/assets/formals/formal-8.jpeg';
+import jeans1 from '@/assets/products/jeans-3.jpg';
+import jeans2 from '@/assets/products/jeans-33.jpg';
+import track1 from '@/assets/Tracks/olivecomfort3.png';
+import track2 from '@/assets/Tracks/olivecomfort.png';
 
 const collections = [
   {
@@ -15,7 +20,7 @@ const collections = [
     title: 'Formal Elegance',
     subtitle: 'Power Dressing Redefined',
     description: 'Sophisticated silhouettes for the modern professional. Command any boardroom with our premium formal collection featuring high-quality fabrics and impeccable tailoring.',
-    image: formal1,
+    images: [formal1, formal2, formal3],
     link: '/products?category=formal',
     badge: 'Best Seller'
   },
@@ -24,7 +29,7 @@ const collections = [
     title: 'Denim Stories',
     subtitle: 'Timeless Comfort',
     description: 'Premium denim crafted for the perfect fit. From classic cuts to contemporary styles, each piece is designed to complement your unique style.',
-    image: jeans1,
+    images: [jeans1, jeans2],
     link: '/products?category=jeans',
     badge: 'New Arrivals'
   },
@@ -33,7 +38,7 @@ const collections = [
     title: 'Active Luxe',
     subtitle: 'Comfort Meets Style',
     description: 'Elevate your casual wardrobe with our premium track pants. Perfect for work-from-home, weekend outings, or athleisure styling with modern details.',
-    image: track1,
+    images: [track1, track2],
     link: '/products?category=track',
     badge: 'Trending'
   },
@@ -42,7 +47,7 @@ const collections = [
     title: 'Premium Collection',
     subtitle: 'Season 2026',
     description: 'Luxurious fabrics meet contemporary design. Our premium collection features exclusive styles crafted for the discerning modern woman.',
-    image: formal2,
+    images: [formal4, formal1],
     link: '/products',
     badge: 'Limited Edition'
   }
@@ -117,26 +122,49 @@ const Collections = () => {
                 key={collection.id}
                 className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-6 sm:gap-8 md:gap-12 items-center`}
               >
-                {/* Image */}
+                {/* Images Grid */}
                 <div className="flex-1 w-full">
-                  <Link
-                    to={collection.link}
-                    className="group block relative overflow-hidden rounded-2xl sm:rounded-3xl"
-                  >
-                    <div className="aspect-[4/3]">
-                      <img
-                        src={collection.image}
-                        alt={collection.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    </div>
-                    {collection.badge && (
-                      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary text-primary-foreground rounded-full text-xs sm:text-sm font-medium">
-                        {collection.badge}
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </Link>
+                  <div className={`grid gap-3 sm:gap-4 ${
+                    collection.images.length === 2 
+                      ? 'grid-cols-2' 
+                      : collection.images.length === 3 
+                        ? 'grid-cols-2 sm:grid-cols-3'
+                        : 'grid-cols-1'
+                  }`}>
+                    {collection.images.map((img, imgIndex) => (
+                      <Link
+                        key={imgIndex}
+                        to={collection.link}
+                        className={`group block relative overflow-hidden rounded-xl sm:rounded-2xl glass-card border border-white/20 ${
+                          collection.images.length === 3 && imgIndex === 0 ? 'col-span-2 sm:col-span-1' : ''
+                        }`}
+                      >
+                        <div className="aspect-[3/4] relative">
+                          <img
+                            src={img}
+                            alt={`${collection.title} ${imgIndex + 1}`}
+                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                          />
+                          {/* Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                          
+                          {/* Badge on first image */}
+                          {imgIndex === 0 && collection.badge && (
+                            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/90 backdrop-blur-sm text-primary-foreground rounded-full text-xs sm:text-sm font-semibold shadow-lg">
+                              {collection.badge}
+                            </div>
+                          )}
+                          
+                          {/* Hover Text */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            <span className="text-white font-semibold text-sm sm:text-base px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/30">
+                              View Collection
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Content */}
