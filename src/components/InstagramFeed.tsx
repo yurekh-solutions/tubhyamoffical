@@ -9,7 +9,7 @@ const InstagramFeed = () => {
 
   return (
     <>
-      {/* SEO Meta Tags */}
+      {/* SEO */}
       <Helmet>
         <meta name="instagram:site" content={`@${instagramConfig.username}`} />
         <meta property="og:see_also" content={instagramConfig.profileUrl} />
@@ -26,7 +26,7 @@ const InstagramFeed = () => {
         </script>
       </Helmet>
 
-      <section className="py-12 sm:py-16 md:py-20" aria-label="Instagram Feed">
+      <section className="py-14 md:py-20 bg-gradient-to-br from-background via-secondary/20 to-background">
         <div className="container mx-auto px-4">
           {/* Instagram Profile Header */}
           <div className="max-w-4xl mx-auto mb-6 sm:mb-8">
@@ -148,14 +148,12 @@ const InstagramFeed = () => {
                 href={instagramConfig.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-secondary/50 transition-colors"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
+                View more on Instagram
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/>
-                  <circle cx="12" cy="12" r="3.2"/>
-                  <circle cx="18.4" cy="5.6" r="1.44"/>
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/>
                 </svg>
-                View Profile on Instagram
               </a>
             </div>
           </div>

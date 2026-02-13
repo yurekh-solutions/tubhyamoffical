@@ -17,19 +17,21 @@ const ShopTheLook = () => {
     
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % lookProducts.length);
-    }, 3500);
+    }, 4000); // Slightly longer interval for better viewing
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, lookProducts.length]);
 
   const handlePrevious = () => {
-    setIsAutoPlaying(false);
     setActiveSlide((prev) => (prev - 1 + lookProducts.length) % lookProducts.length);
+    // Reset autoplay after 10 seconds of inactivity
+    setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const handleNext = () => {
-    setIsAutoPlaying(false);
     setActiveSlide((prev) => (prev + 1) % lookProducts.length);
+    // Reset autoplay after 10 seconds of inactivity
+    setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const getSlidePosition = (index: number) => {
@@ -182,8 +184,9 @@ const ShopTheLook = () => {
             <button
               key={index}
               onClick={() => {
-                setIsAutoPlaying(false);
                 setActiveSlide(index);
+                // Resume autoplay after 8 seconds
+                setTimeout(() => setIsAutoPlaying(true), 8000);
               }}
               className={`transition-all duration-500 rounded-full ${
                 index === activeSlide

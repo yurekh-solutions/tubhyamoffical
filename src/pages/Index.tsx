@@ -30,20 +30,14 @@ const Index = () => {
 
        <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <p className="text-primary uppercase tracking-widest text-sm mb-4">Why Choose Us</p>
-            <h2 className="font-heading text-4xl md:text-5xl font-semibold">
-              The <span className="text-gradient-gold">Tubhyam Promise</span>
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { icon: Gem, title: 'Premium Quality', description: 'Handpicked fabrics for ultimate comfort' },
               { icon: Heart, title: 'Made with Love', description: 'Crafted with attention to every detail' },
               { icon: Award, title: 'Best in Class', description: 'Trusted by thousands of customers' },
               { icon: Video, title: 'Personal Styling', description: 'Free video call consultations' },
             ].map((value, index) => (
-              <div key={index} className="text-center group">
+              <div key={index} className="glass-card rounded-3xl p-8 text-center group hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 border border-white/10">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <value.icon size={32} className="text-primary" />
                 </div>

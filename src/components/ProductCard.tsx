@@ -25,39 +25,44 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <Link to={`/product/${product.id}`} className="group block">
-      <div className="glass-card-hover">
+    <Link to={`/product/${product.id}`} className="group block h-full">
+      <div className="glass-card h-full rounded-3xl overflow-hidden border border-white/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
         {/* Image Container */}
-        <div className="relative product-image-zoom aspect-[3/4] overflow-hidden">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
+        <div className="relative aspect-[3/4] overflow-hidden">
+          <div className="product-image-zoom h-full">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+            />
+          </div>
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
+          <div className="absolute top-4 left-4 flex flex-col gap-2">
             {product.isNew && (
-              <span className="bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
+              <span className="glass-card bg-primary/90 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
                 New
               </span>
             )}
             {product.isBestSeller && (
-              <span className="bg-accent text-accent-foreground text-xs px-3 py-1 rounded-full font-medium">
+              <span className="glass-card bg-accent/90 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
                 Bestseller
               </span>
             )}
             {product.originalPrice && (
-              <span className="bg-destructive text-destructive-foreground text-xs px-3 py-1 rounded-full font-medium">
+              <span className="glass-card bg-destructive/90 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
                 Sale
               </span>
             )}
           </div>
 
           {/* Quick Actions */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
             <button 
-              className="p-2 glass-card hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="p-2.5 glass-card backdrop-blur-xl border border-white/20 rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
             >
               <Heart size={18} />
@@ -65,27 +70,27 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
 
           {/* Quick Add Button */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+          <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
             <button
               onClick={handleQuickAdd}
-              className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors"
+              className="w-full flex items-center justify-center gap-2 glass-card backdrop-blur-xl bg-white/90 text-foreground py-3.5 rounded-2xl font-semibold text-sm border border-white/30 hover:bg-white hover:scale-105 transition-all duration-300 shadow-xl"
             >
-              <ShoppingBag size={16} />
+              <ShoppingBag size={18} />
               Quick Add
             </button>
           </div>
         </div>
 
         {/* Product Info */}
-        <div className="p-4 space-y-2">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">
+        <div className="p-5 space-y-2.5 bg-gradient-to-b from-background/50 to-background backdrop-blur-sm">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">
             {product.category}
           </p>
-          <h3 className="font-heading text-lg font-medium line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="font-heading text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">
             {product.name}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-primary">
+          <div className="flex items-center gap-2.5">
+            <span className="font-bold text-lg text-primary">
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
@@ -96,15 +101,18 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
           
           {/* Colors */}
-          <div className="flex items-center gap-1 pt-1">
-            {product.colors.map((color) => (
+          <div className="flex items-center gap-2 pt-1 flex-wrap">
+            {product.colors.slice(0, 3).map((color, index) => (
               <span 
                 key={color}
-                className="text-xs text-muted-foreground"
+                className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full"
               >
                 {color}
               </span>
             ))}
+            {product.colors.length > 3 && (
+              <span className="text-xs text-muted-foreground">+{product.colors.length - 3}</span>
+            )}
           </div>
         </div>
       </div>

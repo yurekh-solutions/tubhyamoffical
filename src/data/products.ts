@@ -27,11 +27,11 @@ import blankpants from "@/assets/Tracks/blankpants.jpeg";
 import cargo from "@/assets/Tracks/cargo.png";
 import cargoblack from "@/assets/Tracks/cargoblack.png";
 import cargofront from "@/assets/Tracks/cargofront.png";
+import blackcargo1 from "@/assets/Tracks/blackcargo1.png";
+import blackcargo2 from "@/assets/Tracks/blackcargo2.png";
 import slimfit from "@/assets/Tracks/slimfit.png";
 import trousers from "@/assets/Tracks/trousers.png";
 import trousersgrey from "@/assets/Tracks/trousersgrey.png";
-import blackcargo1 from "@/assets/Tracks/blackcargo1.png";
-import blackcargo2 from "@/assets/Tracks/blackcargo2.png";
 
 // Formal pants from formals folder
 import beigeFormal from "@/assets/formals/beige-formal.jpeg";
@@ -45,6 +45,10 @@ import bothOliveFormal from "@/assets/formals/both-olive,-formal-belt.jpeg";
 import brownFormal from "@/assets/formals/brown-formal.jpeg";
 import brown from "@/assets/formals/brown.jpeg";
 import brown1Formal from "@/assets/formals/brown1-formal.jpeg";
+import brownbelt1 from "@/assets/formals/brownbelt1.png";
+import brownbelt2 from "@/assets/formals/brownbelt2.png";
+import brownbelt3 from "@/assets/formals/brownbelt3.png";
+import brownbelt4 from "@/assets/formals/brownbelt4.png";
 import importedBeggyBlackFormal from "@/assets/formals/imported-beggy-black-formal.jpeg";
 import importedBeggyBlack from "@/assets/formals/imported-beggy-black.jpeg";
 import importedBeggyGrayFormal from "@/assets/formals/imported-beggy-gray-formal.jpeg";
@@ -56,10 +60,7 @@ import premiumDarkBrown from "@/assets/formals/preuim-dark-brown.jpeg";
 import premiumGray from "@/assets/formals/preuim-gray.jpeg";
 import slimfitFormalBlackGrey from "@/assets/formals/slimfit-formal-pants-black,grey.jpeg";
 import whiteFormalBelt from "@/assets/formals/white-formal-belt.jpeg";
-import brownbelt1 from "@/assets/formals/brownbelt1.png";
-import brownbelt2 from "@/assets/formals/brownbelt2.png";
-import brownbelt3 from "@/assets/formals/brownbelt3.png";
-import brownbelt4 from "@/assets/formals/brownbelt4.png";
+
 export interface Product {
   id: string;
   name: string;
@@ -80,38 +81,19 @@ export interface Product {
 
 export const products: Product[] = [
   {
-
-  id: "pt-004",
-
-  name: "Relaxed Fit Elastic Waist Trousers",
-
-  category: "track",
-
-  price: 1899,
-
-  image: greenpants,
-
-  images: [greenpants],
-
-  description:
-
-    "Minimalist relaxed-fit trousers featuring an elastic waistband for all-day comfort. Designed with a straight wide-leg silhouette, these trousers offer a clean, effortless look suitable for casual and semi-formal wear.",
-
-  sizes: ["S", "M", "L", "XL", "XXL"],
-
-  colors: ["Olive Green", "Khaki"],
-
-  material: "Cotton Blend Fabric",
-
-
-
-
-
-
-
-  inStock: true,
-
-},
+    id: "pt-004",
+    name: "Relaxed Fit Elastic Waist Trousers",
+    category: "track",
+    price: 1899,
+    image: greenpants,
+    images: [greenpants, greenpants, greenpants, greenpants, greenpants],
+    description:
+      "Minimalist relaxed-fit trousers featuring an elastic waistband for all-day comfort. Designed with a straight wide-leg silhouette, these trousers offer a clean, effortless look suitable for casual and semi-formal wear.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Olive Green", "Khaki"],
+    material: "Cotton Blend Fabric",
+    inStock: true,
+  },
 {
   id: "pt-005",
   name: "Drawstring Relaxed Fit Pants",
@@ -134,8 +116,8 @@ export const products: Product[] = [
     category: "formal",
     price: 2499,
     originalPrice: 3499,
-    image: formalPants1,
-    images: [formalPants1],
+    image: formal6,
+    images: [formal6],
     description: "Sophisticated charcoal grey wide-leg trousers crafted from premium fabric. Features high-waist design with elegant pleats for a refined silhouette. Perfect for office wear and formal occasions.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Charcoal Grey", "Black", "Navy"],
@@ -171,20 +153,7 @@ export const products: Product[] = [
     material: "Wool Blend",
     inStock: true,
   },
-  {
-    id: "jn-001",
-    name: "Azure Wide-Leg Denim",
-    category: "jeans",
-    price: 2199,
-    image: jeans1,
-    images: [jeans1],
-    description: "Classic medium-wash wide-leg jeans with a vintage-inspired high-waist design. Premium denim construction ensures comfort and durability while maintaining a chic silhouette.",
-    sizes: ["26", "28", "30", "32", "34"],
-    colors: ["Medium Blue", "Light Blue"],
-    material: "100% Cotton Denim",
-    inStock: true,
-    isBestSeller: true,
-  },
+ 
   {
     id: "jn-002",
     name: "Noir Straight-Leg Jeans",
@@ -214,13 +183,42 @@ export const products: Product[] = [
     inStock: true,
   },
   {
+    id: "jn-004",
+    name: "Classic Blue Wide-Leg Jeans",
+    category: "jeans",
+    price: 2499,
+    image: jeans7,
+    images: [jeans7],
+    description: "Timeless blue wide-leg jeans with a modern silhouette. Features high-waist design with premium denim fabric for comfortable all-day wear and effortless style.",
+    sizes: ["26", "28", "30", "32", "34"],
+    colors: ["Classic Blue", "Medium Wash"],
+    material: "Premium Denim",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "jn-005",
+    name: "Relaxed Fit Straight Jeans",
+    category: "jeans",
+    price: 2699,
+    originalPrice: 3299,
+    image: jeans8,
+    images: [jeans8],
+    description: "Comfortable relaxed fit straight jeans with vintage-inspired wash. Perfect blend of classic styling and contemporary comfort for everyday casual wear.",
+    sizes: ["26", "28", "30", "32", "34", "36"],
+    colors: ["Light Wash", "Stone Wash"],
+    material: "100% Cotton Denim",
+    inStock: true,
+    isBestSeller: true,
+  },
+  {
     id: "tp-001",
     name: "Luxe Black Joggers",
     category: "track",
     price: 1799,
     originalPrice: 2299,
-    image: trackPants1,
-    images: [trackPants1],
+    image: track2,
+    images: [track2],
     description: "Elevated black joggers that blend comfort with style. Features tapered legs with cuffed ankles, elastic waist with drawstring, and premium soft fabric perfect for casual outings.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Black", "Charcoal"],
@@ -248,10 +246,10 @@ export const products: Product[] = [
     category: "track",
     price: 1899,
     image: slimfit,
-    images: [slimfit, greenpants],
+    images: [slimfit],
     description: "Modern slim-fit joggers with ankle-length design. Features elastic waistband with contrast drawstring and side pockets. Perfect for athleisure and casual styling.",
     sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Black", "Grey", "Navy", "Olive Green"],
+    colors: ["Black", "Grey", "Navy"],
     material: "Performance Stretch Fabric",
     inStock: true,
     isNew: true,
@@ -262,7 +260,7 @@ export const products: Product[] = [
     category: "track",
     price: 1799,
     image: trousersgrey,
-    images: [trousersgrey, trousers],
+    images: [trousersgrey],
     description: "Comfortable grey trousers with relaxed fit. Features elastic waistband and side pockets. Perfect for loungewear and casual everyday comfort.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Grey", "Charcoal"],
@@ -282,31 +280,18 @@ export const products: Product[] = [
     material: "Soft Cotton Blend",
     inStock: true,
   },
-  {
-    id: "tp-008",
-    name: "Relaxed Olive Green Joggers",
-    category: "track",
-    price: 1899,
-    image: greenpants,
-    images: [greenpants],
-    description: "Comfortable olive green joggers with relaxed fit. Features elastic waistband with drawstring and side pockets. Perfect for casual everyday wear and leisure activities.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Olive Green", "Khaki", "Army Green"],
-    material: "Soft Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
+  
   {
     id: "fp-004",
-    name: "Burgundy Premium Trousers",
+    name: "Black Premium Trousers",
     category: "formal",
     price: 2899,
     originalPrice: 3799,
-    image: formal5,
-    images: [formal5],
-    description: "Rich burgundy formal trousers with a sleek silhouette and premium finish. Features a modern flat-front design with perfect tailoring for contemporary business wear.",
+    image: importedBeggyBlack,
+    images: [importedBeggyBlack, slimfitFormalBlackGrey, beltFormalBlack],
+    description: "Sophisticated black formal trousers with a sleek silhouette and premium finish. Features a modern flat-front design with perfect tailoring for contemporary business wear.",
     sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Burgundy", "Maroon", "Wine"],
+    colors: ["Black"],
     material: "Premium Polyester Blend",
     inStock: true,
     isBestSeller: true,
@@ -316,8 +301,8 @@ export const products: Product[] = [
     name: "Olive Sophisticated Pants",
     category: "formal",
     price: 2599,
-    image: formalPants2,
-    images: [formalPants2],
+    image: oliveFormalBelt,
+    images: [oliveFormalBelt],
     description: "Elegant olive green trousers perfect for creating a statement at work or formal events. Crafted with premium fabric and impeccable seams for lasting quality.",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Olive Green", "Sage", "Forest"],
@@ -331,8 +316,8 @@ export const products: Product[] = [
     category: "formal",
     price: 3099,
     originalPrice: 4199,
-    image: formalPants3,
-    images: [formalPants3],
+    image: premiumGray,
+    images: [premiumGray],
     description: "Sophisticated graphite pants designed for the modern professional woman. Features a slim fit with subtle sheen, perfect for boardroom to dinner transitions.",
     sizes: ["XS", "S", "M", "L"],
     colors: ["Graphite", "Slate Grey", "Dark Silver"],
@@ -344,8 +329,8 @@ export const products: Product[] = [
     name: "Rose Gold Formal Pants",
     category: "formal",
     price: 2699,
-    image: formalPants1,
-    images: [formalPants1],
+    image: formal1,
+    images: [formal1],
     description: "Luxurious rose gold-toned formal pants with a subtle shimmer. High-waisted design with elegant draping for an effortlessly chic appearance.",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Rose Gold", "Mauve", "Blush"],
@@ -358,8 +343,8 @@ export const products: Product[] = [
     category: "formal",
     price: 2799,
     originalPrice: 3599,
-    image: formalPants2,
-    images: [formalPants2],
+    image: formal2,
+    images: [formal2],
     description: "Bold teal formal trousers that make an elegant statement. Perfect for creative professionals who want sophistication with a twist of personality.",
     sizes: ["XS", "S", "M", "L"],
     colors: ["Teal", "Peacock", "Turquoise"],
@@ -400,7 +385,7 @@ export const products: Product[] = [
     category: "formal",
     price: 2799,
     image: beltFormalBeige,
-    images: [beltFormalBeige, beltFormalBeige1, beltFormalBeige2],
+    images: [beltFormalBeige],
     description: "Elegant beige formal pants with belt design. Tailored cut with comfortable waistband and sophisticated styling for business wear.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Beige", "Sand", "Cream"],
@@ -415,7 +400,7 @@ export const products: Product[] = [
     price: 3299,
     originalPrice: 4199,
     image: beltImported,
-    images: [beltImported, bothImported],
+    images: [beltImported],
     description: "Premium imported formal pants with belt styling. Features superior fabric quality and impeccable tailoring for the modern professional.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Multiple"],
@@ -428,8 +413,8 @@ export const products: Product[] = [
     name: "Olive Formal Belt Pants",
     category: "formal",
     price: 2899,
-    image: oliveFormalBelt,
-    images: [oliveFormalBelt, oliveFormalBelt2, bothOliveFormal],
+    image: oliveFormalBelt2,
+    images: [oliveFormalBelt2],
     description: "Sophisticated olive formal pants with belt design. Perfect blend of style and comfort for executive and professional settings.",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Olive Green", "Sage"],
@@ -443,7 +428,7 @@ export const products: Product[] = [
     category: "formal",
     price: 2699,
     image: brownFormal,
-    images: [brownFormal, brown, brown1Formal],
+    images: [brownFormal],
     description: "Classic brown formal pants with refined tailoring. Features comfortable fit and timeless design for versatile professional styling.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Brown", "Dark Brown", "Tan"],
@@ -457,7 +442,7 @@ export const products: Product[] = [
     price: 3099,
     originalPrice: 3899,
     image: importedBeggyBlackFormal,
-    images: [importedBeggyBlackFormal, importedBeggyBlack],
+    images: [importedBeggyBlackFormal],
     description: "Trendy imported baggy formal pants in black. Modern relaxed fit with premium fabric and contemporary styling for fashion-forward professionals.",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black"],
@@ -472,7 +457,7 @@ export const products: Product[] = [
     price: 3099,
     originalPrice: 3899,
     image: importedBeggyGrayFormal,
-    images: [importedBeggyGrayFormal, importedBeggyGray],
+    images: [importedBeggyGrayFormal],
     description: "Stylish imported baggy formal pants in gray. Features relaxed comfortable fit with premium quality fabric for modern business casual wear.",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Gray", "Charcoal"],
@@ -506,14 +491,15 @@ export const products: Product[] = [
     colors: ["Dark Brown", "Chocolate"],
     material: "Premium Wool Blend",
     inStock: true,
+    isBestSeller: true,
   },
   {
     id: "fp-019",
     name: "Premium Gray Formal Pants",
     category: "formal",
     price: 2999,
-    image: premiumGray,
-    images: [premiumGray],
+    image: formal3,
+    images: [formal3],
     description: "Elegant gray formal pants with premium quality fabric. Features refined tailoring and comfortable fit for sophisticated business attire.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Gray", "Silver"],
@@ -548,21 +534,21 @@ export const products: Product[] = [
     inStock: true,
     isNew: true,
   },
-    {
-      id: "tp-009",
-      name: "Classic Black Cargo Pants",
-      category: "track",
-      price: 1200,
-      originalPrice: 1499,
-      image: blackcargo1,
-      images: [blackcargo1, blackcargo2],
-      description: "Modern black cargo pants featuring multiple utility pockets and relaxed fit. Crafted with durable fabric for everyday comfort and versatile styling. Perfect for casual outings and streetwear looks.",
-      sizes: ["S", "M", "L", "XL", "XXL"],
-      colors: ["Black", "Charcoal"],
-      material: "Premium Cotton Twill",
-      inStock: true,
-      isNew: true,
-    },
+  {
+    id: "tp-009",
+    name: "Classic Black Cargo Pants",
+    category: "track",
+    price: 1200,
+    originalPrice: 1499,
+    image: blackcargo1,
+    images: [blackcargo1, blackcargo2],
+    description: "Modern black cargo pants featuring multiple utility pockets and relaxed fit. Crafted with durable fabric for everyday comfort and versatile styling. Perfect for casual outings and streetwear looks.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Charcoal"],
+    material: "Premium Cotton Twill",
+    inStock: true,
+    isNew: true,
+  },
   {
     id: "fp-022",
     name: "Premium Brown Belt Formal Pants",

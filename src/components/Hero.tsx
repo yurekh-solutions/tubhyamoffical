@@ -9,12 +9,14 @@ const Hero = () => {
       <div className="absolute inset-0">
         <video 
           autoPlay 
-          loop 
           muted 
+          loop 
           playsInline
           className="w-full h-full object-cover"
         >
           <source src={heroVideo} type="video/mp4" />
+          {/* Fallback for browsers that don't support video */}
+          Your browser does not support the video tag.
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />

@@ -133,10 +133,26 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} Tubhyam. All rights reserved.</p>
-            <div className="flex items-center gap-6">
-              <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy</Link>
-              <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
-              <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+              <div className="flex items-center gap-6">
+                <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy</Link>
+                <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
+                <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span>Designed & Developed by</span>
+                <a 
+                  href="https://yurekh.com/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 border border-primary/20 rounded-full font-medium text-primary hover:text-primary/80 transition-all duration-300 hover:scale-105"
+                >
+                  <span className="font-semibold">Yurekh Solutions</span>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </div>
