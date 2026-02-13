@@ -7,10 +7,10 @@ const ShopTheLook = () => {
   const [activeSlide, setActiveSlide] = useState(2); // Start with center item
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Get featured products with images for the lookbook
+  // Get all formal products with images for the lookbook, excluding specific products
+  const excludedIds = ['fp-005', 'fp-008']; // Olive Sophisticated Pants, Teal Statement Trousers
   const lookProducts = products
-    .filter(p => p.images.length > 0 && (p.isBestSeller || p.isNew))
-    .slice(0, 8);
+    .filter(p => p.category === 'formal' && p.images.length > 0 && !excludedIds.includes(p.id));
 
   useEffect(() => {
     if (!isAutoPlaying) return;

@@ -2,27 +2,7 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Heart, MessageCircle, Play } from 'lucide-react';
 import logo from '@/assets/looo.png';
-
-// Import actual product images for Instagram grid
-import img1 from '@/assets/formals/formal-1.jpeg';
-import img2 from '@/assets/formals/formal-4.jpeg';
-import img3 from '@/assets/formals/brown-formal.jpeg';
-import img4 from '@/assets/formals/preuim-black.jpeg';
-import img5 from '@/assets/formals/belt-formal-beige.jpeg';
-import img6 from '@/assets/formals/olive-formal-belt.jpeg';
-import img7 from '@/assets/formals/formal-7.jpeg';
-import img8 from '@/assets/formals/formal-5.jpeg';
-
-const instagramPosts = [
-  { image: img1, likes: 127, comments: 8, isVideo: false },
-  { image: img2, likes: 89, comments: 5, isVideo: true },
-  { image: img3, likes: 234, comments: 12, isVideo: false },
-  { image: img4, likes: 156, comments: 7, isVideo: false },
-  { image: img5, likes: 312, comments: 18, isVideo: false },
-  { image: img6, likes: 98, comments: 4, isVideo: true },
-  { image: img7, likes: 445, comments: 23, isVideo: false },
-  { image: img8, likes: 178, comments: 9, isVideo: false },
-];
+import { instagramFeed, instagramConfig } from '@/config/instagramConfig';
 
 const InstagramFeed = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -31,30 +11,30 @@ const InstagramFeed = () => {
     <>
       {/* SEO Meta Tags */}
       <Helmet>
-        <meta name="instagram:site" content="@tubhyamofficial" />
-        <meta property="og:see_also" content="https://www.instagram.com/tubhyamofficial/" />
-        <link rel="me" href="https://www.instagram.com/tubhyamofficial/" />
+        <meta name="instagram:site" content={`@${instagramConfig.username}`} />
+        <meta property="og:see_also" content={instagramConfig.profileUrl} />
+        <link rel="me" href={instagramConfig.profileUrl} />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "Tubhyam",
+            "name": instagramConfig.displayName,
             "url": "https://tubhyam.com",
-            "sameAs": ["https://www.instagram.com/tubhyamofficial/"],
-            "description": "Premium women's fashion brand - तुम्हारे लिए (Made for You)"
+            "sameAs": [instagramConfig.profileUrl],
+            "description": instagramConfig.bio
           })}
         </script>
       </Helmet>
 
       <section className="py-12 sm:py-16 md:py-20" aria-label="Instagram Feed">
         <div className="container mx-auto px-4">
-          {/* Instagram Profile Header - Like real Instagram widget */}
+          {/* Instagram Profile Header */}
           <div className="max-w-4xl mx-auto mb-6 sm:mb-8">
             <div className="glass-card p-4 sm:p-5 rounded-xl">
               <div className="flex items-center gap-3 sm:gap-5">
                 {/* Profile Picture */}
                 <a 
-                  href="https://www.instagram.com/tubhyamofficial/"
+                  href={instagramConfig.profileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-shrink-0"
@@ -62,7 +42,7 @@ const InstagramFeed = () => {
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-[2px] bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600">
                     <img 
                       src={logo} 
-                      alt="Tubhyam" 
+                      alt={instagramConfig.displayName}
                       className="w-full h-full rounded-full object-cover bg-background"
                     />
                   </div>
@@ -72,30 +52,30 @@ const InstagramFeed = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <a 
-                      href="https://www.instagram.com/tubhyamofficial/"
+                      href={instagramConfig.profileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-semibold text-base sm:text-lg hover:opacity-80 transition-opacity"
                     >
-                      Tubhyam
+                      {instagramConfig.displayName}
                     </a>
                     <svg className="w-4 h-4 text-[#0095F6]" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>
-                    <span className="text-xs sm:text-sm text-muted-foreground">@tubhyamofficial</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground">@{instagramConfig.username}</span>
                   </div>
                   
                   {/* Stats Row */}
                   <div className="flex items-center gap-3 sm:gap-5 mt-2 text-xs sm:text-sm">
-                    <span><strong>20</strong> posts</span>
-                    <span><strong>28.9K</strong> followers</span>
-                    <span className="hidden sm:inline"><strong>0</strong> following</span>
+                    <span><strong>{instagramConfig.posts}</strong> posts</span>
+                    <span><strong>{instagramConfig.followers}</strong> followers</span>
+                    <span className="hidden sm:inline"><strong>{instagramConfig.following}</strong> following</span>
                   </div>
                 </div>
                 
                 {/* Follow Button */}
                 <a
-                  href="https://www.instagram.com/tubhyamofficial/"
+                  href={instagramConfig.profileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-shrink-0 flex items-center gap-1.5 px-4 sm:px-5 py-1.5 sm:py-2 bg-[#0095F6] hover:bg-[#1877F2] text-white rounded-lg font-medium text-xs sm:text-sm transition-all duration-300"
@@ -111,22 +91,23 @@ const InstagramFeed = () => {
             </div>
           </div>
 
-          {/* Instagram Grid - 4 columns like cellfix.in */}
+          {/* Instagram Grid - 4 columns */}
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-4 gap-0.5 sm:gap-1">
-              {instagramPosts.map((post, index) => (
+              {instagramFeed.map((post, index) => (
                 <a
-                  key={index}
-                  href="https://www.instagram.com/tubhyamofficial/"
+                  key={post.id}
+                  href={post.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="relative aspect-square overflow-hidden bg-secondary/30 cursor-pointer"
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
+                  title={post.caption}
                 >
                   <img
                     src={post.image}
-                    alt={`Instagram post ${index + 1}`}
+                    alt={post.caption}
                     className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     loading="lazy"
                   />
@@ -144,14 +125,18 @@ const InstagramFeed = () => {
                       hoveredIndex === index ? 'opacity-100' : 'opacity-0'
                     }`}
                   >
-                    <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
-                      <Heart className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
-                      {post.likes}
-                    </span>
-                    <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
-                      <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
-                      {post.comments}
-                    </span>
+                    {post.likes && (
+                      <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
+                        <Heart className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
+                        {post.likes}
+                      </span>
+                    )}
+                    {post.comments && (
+                      <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
+                        <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
+                        {post.comments}
+                      </span>
+                    )}
                   </div>
                 </a>
               ))}
@@ -160,7 +145,7 @@ const InstagramFeed = () => {
             {/* Load More / View Profile */}
             <div className="text-center mt-4 sm:mt-6">
               <a
-                href="https://www.instagram.com/tubhyamofficial/"
+                href={instagramConfig.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-secondary/50 transition-colors"
