@@ -7,9 +7,9 @@ import Hero from '@/components/Hero';
 import Categories from '@/components/Categories';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import TestimonialsSlider from '@/components/TestimonialsSlider';
-import InstagramFeed from '@/components/InstagramFeed';
+// import InstagramFeed from '@/components/InstagramFeed';
 import NewsletterSection from '@/components/NewsletterSection';
-import StyleQuiz from '@/components/StyleQuiz';
+// import StyleQuiz from '@/components/StyleQuiz';
 import ShopTheLook from '@/components/ShopTheLook';
 
 const Index = () => {
@@ -28,26 +28,6 @@ const Index = () => {
       {/* Shop The Look */}
       <ShopTheLook />
 
-       <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: Gem, title: 'Premium Quality', description: 'Handpicked fabrics for ultimate comfort' },
-              { icon: Heart, title: 'Made with Love', description: 'Crafted with attention to every detail' },
-              { icon: Award, title: 'Best in Class', description: 'Trusted by thousands of customers' },
-              { icon: Video, title: 'Personal Styling', description: 'Free video call consultations' },
-            ].map((value, index) => (
-              <div key={index} className="glass-card rounded-3xl p-8 text-center group hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 border border-white/10">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <value.icon size={32} className="text-primary" />
-                </div>
-                <h3 className="font-heading text-xl font-semibold mb-2">{value.title}</h3>
-                <p className="text-sm text-muted-foreground">{value.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
         <FeaturedProducts type="bestsellers" />
 
       {/* Features Bar */}
@@ -140,10 +120,10 @@ const Index = () => {
       <TestimonialsSlider />
 
       {/* Style Quiz */}
-      <StyleQuiz />
+      {/* <StyleQuiz /> */}
 
       {/* Instagram Feed */}
-      <InstagramFeed />
+      {/* <InstagramFeed /> */}
 
       {/* Newsletter */}
       <NewsletterSection />

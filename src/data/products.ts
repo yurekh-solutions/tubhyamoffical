@@ -29,6 +29,8 @@ import cargoblack from "@/assets/Tracks/cargoblack.png";
 import cargofront from "@/assets/Tracks/cargofront.png";
 import blackcargo1 from "@/assets/Tracks/blackcargo1.png";
 import blackcargo2 from "@/assets/Tracks/blackcargo2.png";
+import blackcar1 from "@/assets/Tracks/blackcar1.png";
+import balckcar2 from "@/assets/Tracks/balckcar2.png";
 import slimfit from "@/assets/Tracks/slimfit.png";
 import trousers from "@/assets/Tracks/trousers.png";
 import trousersgrey from "@/assets/Tracks/trousersgrey.png";
@@ -60,6 +62,16 @@ import premiumDarkBrown from "@/assets/formals/preuim-dark-brown.jpeg";
 import premiumGray from "@/assets/formals/preuim-gray.jpeg";
 import slimfitFormalBlackGrey from "@/assets/formals/slimfit-formal-pants-black,grey.jpeg";
 import whiteFormalBelt from "@/assets/formals/white-formal-belt.jpeg";
+import greylace from "@/assets/formals/greylace.png";
+import greylaceback from "@/assets/formals/greylaceback.png";
+import blackmom from "@/assets/formals/blackmom.png";
+import blackmom1 from "@/assets/formals/blackmom1.png";
+import buttoncargo from "@/assets/formals/buttoncargo.png";
+import buttoncargo1 from "@/assets/formals/buttoncargo1.png";
+import blacklace from "@/assets/formals/blacklace.png";
+import blacklace1 from "@/assets/formals/blacklace1.png";
+import brownlace from "@/assets/formals/brownlace.png";
+import brownlace1 from "@/assets/formals/brownlace1.png";
 
 export interface Product {
   id: string;
@@ -540,8 +552,8 @@ export const products: Product[] = [
     category: "track",
     price: 1200,
     originalPrice: 1499,
-    image: blackcargo1,
-    images: [blackcargo1, blackcargo2],
+    image: blackcar1,
+    images: [blackcar1, balckcar2, blackcargo1, blackcargo2],
     description: "Modern black cargo pants featuring multiple utility pockets and relaxed fit. Crafted with durable fabric for everyday comfort and versatile styling. Perfect for casual outings and streetwear looks.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Charcoal"],
@@ -565,6 +577,81 @@ export const products: Product[] = [
     isNew: true,
     isBestSeller: true,
   },
+  {
+    id: "fp-023",
+    name: "Grey Lace Formal Pants",
+    category: "formal",
+    price: 2200,
+    originalPrice: 2999,
+    image: greylace,
+    images: [greylace, greylaceback],
+    description: "Elegant grey lace formal pants featuring delicate lace detailing and premium fabric. Perfect for special occasions and formal events. Crafted with comfort and style in mind for the modern woman.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Grey"],
+    material: "Premium Lace Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-024",
+    name: "Black Mom Fit Formal Trousers",
+    category: "formal",
+    price: 2100,
+    originalPrice: 2400,
+    image: blackmom,
+    images: [blackmom, blackmom1],
+    description: "Elegant black mom fit formal trousers featuring a comfortable relaxed fit with premium fabric. Perfect for office wear and formal occasions. Designed with a flattering silhouette that offers both style and comfort for the modern woman.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Black"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-025",
+    name: "Button Detail Formal Cargo Pants",
+    category: "formal",
+    price: 2399,
+    originalPrice: 2999,
+    image: buttoncargo,
+    images: [buttoncargo, buttoncargo1],
+    description: "Elegant formal cargo pants featuring stylish button details and premium fabric. Perfect blend of formal and casual styling. Designed for the modern woman who wants sophistication with a contemporary edge.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Black"],
+    material: "Premium Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-026",
+    name: "Black Lace People Fit Formal Pants",
+    category: "formal",
+    price: 2399,
+    originalPrice: 2999,
+    image: blacklace,
+    images: [blacklace, blacklace1],
+    description: "Elegant black lace people fit formal pants featuring a flattering silhouette for everyone. Premium fabric with beautiful lace detailing. Perfect for office wear, formal events, and special occasions. Designed to celebrate all body types.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Black"],
+    material: "Premium Lace Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-027",
+    name: "Brown Lace People Fit Formal Pants",
+    category: "formal",
+    price: 2399,
+    originalPrice: 2999,
+    image: brownlace,
+    images: [brownlace, brownlace1],
+    description: "Elegant brown lace people fit formal pants featuring a flattering silhouette for everyone. Premium fabric with beautiful lace detailing. Perfect for office wear, formal events, and special occasions. Designed to celebrate all body types.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Brown"],
+    material: "Premium Lace Blend",
+    inStock: true,
+    isNew: true,
+  }
 ];
 
 export const categories = [
