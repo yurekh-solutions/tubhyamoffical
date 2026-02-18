@@ -94,7 +94,12 @@ const ProductDetail = () => {
               <img
                 src={product.images[activeImage]}
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
+                style={{
+                  imageRendering: 'crisp-edges',
+                }}
               />
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -123,7 +128,16 @@ const ProductDetail = () => {
                       activeImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={img}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                      style={{
+                        imageRendering: 'crisp-edges',
+                      }}
+                    />
                   </button>
                 ))}
               </div>

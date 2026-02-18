@@ -237,6 +237,9 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
+    image-rendering: crisp-edges;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .product-image-zoom:hover img {

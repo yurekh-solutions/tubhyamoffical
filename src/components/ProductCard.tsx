@@ -33,7 +33,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 image-rendering-crisp"
+              style={{
+                imageRendering: 'crisp-edges',
+              }}
             />
           </div>
           

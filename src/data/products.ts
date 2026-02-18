@@ -72,6 +72,12 @@ import blacklace from "@/assets/formals/blacklace.png";
 import blacklace1 from "@/assets/formals/blacklace1.png";
 import brownlace from "@/assets/formals/brownlace.png";
 import brownlace1 from "@/assets/formals/brownlace1.png";
+import widelook from "@/assets/formals/widelook.jpeg";
+import widelook1 from "@/assets/formals/widelook1.jpeg";
+import widelookback from "@/assets/formals/widelook back.jpeg";
+import brownbelt from "@/assets/formals/brownbelt.png";
+import brownback from "@/assets/formals/brownback.png";
+import brownside from "@/assets/formals/brownside.png";
 
 export interface Product {
   id: string;
@@ -649,6 +655,36 @@ export const products: Product[] = [
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Brown"],
     material: "Premium Lace Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-028",
+    name: "Premium Wide Look Pants",
+    category: "formal",
+    price: 2100,
+    originalPrice: 3000,
+    image: widelook,
+    images: [widelook, widelook1, widelookback],
+    description: "Sophisticated premium wide look formal pants with elegant styling and superior fabric quality. Features a flattering wide-leg silhouette perfect for modern professional wear. Designed with impeccable tailoring for boardroom meetings and formal occasions.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Black"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-029",
+    name: "Brown Sophisticated Formal Wear",
+    category: "formal",
+    price: 2100,
+    originalPrice: 3000,
+    image: brownbelt,
+    images: [brownbelt, brownback, brownside],
+    description: "Exquisite brown formal pants with sophisticated styling and premium craftsmanship. Features elegant belt design with refined tailoring. Perfect for professional settings and formal occasions. The rich brown tone adds warmth and elegance to any formal wardrobe.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Brown"],
+    material: "Premium Polyester Blend",
     inStock: true,
     isNew: true,
   }
