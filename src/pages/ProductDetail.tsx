@@ -98,7 +98,9 @@ const ProductDetail = () => {
                 decoding="async"
                 className="w-full h-full object-cover"
                 style={{
-                  imageRendering: 'crisp-edges',
+                  imageRendering: '-webkit-optimize-contrast',
+                  transform: 'translateZ(0)',
+                  willChange: 'transform',
                 }}
               />
               {/* Badges */}
@@ -135,7 +137,8 @@ const ProductDetail = () => {
                       decoding="async"
                       className="w-full h-full object-cover"
                       style={{
-                        imageRendering: 'crisp-edges',
+                        imageRendering: '-webkit-optimize-contrast',
+                        transform: 'translateZ(0)',
                       }}
                     />
                   </button>

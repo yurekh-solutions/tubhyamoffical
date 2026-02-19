@@ -179,7 +179,7 @@ const ShopTheLook = () => {
         </div>
 
         {/* Dots Navigation */}
-        <div className="flex justify-center gap-2 mt-8 md:mt-12">
+        <div className="hidden flex justify-center gap-2 mt-8 md:mt-12">
           {lookProducts.map((_, index) => (
             <button
               key={index}

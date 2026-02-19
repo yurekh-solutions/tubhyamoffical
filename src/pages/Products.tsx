@@ -3,7 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
+import Pagination from '@/components/Pagination';
 import { useProducts, SortOption } from '@/hooks/useProducts';
+import { usePagination } from '@/hooks/usePagination';
 import { categories } from '@/data/products';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 
@@ -23,6 +25,19 @@ const Products = () => {
     searchQuery,
     sortBy,
     priceRange,
+  });
+
+  // Pagination hook
+  const {
+    currentPage,
+    totalPages,
+    paginatedItems,
+    goToPage,
+    canGoPrev,
+    canGoNext,
+  } = usePagination({
+    items: products,
+    itemsPerPage: 15,
   });
 
   useEffect(() => {
@@ -69,7 +84,7 @@ const Products = () => {
               </p>
             )}
             <p className="text-muted-foreground mt-2">
-              {totalCount} {totalCount === 1 ? 'product' : 'products'} found
+              Showing {(currentPage - 1) * 15 + 1} to {Math.min(currentPage * 15, totalCount)} of {totalCount} {totalCount === 1 ? 'product' : 'products'}
             </p>
           </div>
         </div>
@@ -173,18 +188,31 @@ const Products = () => {
             </div>
 
             {/* Products Grid */}
-            {products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {products.map((product, index) => (
-                  <div 
-                    key={product.id}
-                    className="animate-fade-in-up"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-              </div>
+            {paginatedItems.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {paginatedItems.map((product, index) => (
+                    <div 
+                      key={product.id}
+                      className="animate-fade-in-up"
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination Component */}
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={goToPage}
+                    canGoPrev={canGoPrev}
+                    canGoNext={canGoNext}
+                  />
+                )}
+              </>
             ) : (
               <div className="text-center py-20">
                 <p className="text-muted-foreground text-lg mb-4">No products found</p>

@@ -37,7 +37,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               decoding="async"
               className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 image-rendering-crisp"
               style={{
-                imageRendering: 'crisp-edges',
+                imageRendering: '-webkit-optimize-contrast',
               }}
             />
           </div>
