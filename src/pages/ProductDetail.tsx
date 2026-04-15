@@ -17,6 +17,21 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
 
+  // Map colors to their image indices
+  const getColorImages = (color: string): number[] => {
+    const colorImages: Record<string, number[]> = {
+      'Grey': [0, 1],        // Grey images are at index 0, 1
+      'Black': [2, 3],       // Black images are at index 2, 3
+      'Lavender': [4, 5],    // Lavender images are at index 4, 5
+    };
+    return colorImages[color] || [0];
+  };
+
+  // Get images for selected color
+  const filteredImages = selectedColor ? getColorImages(selectedColor) : product.images.map((_, idx) => idx);
+  const displayImages = filteredImages.map(idx => product.images[idx]);
+  const currentDisplayImage = selectedColor ? Math.min(activeImage, displayImages.length - 1) : activeImage;
+
   if (!product) {
     return (
       <div className="min-h-screen">
@@ -92,7 +107,7 @@ const ProductDetail = () => {
             {/* Main Image */}
             <div className="relative aspect-[3/4] overflow-hidden rounded-2xl glass-card">
               <img
-                src={product.images[activeImage]}
+                src={displayImages[currentDisplayImage]}
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
@@ -120,14 +135,14 @@ const ProductDetail = () => {
             </div>
 
             {/* Thumbnails */}
-            {product.images.length > 1 && (
+            {displayImages.length > 1 && (
               <div className="flex gap-3">
-                {product.images.map((img, idx) => (
+                {displayImages.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
                     className={`w-20 h-24 rounded-lg overflow-hidden border-2 transition-colors ${
-                      activeImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
+                      currentDisplayImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
                     <img
@@ -202,7 +217,10 @@ const ProductDetail = () => {
                 {product.colors.map((color) => (
                   <button
                     key={color}
-                    onClick={() => setSelectedColor(color)}
+                    onClick={() => {
+                      setSelectedColor(color);
+                      setActiveImage(0); // Reset to first image when color changes
+                    }}
                     className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all flex items-center gap-2 ${
                       (selectedColor || product.colors[0]) === color
                         ? 'border-primary bg-primary/10'

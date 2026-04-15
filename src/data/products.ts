@@ -29,6 +29,12 @@ import cargoblack from "@/assets/Tracks/cargoblack.png";
 import cargofront from "@/assets/Tracks/cargofront.png";
 import blackcargo1 from "@/assets/Tracks/blackcargo1.png";
 import blackcargo2 from "@/assets/Tracks/blackcargo2.png";
+import blackcargofront from "@/assets/Tracks/blackcargofront.jpeg";
+import blackcargoback from "@/assets/Tracks/blackcargoback.jpeg";
+import greycargo from "@/assets/Tracks/greycargo.jpeg";
+import greycargoback from "@/assets/Tracks/greycargoback.jpeg";
+import lavendercargofront from "@/assets/Tracks/lavendercargofront.jpeg";
+import lavendercargofrontback from "@/assets/Tracks/lavendercargofrontback.jpeg";
 import blackcar1 from "@/assets/Tracks/blackcar1.png";
 import balckcar2 from "@/assets/Tracks/balckcar2.png";
 import slimfit from "@/assets/Tracks/slimfit.png";
@@ -95,6 +101,8 @@ import brownback from "@/assets/formals/brownback.png";
 import brownside from "@/assets/formals/brownside.png";
 import blackbutton from "@/assets/formals/blackbutton.png";
 import olivedoublebutton from "@/assets/formals/olivedouble button.png";
+import beigeFormalFront from "@/assets/formals/beige formal.jpeg";
+import beigeFormalBack from "@/assets/formals/beige back formal.jpeg";
 
 export interface Product {
   id: string;
@@ -714,7 +722,7 @@ export const products: Product[] = [
     originalPrice: 1500,
     image: black,
     images: [black, blackback, grey, greyback],
-    description: "Elegant premium track pants available in stunning black and grey colors. Features superior fabric quality, comfortable fit, and contemporary design perfect for athleisure and casual wear. Click through the gallery to see both color options with front and back views. Versatile styling for any occasion.",
+    description: "Elegant premium track pants available in stunning black and grey colors. Features superior fabric quality, comfortable fit, and contemporary design perfect for athleisure and casual wear. Versatile styling for any occasion.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Grey"],
     material: "Premium Cotton Blend",
@@ -729,12 +737,28 @@ export const products: Product[] = [
     originalPrice: 1800,
     image: khakifront,
     images: [khakifront, khakiback],
-    description: "Sophisticated khaki track pants crafted with premium cotton blend fabric for ultimate comfort and style. Features a relaxed fit design with elastic waistband, perfect for casual wear and athleisure styling. The versatile khaki tone pairs effortlessly with any outfit. Click through to view front and back details.",
+    description: "Sophisticated khaki track pants crafted with premium cotton blend fabric for ultimate comfort and style. Features a relaxed fit design with elastic waistband, perfect for casual wear and athleisure styling. The versatile khaki tone pairs effortlessly with any outfit.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Khaki"],
     material: "Premium Cotton Blend",
     inStock: true,
     isNew: true,
+  },
+  {
+    id: "tp-013",
+    name: "Cargo Pants Collection",
+    category: "track",
+    price: 999,
+    originalPrice: 1499,
+    image: greycargo,
+    images: [greycargo, greycargoback, blackcargofront, blackcargoback, lavendercargofront, lavendercargofrontback],
+    description: "Versatile cargo pants collection available in three stunning colors - Grey, Black, and Lavender. Features multiple utility pockets, relaxed fit design, and durable premium fabric perfect for everyday comfort and streetwear styling. The modern cargo silhouette offers both functionality and fashion-forward appeal. Click through the gallery to explore all. Perfect for casual outings and contemporary urban style.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Grey", "Black", "Lavender"],
+    material: "Premium Cotton Twill",
+    inStock: true,
+    isNew: true,
+    isBestSeller: true,
   },
   {
     id: "acc-001",
@@ -765,6 +789,22 @@ export const products: Product[] = [
     material: "Premium Polyester Blend",
     inStock: true,
     isNew: true,
+  },
+  {
+    id: "fp-033",
+    name: "Premium Beige Formal Pants ",
+    category: "formal",
+    price: 1299,
+    originalPrice: 1800,
+    image: beigeFormalFront,
+    images: [beigeFormalFront, beigeFormalBack],
+    description: "Sophisticated beige formal pants crafted with premium fabric for ultimate comfort and professional elegance. Features a refined straight-leg silhouette with impeccable tailoring perfect for office wear, business meetings, and formal occasions. The versatile beige tone pairs effortlessly with any formal shirt or blazer. Designed with a comfortable waistband and practical pocket details.", 
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    colors: ["Beige"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+    isNew: true,
+    isBestSeller: true,
   }
 ];
 
