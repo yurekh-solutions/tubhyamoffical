@@ -6,20 +6,20 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-card/50 border-t border-border mt-20">
+    <footer className="bg-card/50 border-t border-border mt-8 md:mt-20">
       {/* Main Footer */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="container mx-auto px-2 md:px-4 py-8 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Brand */}
-          <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="Tubhyam" className="h-16 w-auto" />
+          <div className="space-y-3 md:space-y-4">
+            <Link to="/" className="flex items-center gap-2 md:gap-3">
+              <img src={logo} alt="Tubhyam" className="h-12 md:h-16 w-auto" />
               <div>
-                <h2 className="font-heading text-3xl font-semibold text-gradient-gold">Tubhyam</h2>
-                <p className="text-sm text-muted-foreground">तुम्हारे लिए</p>
+                <h2 className="font-heading text-2xl md:text-3xl font-semibold text-gradient-gold">Tubhyam</h2>
+                <p className="text-xs md:text-sm text-muted-foreground">तुम्हारे लिए</p>
               </div>
             </Link>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
               Premium women's clothing brand dedicated to crafting elegant, comfortable, and stylish pants for every occasion. From formal wear to casual comfort - we've got you covered.
             </p>
             <div className="flex items-center gap-4 pt-2">
@@ -43,9 +43,9 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="font-heading text-xl font-semibold">Quick Links</h3>
-            <ul className="space-y-3">
+          <div className="space-y-3 md:space-y-4">
+            <h3 className="font-heading text-lg md:text-xl font-semibold">Quick Links</h3>
+            <ul className="space-y-2 md:space-y-3">
               {[
                 { name: 'Home', path: '/' },
                 { name: 'All Products', path: '/products' },
@@ -67,9 +67,9 @@ const Footer = () => {
           </div>
 
           {/* Customer Service */}
-          <div className="space-y-4">
-            <h3 className="font-heading text-xl font-semibold">Customer Service</h3>
-            <ul className="space-y-3">
+          <div className="space-y-3 md:space-y-4">
+            <h3 className="font-heading text-lg md:text-xl font-semibold">Customer Service</h3>
+            <ul className="space-y-2 md:space-y-3">
               {[
                 { name: 'FAQ', path: '/faq' },
                 { name: 'Contact Us', path: '/contact' },
@@ -91,9 +91,9 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div className="space-y-4">
-            <h3 className="font-heading text-xl font-semibold">Contact Us</h3>
-            <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
+            <h3 className="font-heading text-lg md:text-xl font-semibold">Contact Us</h3>
+            <div className="space-y-3 md:space-y-4">
               <a 
                 href="tel:+917039382706"
                 className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
@@ -130,7 +130,7 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-border">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} Tubhyam. All rights reserved.</p>
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">

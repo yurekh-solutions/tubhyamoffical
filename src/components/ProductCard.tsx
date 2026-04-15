@@ -26,7 +26,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Link to={`/product/${product.id}`} className="group block h-full">
-      <div className="glass-card h-full rounded-3xl overflow-hidden border border-white/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
+      <div className="glass-card h-full rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden">
           <div className="product-image-zoom h-full">
@@ -87,11 +87,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
 
         {/* Product Info */}
-        <div className="p-5 space-y-2.5 bg-gradient-to-b from-background/50 to-background backdrop-blur-sm">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">
+        <div className="p-3 md:p-5 space-y-2 md:space-y-2.5 bg-gradient-to-b from-background/50 to-background backdrop-blur-sm">
+          <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest font-semibold">
             {product.category}
           </p>
-          <h3 className="font-heading text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">
+          <h3 className="font-heading text-sm md:text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">
             {product.name}
           </h3>
           <div className="flex items-center gap-2.5">

@@ -45,15 +45,15 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-12 mb-8">
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mt-6 md:mt-12 mb-4 md:mb-8 px-2">
       {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={!canGoPrev}
-        className="flex items-center gap-1 px-4 py-2 rounded-lg border border-border hover:border-primary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:bg-secondary/50"
+        className="flex items-center gap-1 px-2 sm:px-3 md:px-4 py-2 rounded-lg border border-border hover:border-primary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:bg-secondary/50 text-xs sm:text-sm"
       >
-        <ChevronLeft size={18} />
-        <span className="text-sm font-medium">Previous</span>
+        <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
+        <span className="font-medium">Previous</span>
       </button>
 
       {/* Page Numbers */}
@@ -61,7 +61,7 @@ const Pagination = ({
         {getPageNumbers().map((page, index) => {
           if (page === '...') {
             return (
-              <span key={`dots-${index}`} className="px-2 py-2 text-muted-foreground">
+              <span key={`dots-${index}`} className="px-1 sm:px-2 py-2 text-muted-foreground text-xs sm:text-sm">
                 …
               </span>
             );
@@ -71,7 +71,7 @@ const Pagination = ({
             <button
               key={page}
               onClick={() => onPageChange(page as number)}
-              className={`w-10 h-10 rounded-lg font-medium transition-all duration-300 ${
+              className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium text-xs sm:text-sm transition-all duration-300 ${
                 currentPage === page
                   ? 'bg-primary text-primary-foreground border border-primary'
                   : 'border border-border hover:border-primary/50 hover:bg-secondary/50'
@@ -87,14 +87,14 @@ const Pagination = ({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={!canGoNext}
-        className="flex items-center gap-1 px-4 py-2 rounded-lg border border-border hover:border-primary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:bg-secondary/50"
+        className="flex items-center gap-1 px-2 sm:px-3 md:px-4 py-2 rounded-lg border border-border hover:border-primary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:bg-secondary/50 text-xs sm:text-sm"
       >
-        <span className="text-sm font-medium">Next</span>
-        <ChevronRight size={18} />
+        <span className="font-medium">Next</span>
+        <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
       </button>
 
-      {/* Page Info */}
-      <div className="ml-4 text-sm text-muted-foreground">
+      {/* Page Info - Hidden on mobile */}
+      <div className="hidden sm:block ml-2 md:ml-4 text-xs sm:text-sm text-muted-foreground">
         Page <span className="font-semibold text-foreground">{currentPage}</span> of{' '}
         <span className="font-semibold text-foreground">{totalPages}</span>
       </div>
