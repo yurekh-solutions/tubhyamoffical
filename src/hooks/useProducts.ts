@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import { Product, products } from '@/data/products';
+import { useState, useEffect, useMemo } from 'react';
+import { Product } from '@/data/products';
+import { api } from '@/config/api';
 
 export type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'name-asc';
 
@@ -10,6 +11,15 @@ interface UseProductsOptions {
   priceRange?: [number, number];
 }
 
+interface ProductsApiResponse {
+  success: boolean;
+  products: Product[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
 export const useProducts = (options: UseProductsOptions = {}) => {
   const { 
     category = 'all', 
@@ -18,54 +28,49 @@ export const useProducts = (options: UseProductsOptions = {}) => {
     priceRange = [0, 10000]
   } = options;
 
-  const filteredProducts = useMemo(() => {
-    let filtered = [...products];
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    // Filter by category
-    if (category !== 'all') {
-      filtered = filtered.filter(p => p.category === category);
-    }
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query) ||
-        p.category.toLowerCase().includes(query)
-      );
-    }
+        // Build query params
+        const params = new URLSearchParams();
+        if (category !== 'all') params.append('category', category);
+        if (searchQuery) params.append('search', searchQuery);
+        if (sortBy) params.append('sortBy', sortBy);
+        params.append('minPrice', priceRange[0].toString());
+        params.append('maxPrice', priceRange[1].toString());
 
-    // Filter by price range
-    filtered = filtered.filter(p => 
-      p.price >= priceRange[0] && p.price <= priceRange[1]
-    );
+        const queryString = params.toString() ? `?${params.toString()}` : '';
+        const data = await api.get<ProductsApiResponse>(`/products${queryString}`);
 
-    // Sort products
-    switch (sortBy) {
-      case 'price-asc':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'newest':
-        filtered.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-        break;
-      case 'name-asc':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'featured':
-      default:
-        filtered.sort((a, b) => (b.isBestSeller ? 1 : 0) - (a.isBestSeller ? 1 : 0));
-        break;
-    }
+        if (data.success) {
+          setProducts(data.products);
+          setTotalCount(data.totalCount);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load products');
+        // Fallback to empty array on error
+        setProducts([]);
+        setTotalCount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return filtered;
-  }, [category, searchQuery, sortBy, priceRange]);
+    fetchProducts();
+  }, [category, searchQuery, sortBy, priceRange[0], priceRange[1]]);
 
   return {
-    products: filteredProducts,
-    totalCount: filteredProducts.length,
+    products,
+    totalCount,
+    loading,
+    error,
   };
 };

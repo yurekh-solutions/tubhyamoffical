@@ -1,11 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Heart, MessageCircle, Play } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import logo from '@/assets/looo.png';
-import { instagramFeed, instagramConfig } from '@/config/instagramConfig';
+import { instagramFeed as staticFeed, instagramConfig } from '@/config/instagramConfig';
+import { api } from '@/config/api';
+
+interface ApiInstagramPost {
+  postId: string;
+  caption: string;
+  mediaUrl: string;
+  permalink: string;
+  mediaType: string;
+  thumbnailUrl?: string;
+  likesCount: number;
+  timestamp: string;
+}
+
+interface InstagramPost {
+  id: string;
+  image: string;
+  caption: string;
+  instagramUrl: string;
+  likes?: number;
+  comments?: number;
+  isVideo?: boolean;
+}
 
 const InstagramFeed = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [feed, setFeed] = useState<InstagramPost[]>(staticFeed);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInstagramPosts = async () => {
+      try {
+        const data = await api.get<{ success: boolean; posts: ApiInstagramPost[] }>('/instagram/posts?limit=12');
+        if (data.success && data.posts && data.posts.length > 0) {
+          const mappedPosts: InstagramPost[] = data.posts.map(post => ({
+            id: post.postId,
+            image: post.mediaType === 'VIDEO' || post.mediaType === 'REEL' 
+              ? (post.thumbnailUrl || post.mediaUrl)
+              : post.mediaUrl,
+            caption: post.caption || 'Tubhyam Official',
+            instagramUrl: post.permalink,
+            likes: post.likesCount || 0,
+            comments: 0,
+            isVideo: post.mediaType === 'VIDEO' || post.mediaType === 'REEL',
+          }));
+          setFeed(mappedPosts);
+        }
+      } catch (error) {
+        console.log('Using static Instagram feed fallback');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInstagramPosts();
+  }, []);
 
   return (
     <>
@@ -94,7 +147,7 @@ const InstagramFeed = () => {
           {/* Instagram Grid - 4 columns */}
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-4 gap-0.5 sm:gap-1">
-              {instagramFeed.map((post, index) => (
+              {feed.map((post, index) => (
                 <a
                   key={post.id}
                   href={post.instagramUrl}
@@ -143,14 +196,24 @@ const InstagramFeed = () => {
             </div>
             
             {/* Load More / View Profile */}
-            <div className="text-center mt-4 sm:mt-6">
+            <div className="text-center mt-4 sm:mt-6 flex items-center justify-center gap-4">
+              <Link
+                to="/instagram"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                View Gallery
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </Link>
+              <span className="text-muted-foreground">|</span>
               <a
                 href={instagramConfig.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
-                View more on Instagram
+                View on Instagram
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"/>
                 </svg>

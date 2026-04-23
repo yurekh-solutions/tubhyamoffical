@@ -1,16 +1,50 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { categories, getProductsByCategory } from '@/data/products';
+import { categories, getProductsByCategory, Product } from '@/data/products';
 import { motion } from 'framer-motion';
-import jeans1 from '@/assets/products/jeans-8.jpg';
-import trousers from '@/assets/Tracks/trousers.png';
 
 const Categories = () => {
-  const categoryImages = {
-    formal: getProductsByCategory('formal')[0]?.image,
-    jeans: jeans1,
-    track: trousers,
-  };
+  const [categoryData, setCategoryData] = useState<Record<string, { image: string; count: number }>>({
+    formal: { image: '', count: 0 },
+    jeans: { image: '', count: 0 },
+    track: { image: '', count: 0 },
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        setLoading(true);
+        const [formalProducts, jeansProducts, trackProducts] = await Promise.all([
+          getProductsByCategory('formal'),
+          getProductsByCategory('jeans'),
+          getProductsByCategory('track'),
+        ]);
+
+        setCategoryData({
+          formal: { 
+            image: formalProducts[0]?.image || '', 
+            count: formalProducts.length 
+          },
+          jeans: { 
+            image: jeansProducts[0]?.image || '', 
+            count: jeansProducts.length 
+          },
+          track: { 
+            image: trackProducts[0]?.image || '', 
+            count: trackProducts.length 
+          },
+        });
+      } catch (error) {
+        console.error('Error fetching category data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryData();
+  }, []);
 
   const categoryGradients = {
     formal: 'from-amber-500/20 via-orange-500/10 to-transparent',
@@ -64,7 +98,7 @@ const Categories = () => {
                 <div className="absolute inset-0 overflow-hidden">
                   <div className="absolute inset-0 product-image-zoom transition-transform duration-700 group-hover:scale-110">
                     <img
-                      src={categoryImages[category.id as keyof typeof categoryImages]}
+                      src={categoryData[category.id]?.image || ''}
                       alt={category.name}
                       className="w-full h-full object-cover"
                       loading="lazy"
@@ -98,7 +132,7 @@ const Categories = () => {
                     
                     {/* Product Count */}
                     <p className="text-sm text-white/70 mb-6">
-                      {getProductsByCategory(category.id as 'formal' | 'jeans' | 'track').length} styles available
+                      {categoryData[category.id]?.count || 0} styles available
                     </p>
                     
                     {/* CTA Button */}

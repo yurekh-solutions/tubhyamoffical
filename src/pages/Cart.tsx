@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Plus, Minus, Trash2, Phone, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Plus, Minus, Trash2, Phone, ShoppingBag, ArrowLeft, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -177,16 +177,24 @@ const Cart = () => {
                     </div>
                   </div>
 
+                  <Link
+                    to="/checkout"
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground py-3 md:py-4 rounded-xl text-sm md:text-base font-medium transition-all hover:scale-105 shadow-lg hover:shadow-xl mb-3 md:mb-4"
+                  >
+                    <CreditCard size={18} className="md:w-5 md:h-5" />
+                    Proceed to Checkout
+                  </Link>
+
                   <button
                     onClick={handleWhatsAppCheckout}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 md:py-4 rounded-xl text-sm md:text-base font-medium transition-all hover:scale-105 shadow-lg hover:shadow-xl mb-3 md:mb-4"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-medium transition-all hover:scale-105 mb-3"
                   >
-                    <Phone size={18} className="md:w-5 md:h-5" />
-                    Order via WhatsApp
+                    <Phone size={16} className="md:w-4 md:h-4" />
+                    Or Order via WhatsApp
                   </button>
 
                   <p className="text-xs text-muted-foreground text-center">
-                    You will be redirected to WhatsApp to complete your order
+                    Cash on Delivery available. Free shipping on all orders.
                   </p>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -9,7 +9,9 @@ import { ShoppingBag, Heart, Phone, ChevronLeft, Minus, Plus, Check, Truck, Shie
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const product = getProductById(id || '');
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -17,20 +19,83 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
 
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const data = await getProductById(id);
+        setProduct(data);
+        
+        if (data) {
+          const related = await getProductsByCategory(data.category);
+          setRelatedProducts(related.filter(p => p.id !== id).slice(0, 4));
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+    // Reset state when product changes
+    setSelectedSize('');
+    setSelectedColor('');
+    setQuantity(1);
+    setActiveImage(0);
+  }, [id]);
+
   // Map colors to their image indices
   const getColorImages = (color: string): number[] => {
     const colorImages: Record<string, number[]> = {
-      'Grey': [0, 1],        // Grey images are at index 0, 1
-      'Black': [2, 3],       // Black images are at index 2, 3
-      'Lavender': [4, 5],    // Lavender images are at index 4, 5
+      'Grey': [0, 1],
+      'Black': [2, 3],
+      'Lavender': [4, 5],
     };
     return colorImages[color] || [0];
   };
 
   // Get images for selected color
-  const filteredImages = selectedColor ? getColorImages(selectedColor) : product.images.map((_, idx) => idx);
-  const displayImages = filteredImages.map(idx => product.images[idx]);
+  const filteredImages = selectedColor && product ? getColorImages(selectedColor) : product?.images.map((_, idx) => idx) || [];
+  const displayImages = product ? filteredImages.map(idx => product.images[idx]) : [];
   const currentDisplayImage = selectedColor ? Math.min(activeImage, displayImages.length - 1) : activeImage;
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedSize || !product) {
+      return;
+    }
+    addToCart(product, selectedSize, selectedColor || product.colors[0]);
+  };
+
+  const handleWhatsApp = () => {
+    if (!product) return;
+    const message = `Hi! I'm interested in buying:\n\n${product.name}\nSize: ${selectedSize || 'Not selected'}\nColor: ${selectedColor || product.colors[0]}\nQuantity: ${quantity}\nPrice: ${formatPrice(product.price * quantity)}\n\nPlease confirm availability.`;
+    window.open(`https://wa.me/917039382706?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-secondary rounded w-1/3 mx-auto"></div>
+            <div className="h-96 bg-secondary rounded"></div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -46,30 +111,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-
-  const relatedProducts = getProductsByCategory(product.category)
-    .filter(p => p.id !== product.id)
-    .slice(0, 4);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const handleAddToCart = () => {
-    if (!selectedSize) {
-      return;
-    }
-    addToCart(product, selectedSize, selectedColor || product.colors[0]);
-  };
-
-  const handleWhatsApp = () => {
-    const message = `Hi! I'm interested in buying:\n\n${product.name}\nSize: ${selectedSize || 'Not selected'}\nColor: ${selectedColor || product.colors[0]}\nQuantity: ${quantity}\nPrice: ${formatPrice(product.price * quantity)}\n\nPlease confirm availability.`;
-    window.open(`https://wa.me/917039382706?text=${encodeURIComponent(message)}`, '_blank');
-  };
 
   return (
     <div className="min-h-screen">
@@ -219,7 +260,7 @@ const ProductDetail = () => {
                     key={color}
                     onClick={() => {
                       setSelectedColor(color);
-                      setActiveImage(0); // Reset to first image when color changes
+                      setActiveImage(0);
                     }}
                     className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all flex items-center gap-2 ${
                       (selectedColor || product.colors[0]) === color
