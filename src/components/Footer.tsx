@@ -50,6 +50,7 @@ const Footer = () => {
                 { name: 'Home', path: '/' },
                 { name: 'All Products', path: '/products' },
                 { name: 'Size Guide', path: '/size-guide' },
+                { name: 'Instagram', path: '/instagram' },
                 { name: 'About Us', path: '/about' },
                 { name: 'Blog', path: '/blog' },
                 { name: 'FAQ', path: '/faq' },

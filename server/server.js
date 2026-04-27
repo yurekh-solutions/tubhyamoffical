@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cron = require('node-cron');
+const path = require('path');
 
 // Load env vars
 dotenv.config();
@@ -26,6 +27,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static images
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
 // MongoDB Connection
 const connectDB = async () => {

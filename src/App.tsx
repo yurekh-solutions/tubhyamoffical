@@ -24,9 +24,6 @@ import Cart from "./pages/Cart";
 import Lookbook from "./pages/Lookbook";
 import Collections from "./pages/Collections";
 import InstagramGallery from "./pages/InstagramGallery";
-import Checkout from "./pages/Checkout";
-import OrderConfirmation from "./pages/OrderConfirmation";
-import OrderTracking from "./pages/OrderTracking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,9 +51,6 @@ const App = () => (
               <Route path="/lookbook" element={<Lookbook />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/instagram" element={<InstagramGallery />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />} />
-              <Route path="/track-order" element={<OrderTracking />} />
               <Route path="/about" element={<About />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/faq" element={<FAQ />} />

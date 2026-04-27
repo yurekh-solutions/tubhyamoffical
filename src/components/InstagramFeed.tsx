@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Heart, MessageCircle, Play } from 'lucide-react';
+import { Heart, MessageCircle, Play, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/looo.png';
-import { instagramFeed as staticFeed, instagramConfig } from '@/config/instagramConfig';
+import { instagramConfig } from '@/config/instagramConfig';
 import { api } from '@/config/api';
 
 interface ApiInstagramPost {
@@ -29,17 +29,18 @@ interface InstagramPost {
 
 const InstagramFeed = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [feed, setFeed] = useState<InstagramPost[]>(staticFeed);
+  const [feed, setFeed] = useState<InstagramPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchInstagramPosts = async () => {
       try {
         const data = await api.get<{ success: boolean; posts: ApiInstagramPost[] }>('/instagram/posts?limit=12');
-        if (data.success && data.posts && data.posts.length > 0) {
+        if (!cancelled && data.success && data.posts && data.posts.length > 0) {
           const mappedPosts: InstagramPost[] = data.posts.map(post => ({
             id: post.postId,
-            image: post.mediaType === 'VIDEO' || post.mediaType === 'REEL' 
+            image: post.mediaType === 'VIDEO' || post.mediaType === 'REEL'
               ? (post.thumbnailUrl || post.mediaUrl)
               : post.mediaUrl,
             caption: post.caption || 'Tubhyam Official',
@@ -51,13 +52,14 @@ const InstagramFeed = () => {
           setFeed(mappedPosts);
         }
       } catch (error) {
-        console.log('Using static Instagram feed fallback');
+        // Silently fail — empty state will show
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchInstagramPosts();
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -146,54 +148,69 @@ const InstagramFeed = () => {
 
           {/* Instagram Grid - 4 columns */}
           <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-4 gap-0.5 sm:gap-1">
-              {feed.map((post, index) => (
+            {feed.length > 0 ? (
+              <div className="grid grid-cols-4 gap-0.5 sm:gap-1">
+                {feed.map((post, index) => (
+                  <a
+                    key={post.id}
+                    href={post.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative aspect-square overflow-hidden bg-secondary/30 cursor-pointer"
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    title={post.caption}
+                  >
+                    <img
+                      src={post.image}
+                      alt={post.caption}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                    />
+
+                    {/* Video indicator */}
+                    {post.isVideo && (
+                      <div className="absolute top-2 right-2">
+                        <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white drop-shadow-lg" fill="white" />
+                      </div>
+                    )}
+
+                    {/* Hover overlay with likes & comments */}
+                    <div
+                      className={`absolute inset-0 bg-black/50 flex items-center justify-center gap-3 sm:gap-5 transition-opacity duration-200 ${
+                        hoveredIndex === index ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    >
+                      {post.likes !== undefined && (
+                        <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
+                          <Heart className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
+                          {post.likes}
+                        </span>
+                      )}
+                      {post.comments !== undefined && post.comments > 0 && (
+                        <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
+                          <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
+                          {post.comments}
+                        </span>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-sm mb-4">Follow us on Instagram for the latest styles and updates</p>
                 <a
-                  key={post.id}
-                  href={post.instagramUrl}
+                  href={instagramConfig.profileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative aspect-square overflow-hidden bg-secondary/30 cursor-pointer"
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                  title={post.caption}
+                  className="inline-flex items-center gap-2 bg-[#0095F6] hover:bg-[#1877F2] text-white px-5 py-2 rounded-lg font-medium text-sm transition-all"
                 >
-                  <img
-                    src={post.image}
-                    alt={post.caption}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    loading="lazy"
-                  />
-                  
-                  {/* Video indicator */}
-                  {post.isVideo && (
-                    <div className="absolute top-2 right-2">
-                      <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white drop-shadow-lg" fill="white" />
-                    </div>
-                  )}
-                  
-                  {/* Hover overlay with likes & comments */}
-                  <div 
-                    className={`absolute inset-0 bg-black/50 flex items-center justify-center gap-3 sm:gap-5 transition-opacity duration-200 ${
-                      hoveredIndex === index ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  >
-                    {post.likes && (
-                      <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
-                        <Heart className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
-                        {post.likes}
-                      </span>
-                    )}
-                    {post.comments && (
-                      <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
-                        <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" fill="white" />
-                        {post.comments}
-                      </span>
-                    )}
-                  </div>
+                  <Instagram size={16} />
+                  Follow @tubhyamofficial
                 </a>
-              ))}
-            </div>
+              </div>
+            )}
             
             {/* Load More / View Profile */}
             <div className="text-center mt-4 sm:mt-6 flex items-center justify-center gap-4">

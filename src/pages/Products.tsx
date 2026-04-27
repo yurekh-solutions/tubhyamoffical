@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import Pagination from '@/components/Pagination';
+import PageLoader from '@/components/PageLoader';
 import { useProducts, SortOption } from '@/hooks/useProducts';
 import { usePagination } from '@/hooks/usePagination';
 import { categories } from '@/data/products';
@@ -20,7 +21,7 @@ const Products = () => {
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
 
-  const { products, totalCount } = useProducts({
+  const { products, totalCount, isLoading, error } = useProducts({
     category: selectedCategory,
     searchQuery,
     sortBy,
@@ -188,16 +189,28 @@ const Products = () => {
             </div>
 
             {/* Products Grid */}
-            {paginatedItems.length > 0 ? (
+            {isLoading ? (
+              <PageLoader message="Loading collection" />
+            ) : error ? (
+              <div className="text-center py-20">
+                <p className="text-destructive text-lg mb-4">{error}</p>
+                <button
+                  onClick={clearFilters}
+                  className="text-primary hover:underline"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : paginatedItems.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                   {paginatedItems.map((product, index) => (
-                    <div 
+                    <div
                       key={product.id}
                       className="animate-fade-in-up"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <ProductCard product={product} />
+                      <ProductCard product={product} priority={index < 4} />
                     </div>
                   ))}
                 </div>
@@ -216,7 +229,7 @@ const Products = () => {
             ) : (
               <div className="text-center py-20">
                 <p className="text-muted-foreground text-lg mb-4">No products found</p>
-                <button 
+                <button
                   onClick={clearFilters}
                   className="text-primary hover:underline"
                 >

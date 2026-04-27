@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import OptimizedImage from './OptimizedImage';
 
 interface ProductCardProps {
   product: Product;
+  priority?: boolean;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, priority = false }: ProductCardProps) => {
   const { addToCart } = useCart();
 
   const handleQuickAdd = (e: React.MouseEvent) => {
@@ -30,15 +32,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden">
           <div className="product-image-zoom h-full">
-            <img
+            <OptimizedImage
               src={product.image}
               alt={product.name}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 image-rendering-crisp"
-              style={{
-                imageRendering: '-webkit-optimize-contrast',
-              }}
+              containerClassName="h-full w-full"
+              className="transition-transform duration-700 group-hover:scale-105"
+              aspectRatio="3/4"
+              objectFit="contain"
+              priority={priority}
             />
           </div>
           

@@ -1,93 +1,105 @@
 const express = require('express');
 const router = express.Router();
 const InstagramPost = require('../models/InstagramPost');
-const { syncInstagramPosts } = require('../services/instagramSync');
 
-// GET all synced Instagram posts
+/**
+ * GET /api/instagram/posts
+ * Fetch Instagram posts with optional limit
+ */
 router.get('/posts', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const skip = (page - 1) * limit;
-    
+    const limit = parseInt(req.query.limit) || 12;
     const posts = await InstagramPost.find()
       .sort({ timestamp: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-    
-    const totalCount = await InstagramPost.countDocuments();
-    
+      .limit(Math.min(limit, 50));
+
     res.json({
       success: true,
-      posts,
-      totalCount,
-      currentPage: page,
-      totalPages: Math.ceil(totalCount / limit)
+      count: posts.length,
+      posts: posts.map(post => ({
+        postId: post.postId,
+        caption: post.caption,
+        mediaUrl: post.mediaUrl,
+        permalink: post.permalink,
+        mediaType: post.mediaType,
+        thumbnailUrl: post.thumbnailUrl,
+        likesCount: post.likesCount,
+        timestamp: post.timestamp
+      }))
     });
   } catch (error) {
-    console.error('Error fetching Instagram posts:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch posts' });
+    console.error('Error fetching Instagram posts:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch Instagram posts',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
-// GET single post
-router.get('/posts/:postId', async (req, res) => {
+/**
+ * GET /api/instagram/posts/:id
+ * Fetch a single Instagram post by ID
+ */
+router.get('/posts/:id', async (req, res) => {
   try {
-    const post = await InstagramPost.findOne({ postId: req.params.postId }).lean();
-    
+    const post = await InstagramPost.findOne({ postId: req.params.id });
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
     }
-    
-    res.json({ success: true, post });
-  } catch (error) {
-    console.error('Error fetching post:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch post' });
-  }
-});
 
-// POST manual sync trigger
-router.post('/sync', async (req, res) => {
-  try {
-    console.log('Manual Instagram sync triggered');
-    const result = await syncInstagramPosts();
-    
     res.json({
       success: true,
-      message: 'Instagram sync completed',
-      postsSynced: result.synced,
-      postsUpdated: result.updated
+      post: {
+        postId: post.postId,
+        caption: post.caption,
+        mediaUrl: post.mediaUrl,
+        permalink: post.permalink,
+        mediaType: post.mediaType,
+        thumbnailUrl: post.thumbnailUrl,
+        likesCount: post.likesCount,
+        timestamp: post.timestamp
+      }
     });
   } catch (error) {
-    console.error('Instagram sync error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Sync failed',
-      error: error.message 
+    console.error('Error fetching Instagram post:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch Instagram post'
     });
   }
 });
 
-// GET sync status
-router.get('/sync/status', async (req, res) => {
+/**
+ * GET /api/instagram/stats
+ * Get Instagram feed stats
+ */
+router.get('/stats', async (req, res) => {
   try {
-    const latestPost = await InstagramPost.findOne()
-      .sort({ syncedAt: -1 })
-      .select('syncedAt')
-      .lean();
-    
     const totalPosts = await InstagramPost.countDocuments();
-    
+    const videoPosts = await InstagramPost.countDocuments({
+      mediaType: { $in: ['VIDEO', 'REEL'] }
+    });
+
     res.json({
       success: true,
-      totalPosts,
-      lastSync: latestPost?.syncedAt || null,
-      hasToken: !!process.env.INSTAGRAM_ACCESS_TOKEN
+      stats: {
+        totalPosts,
+        imagePosts: totalPosts - videoPosts,
+        videoPosts,
+        lastSynced: await InstagramPost.findOne()
+          .sort({ syncedAt: -1 })
+          .select('syncedAt')
+      }
     });
   } catch (error) {
-    console.error('Error fetching sync status:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch status' });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch stats'
+    });
   }
 });
 

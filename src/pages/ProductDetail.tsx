@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
+import OptimizedImage from '@/components/OptimizedImage';
+import PageLoader from '@/components/PageLoader';
 import { getProductById, getProductsByCategory, Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { ShoppingBag, Heart, Phone, ChevronLeft, Minus, Plus, Check, Truck, Shield, RefreshCw } from 'lucide-react';
@@ -86,12 +88,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-secondary rounded w-1/3 mx-auto"></div>
-            <div className="h-96 bg-secondary rounded"></div>
-          </div>
-        </div>
+        <PageLoader message="Loading product details" />
         <Footer />
       </div>
     );
@@ -147,17 +144,13 @@ const ProductDetail = () => {
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative aspect-[3/4] overflow-hidden rounded-2xl glass-card">
-              <img
+              <OptimizedImage
                 src={displayImages[currentDisplayImage]}
                 alt={product.name}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover"
-                style={{
-                  imageRendering: '-webkit-optimize-contrast',
-                  transform: 'translateZ(0)',
-                  willChange: 'transform',
-                }}
+                containerClassName="w-full h-full"
+                aspectRatio="3/4"
+                objectFit="contain"
+                priority
               />
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -186,16 +179,12 @@ const ProductDetail = () => {
                       currentDisplayImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
-                    <img
+                    <OptimizedImage
                       src={img}
                       alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                      style={{
-                        imageRendering: '-webkit-optimize-contrast',
-                        transform: 'translateZ(0)',
-                      }}
+                      containerClassName="w-full h-full"
+                      aspectRatio="3/4"
+                      objectFit="contain"
                     />
                   </button>
                 ))}

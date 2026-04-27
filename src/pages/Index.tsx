@@ -7,7 +7,7 @@ import Hero from '@/components/Hero';
 import Categories from '@/components/Categories';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import TestimonialsSlider from '@/components/TestimonialsSlider';
-// import InstagramFeed from '@/components/InstagramFeed';
+import InstagramFeed from '@/components/InstagramFeed';
 import NewsletterSection from '@/components/NewsletterSection';
 // import StyleQuiz from '@/components/StyleQuiz';
 import ShopTheLook from '@/components/ShopTheLook';

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import ProductCard from './ProductCard';
+import PageLoader from './PageLoader';
 import { getBestSellers, getNewArrivals, Product } from '@/data/products';
 
 interface FeaturedProductsProps {
@@ -9,42 +10,37 @@ interface FeaturedProductsProps {
 }
 
 const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
-  const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
-        setLoading(true);
-        const allProducts = type === 'bestsellers' 
-          ? await getBestSellers() 
+        const data = type === 'bestsellers'
+          ? await getBestSellers()
           : await getNewArrivals();
-        
-        // Filter and prioritize: Formal, Jeans, Track. Exclude Joggers.
-        const filteredProducts = allProducts.filter(p => !p.name.toLowerCase().includes('jogger'));
-        
-        const prioritizedProducts = [
-          ...filteredProducts.filter(p => p.category === 'formal'),
-          ...filteredProducts.filter(p => p.category === 'jeans'),
-          ...filteredProducts.filter(p => p.category === 'track')
-        ];
-
-        // Remove duplicates while maintaining order
-        const uniqueProducts = Array.from(new Set(prioritizedProducts.map(p => p.id)))
-          .map(id => prioritizedProducts.find(p => p.id === id)!)
-          .slice(0, 4);
-        
-        setDisplayProducts(uniqueProducts);
-      } catch (error) {
-        console.error('Error fetching featured products:', error);
-        setDisplayProducts([]);
+        if (!cancelled) setAllProducts(data);
       } finally {
-        setLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
-
     fetchProducts();
+    return () => { cancelled = true; };
   }, [type]);
+  
+  // Filter and prioritize: Formal, Jeans, Track. Exclude Joggers.
+  const filteredProducts = allProducts.filter(p => !p.name.toLowerCase().includes('jogger'));
+
+  const prioritizedProducts = [
+    ...filteredProducts.filter(p => p.category === 'formal'),
+    ...filteredProducts.filter(p => p.category === 'jeans'),
+    ...filteredProducts.filter(p => p.category === 'track')
+  ];
+
+  // Remove duplicates while maintaining order
+  const displayProducts = Array.from(new Set(prioritizedProducts)).slice(0, 4);
 
   const title = type === 'bestsellers' ? 'Best Sellers' : 'New Arrivals';
   const subtitle = type === 'bestsellers' 
@@ -72,20 +68,12 @@ const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
         </div>
 
         {/* Products Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse">
-                <div className="bg-muted rounded-xl aspect-[3/4] mb-4" />
-                <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-                <div className="h-4 bg-muted rounded w-1/2" />
-              </div>
-            ))}
-          </div>
+        {isLoading ? (
+          <PageLoader message={`Loading ${type === 'bestsellers' ? 'best sellers' : 'new arrivals'}`} minHeight="300px" />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {displayProducts.map((product, index) => (
-              <div 
+              <div
                 key={product.id}
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s` }}

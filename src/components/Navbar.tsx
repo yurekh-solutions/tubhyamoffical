@@ -29,7 +29,6 @@ const Navbar = () => {
     { name: 'Collections', path: '/collections' },
     { name: 'Lookbook', path: '/lookbook' },
     { name: 'World of Tubhyam', path: '/world-of-tubhyam' },
-    { name: 'Track Order', path: '/track-order' },
     { name: 'Contact', path: '/contact' },
   ];
 

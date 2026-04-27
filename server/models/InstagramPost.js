@@ -4,7 +4,8 @@ const instagramPostSchema = new mongoose.Schema({
   postId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true
   },
   caption: {
     type: String,
@@ -20,20 +21,20 @@ const instagramPostSchema = new mongoose.Schema({
   },
   mediaType: {
     type: String,
-    enum: ['IMAGE', 'VIDEO', 'CAROUSEL_ALBUM', 'REEL'],
+    enum: ['IMAGE', 'VIDEO', 'REEL', 'CAROUSEL_ALBUM'],
     default: 'IMAGE'
   },
   thumbnailUrl: {
     type: String,
     default: ''
   },
-  timestamp: {
-    type: Date,
-    required: true
-  },
   likesCount: {
     type: Number,
     default: 0
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
   },
   syncedAt: {
     type: Date,
@@ -43,7 +44,7 @@ const instagramPostSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for sorting by timestamp
+// Index for efficient sorting by timestamp
 instagramPostSchema.index({ timestamp: -1 });
 
 module.exports = mongoose.model('InstagramPost', instagramPostSchema);

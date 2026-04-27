@@ -122,6 +122,14 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" },
           "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.5)" },
         },
+        "bounce-slow": {
+          "0%, 100%": { transform: "translateY(-5%)" },
+          "50%": { transform: "translateY(5%)" },
+        },
+        "shimmer-bar": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(200%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -135,6 +143,8 @@ export default {
         shimmer: "shimmer 2s infinite",
         float: "float 6s ease-in-out infinite",
         glow: "glow 2s ease-in-out infinite",
+        "bounce-slow": "bounce-slow 3s ease-in-out infinite",
+        "shimmer-bar": "shimmer-bar 1.5s ease-in-out infinite",
       },
       boxShadow: {
         elegant: "0 10px 40px -10px hsl(var(--primary) / 0.2)",
