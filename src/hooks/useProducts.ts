@@ -32,7 +32,12 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       try {
         const data = await api.get<{ success: boolean; products: Product[] }>('/products');
         if (!cancelled) {
-          setAllProducts(data.products || []);
+          // Use API data if available, otherwise fall back to static products
+          if (data.products && data.products.length > 0) {
+            setAllProducts(data.products);
+          } else {
+            setAllProducts(staticProducts);
+          }
         }
       } catch {
         if (!cancelled) {

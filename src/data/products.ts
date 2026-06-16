@@ -1147,7 +1147,8 @@ export const getProductById = async (id: string): Promise<Product | null> => {
 export const getBestSellers = async (): Promise<Product[]> => {
   try {
     const data = await api.get<{ success: boolean; products: Product[] }>(`/products/featured/bestsellers`);
-    return data.products || [];
+    if (data.products && data.products.length > 0) return data.products;
+    return getBestSellersSync();
   } catch {
     return getBestSellersSync();
   }
@@ -1156,7 +1157,8 @@ export const getBestSellers = async (): Promise<Product[]> => {
 export const getNewArrivals = async (): Promise<Product[]> => {
   try {
     const data = await api.get<{ success: boolean; products: Product[] }>(`/products/featured/new-arrivals`);
-    return data.products || [];
+    if (data.products && data.products.length > 0) return data.products;
+    return getNewArrivalsSync();
   } catch {
     return getNewArrivalsSync();
   }

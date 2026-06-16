@@ -21,9 +21,31 @@ const { syncInstagramPosts } = require('./services/instagramSync');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Middleware — allow any localhost port during development
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'http://localhost:8080',
+  'http://localhost:3000',
+  'http://localhost:4173',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:8080',
+];
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
+    if (!origin) return callback(null, true);
+    // Allow any localhost port in development
+    const isLocalhost = origin.match(/^https?:\/\/localhost:\d+/) || origin.match(/^https?:\/\/127\.0\.0\.1:\d+/);
+    if (allowedOrigins.includes(origin) || isLocalhost) {
+      return callback(null, true);
+    }
+    // In production, allow the deploy URL
+    if (origin.includes('tubhyam.com') || origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    console.warn(`CORS blocked origin: ${origin}`);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
