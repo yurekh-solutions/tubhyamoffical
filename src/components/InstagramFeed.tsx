@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import logo from '@/assets/looo.png';
 import { instagramConfig } from '@/config/instagramConfig';
 import { api } from '@/config/api';
+import { instagramFallbackPosts, getFallbackImage } from '@/data/instagramFallback';
 
 interface ApiInstagramPost {
   postId: string;
@@ -51,12 +52,22 @@ const InstagramFeed = () => {
         }));
         setFeed(mappedPosts);
         setLastFetch(new Date());
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      // Silently fail — empty state will show
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // API failed — use static fallback below
     }
+    // Use static fallback when API is unavailable
+    setFeed(instagramFallbackPosts.map((post, i) => ({
+      id: post.id,
+      image: getFallbackImage(i),
+      caption: post.caption,
+      instagramUrl: post.instagramUrl,
+      likes: post.likesCount,
+      comments: 0,
+    })));
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {

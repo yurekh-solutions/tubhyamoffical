@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import formal1 from '@/assets/formals/formal-7.jpeg';
 import { api } from '@/config/api';
 import { instagramConfig } from '@/config/instagramConfig';
+import { instagramFallbackPosts, getFallbackImage } from '@/data/instagramFallback';
 
 interface ApiInstagramPost {
   postId: string;
@@ -49,11 +50,23 @@ const Lookbook = () => {
             likes: post.likesCount || 0,
             isVideo: post.mediaType === 'VIDEO' || post.mediaType === 'REEL',
           })));
+          if (!cancelled) setIsLoading(false);
+          return;
         }
       } catch {
-        // Silent fail
-      } finally {
-        if (!cancelled) setIsLoading(false);
+        // API failed — use static fallback below
+      }
+      // Use static fallback when API is unavailable
+      if (!cancelled) {
+        setFeed(instagramFallbackPosts.map((post, i) => ({
+          id: post.id,
+          image: getFallbackImage(i),
+          caption: post.caption,
+          instagramUrl: post.instagramUrl,
+          likes: post.likesCount,
+          isVideo: false,
+        })));
+        setIsLoading(false);
       }
     };
     fetchPosts();
