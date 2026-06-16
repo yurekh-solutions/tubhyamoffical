@@ -136,6 +136,8 @@ import beggykoreanfront from "@/assets/formals/beggyplatedkoreanfront.png";
 import beggykoreanback from "@/assets/formals/beggyplatedkoreanback.png";
 import beggykoreanbackpose from "@/assets/formals/beggyplatedkoreanbackpose.png";
 import beggykoreanbackfront from "@/assets/formals/beggyplatedkoreanbackfront.png";
+import frontdenim from "@/assets/products/frontdenim.png";
+import backdenim from "@/assets/products/backdenim.png";
 import { api } from '@/config/api';
 
 export interface Product {
@@ -1084,6 +1086,21 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black"],
     material: "Premium Polyester Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "jn-006",
+    name: "Classic Denim Jeans",
+    category: "jeans",
+    price: 2000,
+    originalPrice: 2999,
+    image: frontdenim,
+    images: [frontdenim, backdenim],
+    description: "Timeless denim crafted for the modern wardrobe. Our Classic Denim Jeans feature a flattering mid-rise waist with a comfortable straight-leg silhouette that never goes out of style. Made from premium denim with just the right amount of stretch, these jeans move with you throughout the day. The rich indigo wash pairs effortlessly with everything from casual tees to dressy blouses — a true everyday essential.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Blue"],
+    material: "Premium Stretch Denim",
     inStock: true,
     isNew: true,
   },
