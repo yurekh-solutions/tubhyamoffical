@@ -117,6 +117,9 @@ import whitelacepant from "@/assets/whitelacepant.jpeg";
 import whitelacepants1 from "@/assets/whitelacepants1.jpeg";
 import whitelacepants2 from "@/assets/whitelacepants2.jpeg";
 import whitelacepants3 from "@/assets/whitelacepants3.jpeg";
+import blackcordset from "@/assets/formals/black cordset.jpeg";
+import browncordset from "@/assets/formals/brown cordset (1).jpeg";
+import beigecordset from "@/assets/formals/beige cordset.jpeg";
 import { api } from '@/config/api';
 
 export interface Product {
@@ -881,6 +884,54 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["White"],
     material: "Premium Floral Lace with Polyester Lining",
+    inStock: true,
+    isNew: true,
+    isBestSeller: true,
+  },
+  {
+    id: "fp-038",
+    name: "Black Cord Set - Elegant Co-Ord Pants",
+    category: "formal",
+    price: 1499,
+    originalPrice: 2499,
+    image: blackcordset,
+    images: [blackcordset],
+    description: "Elevate your wardrobe with our stunning Black Cord Set featuring premium corduroy fabric that combines timeless style with modern sophistication. This elegant co-ord set delivers a head-to-toe polished look perfect for office wear, brunches, or weekend outings. The rich black tone offers ultimate versatility — pair it together for a coordinated power look or mix and match each piece separately for endless styling possibilities. Crafted with soft-touch corduroy that feels luxurious against the skin while maintaining its structure throughout the day. The tailored fit flatters every body type, while the relaxed silhouette ensures all-day comfort without compromising on style.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black"],
+    material: "Premium Corduroy Cotton Blend",
+    inStock: true,
+    isNew: true,
+    isBestSeller: true,
+  },
+  {
+    id: "fp-039",
+    name: "Brown Cord Set - Classic Co-Ord Pants",
+    category: "formal",
+    price: 1499,
+    originalPrice: 2499,
+    image: browncordset,
+    images: [browncordset],
+    description: "Embrace earthy sophistication with our Brown Cord Set — a beautifully crafted co-ord ensemble in rich chocolate brown corduroy. This versatile set transitions effortlessly from casual coffee dates to semi-formal gatherings, offering a warm and inviting aesthetic that's perfect for every season. The premium corduroy fabric features a soft ribbed texture that adds visual depth and tactile luxury. Designed with a flattering relaxed fit that drapes elegantly on all body types, this set is your go-to for effortless chic. Style the pieces together for a cohesive look or wear them separately to create multiple fresh outfits from a single purchase.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Brown"],
+    material: "Premium Corduroy Cotton Blend",
+    inStock: true,
+    isNew: true,
+    isBestSeller: true,
+  },
+  {
+    id: "fp-040",
+    name: "Beige Cord Set - Chic Co-Ord Pants",
+    category: "formal",
+    price: 1499,
+    originalPrice: 2499,
+    image: beigecordset,
+    images: [beigecordset],
+    description: "Radiate understated luxury with our Beige Cord Set — a sophisticated co-ord ensemble that brings effortless elegance to your everyday wardrobe. The soft neutral beige tone complements every skin tone beautifully and pairs seamlessly with bold accessories or minimal jewelry alike. Crafted from premium corduroy with a plush ribbed finish, this set offers the perfect balance of comfort and refined style. The relaxed yet structured silhouette creates a polished appearance ideal for work presentations, gallery visits, or dinner with friends. Each piece is versatile enough to stand alone — pair the top with jeans or the pants with a crisp white shirt for a fresh, modern look.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Beige"],
+    material: "Premium Corduroy Cotton Blend",
     inStock: true,
     isNew: true,
     isBestSeller: true,
