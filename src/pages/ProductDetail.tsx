@@ -143,13 +143,12 @@ const ProductDetail = () => {
           {/* Images */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative aspect-[3/4] overflow-hidden rounded-2xl glass-card">
+            <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-background">
               <OptimizedImage
                 src={displayImages[currentDisplayImage]}
                 alt={product.name}
                 containerClassName="w-full h-full"
                 aspectRatio="3/4"
-                objectFit="contain"
                 priority
               />
               {/* Badges */}
@@ -184,7 +183,6 @@ const ProductDetail = () => {
                       alt=""
                       containerClassName="w-full h-full"
                       aspectRatio="3/4"
-                      objectFit="contain"
                     />
                   </button>
                 ))}

@@ -45,12 +45,12 @@ const OptimizedImage = ({
     >
       {/* Skeleton placeholder */}
       {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-secondary/40 animate-pulse" />
+        <div className="absolute inset-0 bg-background animate-pulse" />
       )}
 
       {/* Error fallback */}
       {hasError && (
-        <div className="absolute inset-0 bg-secondary/30 flex items-center justify-center">
+        <div className="absolute inset-0 bg-background flex items-center justify-center">
           <span className="text-xs text-muted-foreground">Image unavailable</span>
         </div>
       )}

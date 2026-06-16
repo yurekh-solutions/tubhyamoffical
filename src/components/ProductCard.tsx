@@ -35,10 +35,9 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
             <OptimizedImage
               src={product.image}
               alt={product.name}
-              containerClassName="h-full w-full"
+              containerClassName="h-full w-full bg-background"
               className="transition-transform duration-700 group-hover:scale-105"
               aspectRatio="3/4"
-              objectFit="contain"
               priority={priority}
             />
           </div>
