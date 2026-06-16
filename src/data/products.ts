@@ -132,6 +132,8 @@ import beigepleated from "@/assets/formals/beigeplated.jpeg";
 import beigepleatedback from "@/assets/formals/beigebothbackfront.jpeg";
 import greenpleated from "@/assets/formals/greenpalted.jpeg";
 import greenpleatedback from "@/assets/formals/greenbothfront back.jpeg";
+import beggykoreanfront from "@/assets/formals/beggyplatedkoreanfront.png";
+import beggykoreanback from "@/assets/formals/beggyplatedkoreanback.png";
 import { api } from '@/config/api';
 
 export interface Product {
@@ -1049,6 +1051,21 @@ export const products: Product[] = [
     description: "Step into refined elegance with our Pleated Waist Formal Pants. Designed with a sophisticated pleated waistband that adds structure and polish, these pants are perfect for office wear, client meetings, and formal occasions. The tailored straight-leg silhouette offers a flattering fit while maintaining all-day comfort. Available in three timeless colors — classic Black for boardroom authority, warm Beige for versatile daytime elegance, and refreshing Green for a modern statement. Pair with a crisp blouse and heels for a complete power look.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Beige", "Green"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-042",
+    name: "Korean Baggy Plated Formal Pants",
+    category: "formal",
+    price: 2000,
+    originalPrice: 2999,
+    image: beggykoreanfront,
+    images: [beggykoreanfront, beggykoreanback],
+    description: "Embrace the Korean fashion trend with our Baggy Plated Formal Pants. Designed with a relaxed, oversized silhouette and elegant plated detailing, these pants bring modern Seoul street style to your formal wardrobe. The wide-leg baggy fit offers effortless comfort while maintaining a polished look suitable for office wear and smart casual occasions. Pair with a fitted top and minimal accessories for that chic Korean-inspired ensemble.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black"],
     material: "Premium Polyester Blend",
     inStock: true,
     isNew: true,
