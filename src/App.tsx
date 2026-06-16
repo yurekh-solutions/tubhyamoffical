@@ -21,6 +21,8 @@ import Shipping from "./pages/Shipping";
 import Returns from "./pages/Returns";
 import VideoCall from "./pages/VideoCall";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import Lookbook from "./pages/Lookbook";
 import Collections from "./pages/Collections";
 import InstagramGallery from "./pages/InstagramGallery";
@@ -48,6 +50,8 @@ const App = () => (
               <Route path="/products" element={<Products />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/lookbook" element={<Lookbook />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/instagram" element={<InstagramGallery />} />

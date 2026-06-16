@@ -12,6 +12,7 @@ dotenv.config();
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
 const instagramRoutes = require('./routes/instagram');
+const paymentRoutes = require('./routes/payment');
 
 // Services
 const { syncInstagramPosts } = require('./services/instagramSync');
@@ -48,6 +49,7 @@ const connectDB = async () => {
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/instagram', instagramRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,10 +1,11 @@
-import { Link } from 'react-router-dom';
-import { Plus, Minus, Trash2, Phone, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Minus, Trash2, Phone, ShoppingBag, ArrowLeft, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const Cart = () => {
+  const navigate = useNavigate();
   const { 
     items, 
     removeFromCart, 
@@ -185,8 +186,16 @@ const Cart = () => {
                     Order via WhatsApp
                   </button>
 
+                  <button
+                    onClick={() => navigate('/checkout')}
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground py-3 md:py-4 rounded-xl text-sm md:text-base font-medium transition-all hover:scale-105 shadow-lg hover:shadow-xl mb-3 md:mb-4"
+                  >
+                    <CreditCard size={18} className="md:w-5 md:h-5" />
+                    Pay Online (UPI / Card)
+                  </button>
+
                   <p className="text-xs text-muted-foreground text-center">
-                    You will be redirected to WhatsApp to complete your order
+                    Secure payment powered by Razorpay
                   </p>
                 </div>
               </div>
