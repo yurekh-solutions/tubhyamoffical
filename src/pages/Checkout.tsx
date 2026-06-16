@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
-import { ShoppingBag, CreditCard, MapPin, User, Phone, Mail, Loader2 } from 'lucide-react';
+import { ShoppingBag, CreditCard, MapPin, User, Phone, Mail, Loader2, Shield, Truck, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import logo from '@/assets/logo.png';
 
 declare global {
   interface Window {
@@ -74,6 +75,8 @@ const Checkout = () => {
       return;
     }
 
+    const finalAmount = totalPrice >= 2000 ? totalPrice : totalPrice + 99;
+
     setLoading(true);
 
     try {
@@ -82,16 +85,22 @@ const Checkout = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: totalPrice,
+          amount: finalAmount,
           currency: 'INR',
           receipt: `tubhyam_${Date.now()}`,
           notes: {
             customerName: customerInfo.name,
             customerPhone: customerInfo.phone,
-            items: items.map(i => `${i.product.name} (${i.size}, ${i.color}) x${i.quantity}`).join(', '),
+            customerEmail: customerInfo.email,
+            shippingAddress: `${customerInfo.address}, ${customerInfo.city}, ${customerInfo.state} - ${customerInfo.pincode}`,
+            items: items.map(i => `${i.product.name} (${i.size}, ${i.color}) x${i.quantity}`).join(' | '),
           },
         }),
       });
+
+      if (!orderResponse.ok) {
+        throw new Error('Server is currently unavailable. Please try again or order via WhatsApp.');
+      }
 
       const orderData = await orderResponse.json();
 
@@ -105,7 +114,8 @@ const Checkout = () => {
         amount: orderData.order.amount,
         currency: orderData.order.currency,
         name: 'Tubhyam',
-        description: `Order for ${items.length} item(s)`,
+        description: `${items.length} item(s) | ${customerInfo.name}`,
+        image: logo,
         order_id: orderData.order.id,
         handler: async (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
           // Step 3: Verify payment on backend
@@ -123,13 +133,13 @@ const Checkout = () => {
             const verifyData = await verifyResponse.json();
 
             if (verifyData.success) {
-              toast.success('Payment successful!');
+              toast.success('Payment successful! Order confirmed.');
               clearCart();
               navigate('/order-confirmation', {
                 state: {
                   paymentId: response.razorpay_payment_id,
                   orderId: response.razorpay_order_id,
-                  amount: totalPrice,
+                  amount: finalAmount,
                   items,
                   customerInfo,
                 },
@@ -151,13 +161,14 @@ const Checkout = () => {
         },
         theme: {
           color: '#ffd3ac',
-          backdrop_color: 'rgba(0,0,0,0.7)',
         },
         modal: {
           ondismiss: () => {
             setLoading(false);
-            toast.info('Payment cancelled');
+            toast.info('Payment was cancelled. You can try again anytime.');
           },
+          confirm_close: true,
+          escape: false,
         },
       };
 
@@ -417,6 +428,22 @@ const Checkout = () => {
               <p className="text-xs text-center text-muted-foreground">
                 Secured by Razorpay. UPI, Cards, Net Banking accepted.
               </p>
+
+              {/* Trust Badges */}
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border/50">
+                <div className="text-center">
+                  <Shield size={18} className="mx-auto text-primary mb-1" />
+                  <p className="text-[10px] text-muted-foreground">Secure Payment</p>
+                </div>
+                <div className="text-center">
+                  <Truck size={18} className="mx-auto text-primary mb-1" />
+                  <p className="text-[10px] text-muted-foreground">Fast Delivery</p>
+                </div>
+                <div className="text-center">
+                  <RefreshCw size={18} className="mx-auto text-primary mb-1" />
+                  <p className="text-[10px] text-muted-foreground">7 Day Returns</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

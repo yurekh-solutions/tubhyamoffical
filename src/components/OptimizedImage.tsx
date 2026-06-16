@@ -65,12 +65,11 @@ const OptimizedImage = ({
         fetchpriority={priority ? 'high' : 'auto'}
         onLoad={handleLoad}
         onError={handleError}
-        className={`w-full h-full object-${objectFit} transition-opacity duration-500 ${
+        className={`w-full h-full transition-opacity duration-500 ${
+          objectFit === 'contain' ? 'object-contain' : 'object-cover'
+        } ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         } ${className}`}
-        style={{
-          imageRendering: '-webkit-optimize-contrast',
-        }}
       />
     </div>
   );

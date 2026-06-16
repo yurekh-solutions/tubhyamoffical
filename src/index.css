@@ -244,17 +244,14 @@
     @apply transition-transform duration-700 ease-out;
     width: 100%;
     height: 100%;
-    object-fit: cover;
     object-position: center;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   .product-image-zoom:hover img {
-    transform: scale(1.08);
+    transform: scale(1.05);
   }
 
   /* Marquee Animations */
