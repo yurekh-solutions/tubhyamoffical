@@ -120,6 +120,12 @@ import whitelacepants3 from "@/assets/whitelacepants3.jpeg";
 import blackcordset from "@/assets/formals/black cordset.jpeg";
 import browncordset from "@/assets/formals/brown cordset (1).jpeg";
 import beigecordset from "@/assets/formals/beige cordset.jpeg";
+import greencausal from "@/assets/greencausal.jpeg";
+import creamcausal from "@/assets/creamcausal.jpeg";
+import greycausal from "@/assets/greycausal.jpeg";
+import lavendercausal from "@/assets/lavendercausal.jpeg";
+import navybluecausal from "@/assets/navybluecausal.jpeg";
+import browncausal from "@/assets/browncausal.jpeg";
 import { api } from '@/config/api';
 
 export interface Product {
@@ -935,6 +941,96 @@ export const products: Product[] = [
     inStock: true,
     isNew: true,
     isBestSeller: true,
+  },
+  {
+    id: "tp-014",
+    name: "Green Casual Comfort Pants",
+    category: "track",
+    price: 1299,
+    originalPrice: 1999,
+    image: greencausal,
+    images: [greencausal],
+    description: "Step into effortless style with our Green Casual Comfort Pants. Crafted from breathable, lightweight fabric that keeps you cool and comfortable throughout the day. The relaxed fit and elastic waistband make these your perfect companion for weekend outings, coffee runs, or just lounging in style. The fresh green hue adds a pop of color to any casual outfit — pair with a white tee and sneakers for an effortlessly chic look.",
+    sizes: ["S", "M", "L"],
+    colors: ["Green"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "tp-015",
+    name: "Cream Casual Comfort Pants",
+    category: "track",
+    price: 1299,
+    originalPrice: 1999,
+    image: creamcausal,
+    images: [creamcausal],
+    description: "Embrace minimalist elegance with our Cream Casual Comfort Pants. These versatile pants feature a soft, relaxed silhouette that transitions seamlessly from daytime errands to evening hangouts. The warm cream tone pairs beautifully with any top in your wardrobe, making outfit selection effortless. Premium fabric ensures all-day comfort with just the right amount of stretch for easy movement.",
+    sizes: ["S", "M", "L"],
+    colors: ["Cream"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "tp-016",
+    name: "Grey Casual Comfort Pants",
+    category: "track",
+    price: 1299,
+    originalPrice: 1999,
+    image: greycausal,
+    images: [greycausal],
+    description: "Your wardrobe essential just arrived — our Grey Casual Comfort Pants combine timeless appeal with modern comfort. The neutral grey tone works with everything from graphic tees to cozy hoodies, making these the most versatile pants you'll own. Soft elastic waist and relaxed fit ensure maximum comfort whether you're working from home, hitting the gym, or meeting friends for brunch.",
+    sizes: ["S", "M", "L"],
+    colors: ["Grey"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "tp-017",
+    name: "Lavender Casual Comfort Pants",
+    category: "track",
+    price: 1299,
+    originalPrice: 1999,
+    image: lavendercausal,
+    images: [lavendercausal],
+    description: "Make a soft statement with our Lavender Casual Comfort Pants. The dreamy lavender shade adds a touch of feminine charm to your casual wardrobe without being overly bold. Perfect for spring outings, park picnics, or lazy Sunday strolls. The lightweight fabric drapes beautifully while the elastic waistband guarantees a perfect fit and unrestricted movement all day long.",
+    sizes: ["S", "M", "L"],
+    colors: ["Lavender"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "tp-018",
+    name: "Navy Blue Casual Comfort Pants",
+    category: "track",
+    price: 1299,
+    originalPrice: 1999,
+    image: navybluecausal,
+    images: [navybluecausal],
+    description: "Classic meets comfort in our Navy Blue Casual Comfort Pants. The deep navy blue is a wardrobe staple that looks polished even in the most relaxed settings. Whether you're running errands, catching up with friends, or enjoying a weekend getaway, these pants deliver both style and ease. The premium soft-touch fabric and relaxed fit make them ideal for all-day wear without compromise.",
+    sizes: ["S", "M", "L"],
+    colors: ["Navy Blue"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "tp-019",
+    name: "Brown Casual Comfort Pants",
+    category: "track",
+    price: 1299,
+    originalPrice: 1999,
+    image: browncausal,
+    images: [browncausal],
+    description: "Warm and inviting, our Brown Casual Comfort Pants bring earthy elegance to your everyday style. The rich brown hue adds depth and sophistication to casual outfits, pairing perfectly with whites, creams, and denim jackets. Designed for the modern woman who values comfort without sacrificing style — the soft fabric and relaxed fit make these your new go-to for everything from coffee dates to weekend markets.",
+    sizes: ["S", "M", "L"],
+    colors: ["Brown"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+    isNew: true,
   },
 ];
 

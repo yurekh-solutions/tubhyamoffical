@@ -61,7 +61,8 @@ const OptimizedImage = ({
         alt={alt}
         loading={priority ? 'eager' : lazy ? 'lazy' : 'eager'}
         decoding={priority ? 'sync' : 'async'}
-        fetchPriority={priority ? 'high' : 'auto'}
+        // @ts-expect-error React doesn't recognize fetchpriority yet
+        fetchpriority={priority ? 'high' : 'auto'}
         onLoad={handleLoad}
         onError={handleError}
         className={`w-full h-full object-${objectFit} transition-opacity duration-500 ${
