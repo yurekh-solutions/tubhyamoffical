@@ -153,6 +153,7 @@ const ProductDetail = () => {
                 alt={product.name}
                 containerClassName="w-full h-full"
                 aspectRatio="3/4"
+                objectFit="contain"
                 priority
               />
               {/* Badges */}
@@ -187,6 +188,7 @@ const ProductDetail = () => {
                       alt=""
                       containerClassName="w-full h-full"
                       aspectRatio="3/4"
+                      objectFit="contain"
                     />
                   </button>
                 ))}
