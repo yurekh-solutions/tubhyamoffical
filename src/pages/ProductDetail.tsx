@@ -48,14 +48,18 @@ const ProductDetail = () => {
     setActiveImage(0);
   }, [id]);
 
-  // Map colors to their image indices
+  // Map colors to their image indices (auto-calculated for multi-color products)
   const getColorImages = (color: string): number[] => {
-    const colorImages: Record<string, number[]> = {
-      'Grey': [0, 1],
-      'Black': [2, 3],
-      'Lavender': [4, 5],
-    };
-    return colorImages[color] || [0];
+    if (!product) return [0];
+    const imagesPerColor = product.images.length / product.colors.length;
+    if (Number.isInteger(imagesPerColor) && imagesPerColor > 1) {
+      const colorIndex = product.colors.indexOf(color);
+      if (colorIndex >= 0) {
+        return Array.from({ length: imagesPerColor }, (_, i) => colorIndex * imagesPerColor + i);
+      }
+    }
+    // Fallback: first image for any color
+    return [0];
   };
 
   // Get images for selected color

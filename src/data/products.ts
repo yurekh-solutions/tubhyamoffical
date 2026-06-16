@@ -126,6 +126,12 @@ import greycausal from "@/assets/greycausal.jpeg";
 import lavendercausal from "@/assets/lavendercausal.jpeg";
 import navybluecausal from "@/assets/navybluecausal.jpeg";
 import browncausal from "@/assets/browncausal.jpeg";
+import blackpleated from "@/assets/formals/blackpalted.jpeg";
+import blackpleatedback from "@/assets/formals/blackbothbackfron.jpeg";
+import beigepleated from "@/assets/formals/beigeplated.jpeg";
+import beigepleatedback from "@/assets/formals/beigebothbackfront.jpeg";
+import greenpleated from "@/assets/formals/greenpalted.jpeg";
+import greenpleatedback from "@/assets/formals/greenbothfront back.jpeg";
 import { api } from '@/config/api';
 
 export interface Product {
@@ -1029,6 +1035,21 @@ export const products: Product[] = [
     sizes: ["S", "M", "L"],
     colors: ["Brown"],
     material: "Soft Cotton Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-041",
+    name: "Pleated Waist Formal Pants",
+    category: "formal",
+    price: 1999,
+    originalPrice: 2999,
+    image: blackpleated,
+    images: [blackpleated, blackpleatedback, beigepleated, beigepleatedback, greenpleated, greenpleatedback],
+    description: "Step into refined elegance with our Pleated Waist Formal Pants. Designed with a sophisticated pleated waistband that adds structure and polish, these pants are perfect for office wear, client meetings, and formal occasions. The tailored straight-leg silhouette offers a flattering fit while maintaining all-day comfort. Available in three timeless colors — classic Black for boardroom authority, warm Beige for versatile daytime elegance, and refreshing Green for a modern statement. Pair with a crisp blouse and heels for a complete power look.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Beige", "Green"],
+    material: "Premium Polyester Blend",
     inStock: true,
     isNew: true,
   },
