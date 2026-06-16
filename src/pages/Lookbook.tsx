@@ -2,76 +2,63 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Instagram, Heart, Play, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import formal1 from '@/assets/formals/formal-7.jpeg';
-import formal2 from '@/assets/formals/belt-formal-beige.jpeg';
-import formal3 from '@/assets/formals/brown-formal.jpeg';
-import formal4 from '@/assets/formals/olive-formal-belt.jpeg';
-import jeans1 from '@/assets/products/jeans-1.jpg';
-import jeans2 from '@/assets/products/jeans-2.jpg';
-import track1 from '@/assets/Tracks/track-pants-1.jpg';
-import track2 from '@/assets/Tracks/track-pants-2.jpg';
+import { api } from '@/config/api';
+import { instagramConfig } from '@/config/instagramConfig';
 
-const lookbookImages = [
-  {
-    id: 1,
-    image: formal1,
-    title: "Urban Elegance",
-    category: "Formal",
-    link: "/products?category=formal"
-  },
-  {
-    id: 2,
-    image: track1,
-    title: "Street Style",
-    category: "Track Pants",
-    link: "/products?category=track"
-  },
-  {
-    id: 3,
-    image: track2,
-    title: "Weekend Vibes",
-    category: "Track Pants",
-    link: "/products?category=track"
-  },
-  {
-    id: 4,
-    image: formal2,
-    title: "Power Dressing",
-    category: "Formal",
-    link: "/products?category=formal"
-  },
-  {
-    id: 5,
-    image: jeans1,
-    title: "Denim Dreams",
-    category: "Jeans",
-    link: "/products?category=jeans"
-  },
-  {
-    id: 6,
-    image: formal3,
-    title: "Effortless Chic",
-    category: "Formal",
-    link: "/products?category=formal"
-  },
-  {
-    id: 7,
-    image: formal4,
-    title: "City Nights",
-    category: "Formal",
-    link: "/products?category=formal"
-  },
-  {
-    id: 8,
-    image: jeans2,
-    title: "Modern Classic",
-    category: "Jeans",
-    link: "/products?category=jeans"
-  }
-];
+interface ApiInstagramPost {
+  postId: string;
+  caption: string;
+  mediaUrl: string;
+  permalink: string;
+  mediaType: string;
+  thumbnailUrl?: string;
+  likesCount: number;
+  timestamp: string;
+}
+
+interface InstagramPost {
+  id: string;
+  image: string;
+  caption: string;
+  instagramUrl: string;
+  likes?: number;
+  isVideo?: boolean;
+}
 
 const Lookbook = () => {
+  const [feed, setFeed] = useState<InstagramPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchPosts = async () => {
+      try {
+        const data = await api.get<{ success: boolean; posts: ApiInstagramPost[] }>('/instagram/posts?limit=12');
+        if (!cancelled && data.success && data.posts && data.posts.length > 0) {
+          setFeed(data.posts.map((post: ApiInstagramPost) => ({
+            id: post.postId,
+            image: post.mediaType === 'VIDEO' || post.mediaType === 'REEL'
+              ? (post.thumbnailUrl || post.mediaUrl)
+              : post.mediaUrl,
+            caption: post.caption || 'Tubhyam Official',
+            instagramUrl: post.permalink,
+            likes: post.likesCount || 0,
+            isVideo: post.mediaType === 'VIDEO' || post.mediaType === 'REEL',
+          })));
+        }
+      } catch {
+        // Silent fail
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    fetchPosts();
+    return () => { cancelled = true; };
+  }, []);
   return (
     <>
       <SEO
@@ -103,37 +90,113 @@ const Lookbook = () => {
         </div>
       </section>
 
-      {/* Gallery Grid */}
+      {/* Gallery Grid - Dynamic Instagram Feed */}
       <section className="py-12 sm:py-16 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {lookbookImages.map((item, index) => (
-              <Link
-                key={item.id}
-                to={item.link}
-                className={`group relative overflow-hidden rounded-xl sm:rounded-2xl ${
-                  index % 5 === 0 ? 'sm:col-span-2 sm:row-span-2' : ''
-                }`}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent" />
+            </div>
+          ) : feed.length > 0 ? (
+            <>
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full border border-primary/20">
+                  <Instagram size={14} className="text-primary" />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Live from{' '}
+                    <a href={instagramConfig.profileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      @{instagramConfig.username}
+                    </a>
+                  </span>
+                  <span className="text-xs text-muted-foreground">• Auto-refreshes</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                {feed.map((post, index) => (
+                  <a
+                    key={post.id}
+                    href={post.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer ${
+                      index === 0 ? 'sm:col-span-2 sm:row-span-2' : ''
+                    }`}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                  >
+                    <div className={`aspect-[3/4] ${index === 0 ? 'sm:aspect-auto sm:h-full' : ''}`}>
+                      <img
+                        src={post.image}
+                        alt={post.caption}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    {/* Video indicator */}
+                    {post.isVideo && (
+                      <div className="absolute top-3 right-3">
+                        <Play className="w-5 h-5 text-white drop-shadow-lg" fill="white" />
+                      </div>
+                    )}
+
+                    {/* Hover overlay with likes */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-all duration-500 ${
+                        hoveredIndex === index ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    >
+                      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                        <div className="flex items-center gap-3 mb-2">
+                          {post.likes !== undefined && (
+                            <span className="flex items-center gap-1 text-white text-xs sm:text-sm font-semibold">
+                              <Heart className="w-4 h-4" fill="white" />
+                              {post.likes}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-white/90 text-xs sm:text-sm line-clamp-2 mb-2">{post.caption}</p>
+                        <span className="inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-primary hover:text-white transition-colors">
+                          View on Instagram <ExternalLink size={12} className="sm:w-3.5 sm:h-3.5" />
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+
+              {/* Follow CTA */}
+              <div className="text-center mt-10">
+                <a
+                  href={instagramConfig.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#0095F6] hover:bg-[#1877F2] text-white px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 hover:scale-105"
+                >
+                  <Instagram size={16} />
+                  Follow @{instagramConfig.username}
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-16">
+              <Instagram size={48} className="mx-auto text-muted-foreground mb-4" />
+              <h3 className="font-heading text-xl mb-2">Stay Inspired</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Follow us on Instagram for daily style inspiration, new drops, and exclusive behind-the-scenes content.
+              </p>
+              <a
+                href={instagramConfig.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#0095F6] hover:bg-[#1877F2] text-white px-6 py-3 rounded-full font-medium text-sm transition-all"
               >
-                <div className={`aspect-[3/4] ${index % 5 === 0 ? 'sm:aspect-square' : ''}`}>
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                    <p className="text-primary text-xs sm:text-sm uppercase tracking-wider mb-1 sm:mb-2">{item.category}</p>
-                    <h3 className="font-heading text-xl sm:text-2xl md:text-3xl text-white font-semibold mb-2 sm:mb-4">{item.title}</h3>
-                    <span className="inline-flex items-center gap-1 sm:gap-2 text-sm sm:text-base text-white hover:text-primary transition-colors">
-                      Shop the Look <ArrowRight size={14} className="sm:w-4 sm:h-4" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                <Instagram size={16} />
+                Visit @{instagramConfig.username}
+              </a>
+            </div>
+          )}
         </div>
       </section>
 

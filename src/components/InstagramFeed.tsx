@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Heart, MessageCircle, Play, Instagram } from 'lucide-react';
+import { Heart, MessageCircle, Play, Instagram, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/looo.png';
 import { instagramConfig } from '@/config/instagramConfig';
@@ -31,36 +31,44 @@ const InstagramFeed = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [feed, setFeed] = useState<InstagramPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastFetch, setLastFetch] = useState<Date | null>(null);
+
+  const fetchInstagramPosts = useCallback(async (showLoading = false) => {
+    if (showLoading) setIsLoading(true);
+    try {
+      const data = await api.get<{ success: boolean; posts: ApiInstagramPost[]; source?: string }>('/instagram/posts?limit=12');
+      if (data.success && data.posts && data.posts.length > 0) {
+        const mappedPosts: InstagramPost[] = data.posts.map(post => ({
+          id: post.postId,
+          image: post.mediaType === 'VIDEO' || post.mediaType === 'REEL'
+            ? (post.thumbnailUrl || post.mediaUrl)
+            : post.mediaUrl,
+          caption: post.caption || 'Tubhyam Official',
+          instagramUrl: post.permalink,
+          likes: post.likesCount || 0,
+          comments: 0,
+          isVideo: post.mediaType === 'VIDEO' || post.mediaType === 'REEL',
+        }));
+        setFeed(mappedPosts);
+        setLastFetch(new Date());
+      }
+    } catch (error) {
+      // Silently fail — empty state will show
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    const fetchInstagramPosts = async () => {
-      try {
-        const data = await api.get<{ success: boolean; posts: ApiInstagramPost[] }>('/instagram/posts?limit=12');
-        if (!cancelled && data.success && data.posts && data.posts.length > 0) {
-          const mappedPosts: InstagramPost[] = data.posts.map(post => ({
-            id: post.postId,
-            image: post.mediaType === 'VIDEO' || post.mediaType === 'REEL'
-              ? (post.thumbnailUrl || post.mediaUrl)
-              : post.mediaUrl,
-            caption: post.caption || 'Tubhyam Official',
-            instagramUrl: post.permalink,
-            likes: post.likesCount || 0,
-            comments: 0,
-            isVideo: post.mediaType === 'VIDEO' || post.mediaType === 'REEL',
-          }));
-          setFeed(mappedPosts);
-        }
-      } catch (error) {
-        // Silently fail — empty state will show
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    };
-
-    fetchInstagramPosts();
-    return () => { cancelled = true; };
-  }, []);
+    fetchInstagramPosts(true);
+    
+    // Auto-refresh every 5 minutes
+    const interval = setInterval(() => {
+      fetchInstagramPosts(false);
+    }, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [fetchInstagramPosts]);
 
   return (
     <>
@@ -149,7 +157,28 @@ const InstagramFeed = () => {
           {/* Instagram Grid - 4 columns */}
           <div className="max-w-4xl mx-auto">
             {feed.length > 0 ? (
-              <div className="grid grid-cols-4 gap-0.5 sm:gap-1">
+              <>
+                {/* Live badge */}
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    Live from Instagram
+                  </span>
+                  {lastFetch && (
+                    <span className="text-xs text-muted-foreground">
+                      Updated {lastFetch.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => fetchInstagramPosts(true)}
+                    className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                    title="Refresh feed"
+                  >
+                    <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
+                    Refresh
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-0.5 sm:gap-1">
                 {feed.map((post, index) => (
                   <a
                     key={post.id}
@@ -197,6 +226,7 @@ const InstagramFeed = () => {
                   </a>
                 ))}
               </div>
+              </>
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground text-sm mb-4">Follow us on Instagram for the latest styles and updates</p>

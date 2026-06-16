@@ -1,17 +1,46 @@
 const express = require('express');
 const router = express.Router();
 const InstagramPost = require('../models/InstagramPost');
+const { fetchPublicProfile } = require('../services/instagramSync');
 
 /**
  * GET /api/instagram/posts
  * Fetch Instagram posts with optional limit
+ * Falls back to public scraping if DB is empty
  */
 router.get('/posts', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 12;
-    const posts = await InstagramPost.find()
+    let posts = await InstagramPost.find()
       .sort({ timestamp: -1 })
       .limit(Math.min(limit, 50));
+
+    // If DB is empty, try to fetch from public profile
+    if (posts.length === 0) {
+      try {
+        const publicPosts = await fetchPublicProfile(limit);
+        if (publicPosts.length > 0) {
+          // Return public posts directly without saving (read-only fallback)
+          return res.json({
+            success: true,
+            count: publicPosts.length,
+            source: 'public',
+            posts: publicPosts.map(post => ({
+              postId: post.id,
+              caption: post.caption || '',
+              mediaUrl: post.mediaUrl,
+              permalink: post.permalink,
+              mediaType: post.mediaType,
+              thumbnailUrl: post.thumbnailUrl || post.mediaUrl,
+              likesCount: post.likeCount || 0,
+              timestamp: post.timestamp
+            }))
+          });
+        }
+      } catch (scrapeErr) {
+        console.error('Public scrape fallback failed:', scrapeErr.message);
+      }
+    }
 
     res.json({
       success: true,
