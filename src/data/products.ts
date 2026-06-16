@@ -134,6 +134,8 @@ import greenpleated from "@/assets/formals/greenpalted.jpeg";
 import greenpleatedback from "@/assets/formals/greenbothfront back.jpeg";
 import beggykoreanfront from "@/assets/formals/beggyplatedkoreanfront.png";
 import beggykoreanback from "@/assets/formals/beggyplatedkoreanback.png";
+import beggykoreanbackpose from "@/assets/formals/beggyplatedkoreanbackpose.png";
+import beggykoreanbackfront from "@/assets/formals/beggyplatedkoreanbackfront.png";
 import { api } from '@/config/api';
 
 export interface Product {
@@ -1064,6 +1066,21 @@ export const products: Product[] = [
     image: beggykoreanfront,
     images: [beggykoreanfront, beggykoreanback],
     description: "Embrace the Korean fashion trend with our Baggy Plated Formal Pants. Designed with a relaxed, oversized silhouette and elegant plated detailing, these pants bring modern Seoul street style to your formal wardrobe. The wide-leg baggy fit offers effortless comfort while maintaining a polished look suitable for office wear and smart casual occasions. Pair with a fitted top and minimal accessories for that chic Korean-inspired ensemble.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black"],
+    material: "Premium Polyester Blend",
+    inStock: true,
+    isNew: true,
+  },
+  {
+    id: "fp-043",
+    name: "Korean Baggy Plated Formal Pants - Pose",
+    category: "formal",
+    price: 2000,
+    originalPrice: 2999,
+    image: beggykoreanbackfront,
+    images: [beggykoreanbackpose, beggykoreanbackfront],
+    description: "A fresh pose variation of our Korean Baggy Plated Formal Pants. Designed with a relaxed, oversized silhouette and elegant plated detailing, these pants capture the essence of Seoul street style. Featuring detailed back pose and front-back combined views so you can see every angle of the beautiful plated design. The wide-leg baggy fit ensures all-day comfort while keeping your look polished for office and smart casual occasions.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black"],
     material: "Premium Polyester Blend",
