@@ -21,9 +21,12 @@ const { syncInstagramPosts } = require('./services/instagramSync');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware — allow any localhost port during development
+// Middleware — CORS configuration
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://tubhyam.in',
+  'https://www.tubhyam.in',
+  'https://tubhyamoffical.vercel.app',
   'http://localhost:8080',
   'http://localhost:3000',
   'http://localhost:4173',
@@ -39,8 +42,8 @@ app.use(cors({
     if (allowedOrigins.includes(origin) || isLocalhost) {
       return callback(null, true);
     }
-    // In production, allow the deploy URL
-    if (origin.includes('tubhyam.com') || origin.includes('vercel.app')) {
+    // In production, allow tubhyam domains and vercel
+    if (origin.includes('tubhyam') || origin.includes('vercel.app') || origin.includes('onrender.com')) {
       return callback(null, true);
     }
     console.warn(`CORS blocked origin: ${origin}`);
