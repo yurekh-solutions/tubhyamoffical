@@ -8,6 +8,27 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      // Inventory dashboard & API — same origin at /inventory
+      '/inventory': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/inventory/, ''),
+      },
+      // Inventory API endpoints
+      '/api/products': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+      '/api/orders': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+      '/api/payment': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
