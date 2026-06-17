@@ -23,7 +23,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware — CORS configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:8080',
+  process.env.FRONTEND_URL,
+  process.env.LOCAL_FRONTEND_URL || 'http://localhost:8080',
   'https://tubhyam.in',
   'https://www.tubhyam.in',
   'https://tubhyamoffical.vercel.app',
@@ -31,7 +32,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://127.0.0.1:8080',
   'https://inventory-app-pixl.onrender.com',
-];
+].filter(Boolean);
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, Postman, etc.)
@@ -90,10 +91,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
-});
+// Serve built frontend in production
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '..', 'dist');
+  app.use(express.static(distPath));
+  // All non-API routes serve the SPA
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api/') && !req.path.startsWith('/images/')) {
+      res.sendFile(path.join(distPath, 'index.html'));
+    } else {
+      res.status(404).json({ success: false, message: 'Route not found' });
+    }
+  });
+} else {
+  // 404 handler (dev only)
+  app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'Route not found' });
+  });
+}
 
 // Start server
 connectDB().then(() => {
