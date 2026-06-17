@@ -23,15 +23,14 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware — CORS configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:5173',
+  process.env.FRONTEND_URL || 'http://localhost:8080',
   'https://tubhyam.in',
   'https://www.tubhyam.in',
   'https://tubhyamoffical.vercel.app',
   'http://localhost:8080',
-  'http://localhost:3000',
-  'http://localhost:4173',
-  'http://127.0.0.1:5173',
+  'http://localhost:3001',
   'http://127.0.0.1:8080',
+  'https://inventory-app-pixl.onrender.com',
 ];
 app.use(cors({
   origin: (origin, callback) => {
