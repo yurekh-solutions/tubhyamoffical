@@ -159,6 +159,22 @@ export interface Product {
 }
 
 export const products: Product[] = [
+  // TEST PRODUCT - ₹1 for payment testing
+  {
+    id: "test-001",
+    name: "Cloud Grey Comfort Joggers (Test)",
+    category: "track",
+    price: 1,
+    originalPrice: 1699,
+    image: trackPants2,
+    images: [trackPants2],
+    description: "TEST PRODUCT - ₹1 for payment testing. Same as Cloud Grey Comfort Joggers.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Grey", "Navy", "Black"],
+    material: "Soft Cotton Blend",
+    inStock: true,
+    isBestSeller: false,
+  },
   {
     id: "pt-004",
     name: "Relaxed Fit Elastic Waist Trousers",
