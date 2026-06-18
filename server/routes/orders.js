@@ -74,6 +74,54 @@ router.post('/', async (req, res) => {
   }
 });
 
+// GET /api/orders - Get all orders
+router.get('/', async (req, res) => {
+  try {
+    // Fetch invoices from inventory app
+    try {
+      const { data } = await axios.get(
+        `${INVENTORY_API}/api/invoices`,
+        { timeout: 10000 }
+      );
+      
+      const orders = (Array.isArray(data) ? data : data.invoices || []).map(inv => ({
+        id: inv.invoiceNo || inv._id,
+        paymentId: inv.paymentId || '',
+        amount: inv.grandTotal || 0,
+        status: inv.status || 'confirmed',
+        shippingStatus: inv.shippingStatus || 'pending',
+        awbCode: inv.awbCode || '',
+        shipmentId: inv.shipmentId || '',
+        customerInfo: {
+          name: inv.customerName || '',
+          phone: inv.customerPhone || '',
+          email: inv.customerEmail || '',
+          address: inv.shippingAddress?.address || inv.billingAddress?.address || '',
+          city: inv.shippingAddress?.city || inv.billingAddress?.city || '',
+          state: inv.shippingAddress?.state || inv.billingAddress?.state || '',
+          pincode: inv.shippingAddress?.pincode || inv.billingAddress?.pincode || '',
+        },
+        items: (inv.items || []).map(item => ({
+          name: item.name,
+          sku: item.sku,
+          quantity: item.quantity,
+          price: item.rate,
+        })),
+        createdAt: inv.createdAt || inv.invoiceDate,
+      }));
+      
+      return res.json({ success: true, orders });
+    } catch (invErr) {
+      console.error('Failed to fetch invoices:', invErr.message);
+    }
+    
+    res.json({ success: true, orders: [] });
+  } catch (error) {
+    console.error('Failed to fetch orders:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch orders' });
+  }
+});
+
 // POST /api/orders/:id/ship - Create shipment via Shiprocket
 router.post('/:id/ship', async (req, res) => {
   try {

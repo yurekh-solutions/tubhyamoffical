@@ -26,6 +26,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Lookbook from "./pages/Lookbook";
 import Collections from "./pages/Collections";
 import InstagramGallery from "./pages/InstagramGallery";
+import AdminOrders from "./pages/AdminOrders";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,8 @@ const App = () => (
               <Route path="/terms" element={<Terms />} />
               <Route path="/shipping" element={<Shipping />} />
               <Route path="/returns" element={<Returns />} />
+              {/* Admin Routes */}
+              <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
