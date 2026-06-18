@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const shiprocket = require('../services/ShiprocketService');
 
 const INVENTORY_API = process.env.INVENTORY_API_URL || 'http://localhost:3001';
 
@@ -62,6 +63,7 @@ router.post('/', async (req, res) => {
         items,
         customerInfo,
         status: 'confirmed',
+        shippingStatus: 'pending',
         createdAt: new Date().toISOString(),
       },
       inventory: inventoryResult,
@@ -69,6 +71,80 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('Order creation error:', error);
     res.status(500).json({ success: false, message: 'Failed to create order' });
+  }
+});
+
+// POST /api/orders/:id/ship - Create shipment via Shiprocket
+router.post('/:id/ship', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { customerInfo, items, amount, paymentMode } = req.body;
+
+    if (!customerInfo || !items) {
+      return res.status(400).json({ success: false, message: 'Order details required' });
+    }
+
+    const result = await shiprocket.createShipment({
+      orderId,
+      customerName: customerInfo.name,
+      email: customerInfo.email,
+      phone: customerInfo.phone,
+      address: customerInfo.address,
+      city: customerInfo.city,
+      state: customerInfo.state,
+      pincode: customerInfo.pincode,
+      items,
+      amount,
+      paymentMode: paymentMode || 'upi',
+    });
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Shipment created successfully',
+        shipment_id: result.shipment_id,
+        awb_code: result.awb_code,
+      });
+    } else {
+      res.status(400).json({ success: false, message: result.error });
+    }
+  } catch (error) {
+    console.error('Shipment creation error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create shipment' });
+  }
+});
+
+// GET /api/orders/:id/track - Track shipment
+router.get('/:id/track', async (req, res) => {
+  try {
+    const { awb } = req.query;
+    
+    if (!awb) {
+      return res.status(400).json({ success: false, message: 'AWB code required' });
+    }
+
+    const result = await shiprocket.trackShipment(awb);
+    res.json(result);
+  } catch (error) {
+    console.error('Tracking error:', error);
+    res.status(500).json({ success: false, message: 'Failed to track shipment' });
+  }
+});
+
+// GET /api/orders/couriers - Get available couriers
+router.get('/couriers/available', async (req, res) => {
+  try {
+    const { pincode, weight } = req.query;
+    
+    if (!pincode) {
+      return res.status(400).json({ success: false, message: 'Pincode required' });
+    }
+
+    const result = await shiprocket.getAvailableCouriers(pincode, parseFloat(weight) || 0.5);
+    res.json(result);
+  } catch (error) {
+    console.error('Couriers error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch couriers' });
   }
 });
 

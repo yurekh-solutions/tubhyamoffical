@@ -43,6 +43,17 @@ const OrderConfirmation = () => {
               Order Details
             </h2>
 
+            {/* Shipping Status */}
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+                <span className="text-sm font-medium">Processing your order</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                We'll create your shipment and send tracking details via WhatsApp shortly.
+              </p>
+            </div>
+
             <div className="space-y-2 text-sm">
               {state.paymentId && (
                 <div className="flex justify-between">

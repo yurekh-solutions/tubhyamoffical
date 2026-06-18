@@ -134,6 +134,29 @@ const Checkout = () => {
 
             if (verifyData.success) {
               toast.success('Payment successful! Order confirmed.');
+              
+              // Create shipment via Shiprocket
+              try {
+                await fetch(`${API_URL}/orders/${response.razorpay_order_id}/ship`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    customerInfo,
+                    items: items.map(i => ({
+                      name: i.product.name,
+                      sku: i.product.id,
+                      quantity: i.quantity,
+                      price: i.product.price,
+                    })),
+                    amount: finalAmount,
+                    paymentMode: 'upi',
+                  }),
+                });
+              } catch (shipErr) {
+                console.error('Shipment creation failed:', shipErr);
+                // Don't fail the order if shipment creation fails
+              }
+              
               clearCart();
               navigate('/order-confirmation', {
                 state: {

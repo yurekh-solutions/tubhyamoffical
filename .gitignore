@@ -29,3 +29,4 @@ server/.env
 
 # Inventory app (separate repo: github.com/yurekh-solutions/inventory-app)
 inventory-app-main/
+.vercel
