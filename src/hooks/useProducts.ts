@@ -56,9 +56,19 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   const filteredProducts = useMemo(() => {
     let filtered = [...allProducts];
 
-    // Filter by category
+    // Debug: log category values
+    if (category !== 'all' && allProducts.length > 0) {
+      const uniqueCats = [...new Set(allProducts.map(p => p.category))];
+      console.log('[useProducts] Filtering by category:', category, '| Available categories:', uniqueCats, '| Total products:', allProducts.length);
+    }
+
+    // Filter by category (case-insensitive, partial match)
     if (category !== 'all') {
-      filtered = filtered.filter(p => p.category === category);
+      filtered = filtered.filter(p => {
+        const pCat = (p.category || '').toLowerCase();
+        const filterCat = category.toLowerCase();
+        return pCat === filterCat || pCat.includes(filterCat) || filterCat.includes(pCat);
+      });
     }
 
     // Filter by search query
