@@ -75,7 +75,7 @@ const Checkout = () => {
       return;
     }
 
-    const finalAmount = totalPrice >= 2000 ? totalPrice : totalPrice + 99;
+    const finalAmount = totalPrice; // Free shipping for all orders
 
     setLoading(true);
 
@@ -391,13 +391,13 @@ const Checkout = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
                   <span className="text-green-500 font-medium">
-                    {totalPrice >= 2000 ? 'FREE' : formatPrice(99)}
+                    {totalPrice >= 0 ? 'FREE' : formatPrice(99)}
                   </span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-border/50">
                   <span>Total</span>
                   <span className="text-primary">
-                    {formatPrice(totalPrice >= 2000 ? totalPrice : totalPrice + 99)}
+                    {formatPrice(totalPrice)}
                   </span>
                 </div>
               </div>
