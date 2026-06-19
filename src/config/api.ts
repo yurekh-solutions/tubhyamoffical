@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://tubhyamoffical.onrender.com/api' : 'http://localhost:5000/api');
+const _envUrl = (import.meta.env.VITE_API_URL || '').trim();
+const API_BASE_URL = _envUrl && _envUrl.startsWith('http') ? _envUrl : (import.meta.env.PROD ? 'https://tubhyamoffical.onrender.com/api' : 'http://localhost:5000/api');
 
 class ApiError extends Error {
   status: number;
