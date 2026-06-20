@@ -1,7 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { CheckCircle, Package, ArrowRight } from 'lucide-react';
+import { CheckCircle, Package, ArrowRight, MapPin } from 'lucide-react';
 
 const OrderConfirmation = () => {
   const location = useLocation();
@@ -113,14 +113,23 @@ const OrderConfirmation = () => {
           </p>
         </div>
 
-        {/* Continue Shopping */}
-        <Link
-          to="/products"
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
-        >
-          Continue Shopping
-          <ArrowRight size={18} />
-        </Link>
+        {/* Track Order + Continue Shopping */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Link
+            to="/track-order"
+            className="inline-flex items-center gap-2 bg-primary/10 text-primary border border-primary/20 px-8 py-3 rounded-lg font-medium hover:bg-primary/20 transition-colors"
+          >
+            <MapPin size={18} />
+            Track Order
+          </Link>
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+          >
+            Continue Shopping
+            <ArrowRight size={18} />
+          </Link>
+        </div>
       </div>
 
       <Footer />

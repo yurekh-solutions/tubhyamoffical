@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Menu, X, Instagram, Phone } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, Instagram, Phone, MapPin } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import logo from '@/assets/looo.png';
 
@@ -214,6 +214,13 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <Link
+              to="/track-order"
+              className="text-lg font-heading py-2 border-b border-border/50 hover:text-primary transition-colors flex items-center gap-2"
+            >
+              <MapPin size={16} />
+              Track Order
+            </Link>
             <div className="flex items-center gap-4 pt-4">
               <a 
                 href="https://www.instagram.com/tubhyamofficial/" 

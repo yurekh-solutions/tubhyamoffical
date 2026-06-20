@@ -196,6 +196,52 @@ router.get('/couriers/available', async (req, res) => {
   }
 });
 
+// GET /api/orders/track-by-phone - Track order by phone number (buyer-facing)
+router.get('/track-by-phone', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    
+    if (!phone) {
+      return res.status(400).json({ success: false, message: 'Phone number required' });
+    }
+
+    const { data } = await axios.get(
+      `${INVENTORY_API}/api/invoices`,
+      { timeout: 10000 }
+    );
+    
+    const invoices = Array.isArray(data) ? data : data.invoices || [];
+    const matchingOrders = invoices
+      .filter(inv => {
+        const invPhone = inv.customerPhone || '';
+        return invPhone.replace(/\D/g, '') === phone.replace(/\D/g, '');
+      })
+      .map(inv => ({
+        id: inv.invoiceNo || inv._id,
+        amount: inv.grandTotal || 0,
+        status: inv.status || 'confirmed',
+        shippingStatus: inv.shippingStatus || 'pending',
+        awbCode: inv.awbCode || '',
+        items: (inv.items || []).map(item => ({
+          name: item.name,
+          sku: item.sku,
+          quantity: item.quantity,
+          price: item.rate,
+        })),
+        createdAt: inv.createdAt || inv.invoiceDate,
+      }));
+    
+    if (matchingOrders.length === 0) {
+      return res.json({ success: true, orders: [], message: 'No orders found for this phone number' });
+    }
+    
+    res.json({ success: true, orders: matchingOrders });
+  } catch (error) {
+    console.error('Track by phone error:', error);
+    res.status(500).json({ success: false, message: 'Failed to track orders' });
+  }
+});
+
 // GET /api/orders/:id - Get order by ID
 router.get('/:id', async (req, res) => {
   try {
