@@ -31,11 +31,11 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
       <div className="glass-card h-full rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden">
-          <div className="product-image-zoom h-full">
+          <div className="product-image-zoom absolute inset-0 w-full h-full">
             <OptimizedImage
               src={product.image}
               alt={product.name}
-              containerClassName="h-full w-full bg-background"
+              containerClassName="absolute inset-0 w-full h-full bg-background"
               className="transition-transform duration-700 group-hover:scale-105"
               aspectRatio="3/4"
               priority={priority}

@@ -38,10 +38,12 @@ const OptimizedImage = ({
     onError?.();
   }, [onError]);
 
+  const isAbsolute = containerClassName.includes('absolute');
+
   return (
     <div
-      className={`relative overflow-hidden ${containerClassName}`}
-      style={{ aspectRatio }}
+      className={`${isAbsolute ? 'overflow-hidden' : 'relative overflow-hidden'} ${containerClassName}`}
+      style={isAbsolute ? undefined : { aspectRatio }}
     >
       {/* Skeleton placeholder */}
       {!isLoaded && !hasError && (
@@ -55,7 +57,7 @@ const OptimizedImage = ({
         </div>
       )}
 
-      {/* Actual image */}
+      {/* Actual image — served as optimized JPEG from CDN */}
       <img
         src={src}
         alt={alt}

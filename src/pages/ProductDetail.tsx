@@ -179,14 +179,14 @@ const ProductDetail = () => {
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`w-20 h-24 rounded-lg overflow-hidden border-2 transition-colors ${
+                    className={`relative w-20 h-24 rounded-lg overflow-hidden border-2 transition-colors ${
                       currentDisplayImage === idx ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
                     <OptimizedImage
                       src={img}
                       alt=""
-                      containerClassName="w-full h-full"
+                      containerClassName="absolute inset-0 w-full h-full"
                       aspectRatio="3/4"
                       objectFit="contain"
                     />
