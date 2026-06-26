@@ -11,46 +11,6 @@ interface UseProductsOptions {
   priceRange?: [number, number];
 }
 
-// Cache configuration
-const CACHE_KEY = 'tubhyam_products_cache';
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-interface ProductCache {
-  products: Product[];
-  timestamp: number;
-}
-
-// Cache helper functions
-const getCache = (): ProductCache | null => {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (!cached) return null;
-    return JSON.parse(cached);
-  } catch {
-    return null;
-  }
-};
-
-const setCache = (products: Product[]): void => {
-  try {
-    const cache: ProductCache = {
-      products,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-  } catch (error) {
-    console.warn('Failed to cache products:', error);
-  }
-};
-
-export const clearProductCache = (): void => {
-  try {
-    localStorage.removeItem(CACHE_KEY);
-  } catch (error) {
-    console.warn('Failed to clear product cache:', error);
-  }
-};
-
 export const useProducts = (options: UseProductsOptions = {}) => {
   const {
     category = 'all',
@@ -63,46 +23,24 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch products on mount with stale-while-revalidate
+  // Fetch products on mount
   useEffect(() => {
     let cancelled = false;
-    
     const fetchProducts = async () => {
+      setIsLoading(true);
       setError(null);
-      
-      // Check cache first
-      const cached = getCache();
-      const cacheAge = cached ? Date.now() - cached.timestamp : Infinity;
-      
-      if (cached && cached.products.length > 0) {
-        // Show cached data immediately
-        setAllProducts(cached.products);
-        setIsLoading(false);
-        
-        // If cache is fresh (< 5 min), we're done
-        if (cacheAge < CACHE_TTL) {
-          return;
-        }
-        // Cache is stale - continue to refresh in background
-      } else {
-        // No cache - show loading
-        setIsLoading(true);
-      }
-      
-      // Fetch fresh data from API
       try {
         const data = await api.get<{ success: boolean; products: Product[] }>('/products');
         if (!cancelled) {
-          const products = data.products && data.products.length > 0 
-            ? data.products 
-            : staticProducts;
-          
-          setAllProducts(products);
-          setCache(products); // Save to localStorage
+          // Use API data if available, otherwise fall back to static products
+          if (data.products && data.products.length > 0) {
+            setAllProducts(data.products);
+          } else {
+            setAllProducts(staticProducts);
+          }
         }
       } catch {
-        if (!cancelled && !cached) {
-          // On error with no cache, fall back to static products
+        if (!cancelled) {
           setAllProducts(staticProducts);
         }
       } finally {
@@ -111,7 +49,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         }
       }
     };
-    
     fetchProducts();
     return () => { cancelled = true; };
   }, []);

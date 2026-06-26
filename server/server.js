@@ -13,7 +13,6 @@ const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
 const instagramRoutes = require('./routes/instagram');
 const paymentRoutes = require('./routes/payment');
-const chatRoutes = require('./routes/chat');
 
 // Services
 const { syncInstagramPosts } = require('./services/instagramSync');
@@ -76,7 +75,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api/payment', paymentRoutes);
-app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
