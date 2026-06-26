@@ -133,37 +133,46 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-    // Build conversation context
-    const chatHistory = conversationHistory.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    }));
+      // Build conversation context
+      const chatHistory = conversationHistory.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+      }));
 
-    const chat = model.startChat({
-      history: [
-        {
-          role: 'user',
-          parts: [{ text: WEBSITE_CONTEXT }]
-        },
-        {
-          role: 'model',
-          parts: [{ text: "Understood! I'm ready to help Tubhyam customers with their shopping needs." }]
-        },
-        ...chatHistory
-      ],
-    });
+      const chat = model.startChat({
+        history: [
+          {
+            role: 'user',
+            parts: [{ text: WEBSITE_CONTEXT }]
+          },
+          {
+            role: 'model',
+            parts: [{ text: "Understood! I'm ready to help Tubhyam customers with their shopping needs." }]
+          },
+          ...chatHistory
+        ],
+      });
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    const reply = response.text();
+      const result = await chat.sendMessage(message);
+      const response = await result.response;
+      const reply = response.text();
 
-    res.json({
-      success: true,
-      reply: reply,
-      timestamp: new Date().toISOString()
-    });
+      res.json({
+        success: true,
+        reply: reply,
+        timestamp: new Date().toISOString()
+      });
+    } catch (geminiError) {
+      console.error('Gemini API error:', geminiError.message);
+      // Return fallback response instead of 500
+      res.json({
+        success: true,
+        reply: "I'm having trouble connecting right now. For immediate assistance, please contact us on WhatsApp: +91 70393 82706 or visit our FAQ page."
+      });
+    }
 
   } catch (error) {
     console.error('Chat error:', error);
