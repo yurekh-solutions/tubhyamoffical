@@ -29,6 +29,7 @@ import InstagramGallery from "./pages/InstagramGallery";
 import AdminOrders from "./pages/AdminOrders";
 import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
+import AIChatWidget from "./components/AIChatWidget";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          <AIChatWidget />
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>
