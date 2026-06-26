@@ -17,7 +17,7 @@ interface Blog {
   createdAt: string;
 }
 
-const ADMIN_SECRET = 'tubhyam-admin-2024'; // Same as server
+const ADMIN_SECRET = 'tubhyam_admin_2024'; // Same as server
 
 const AdminSEO = () => {
   const navigate = useNavigate();

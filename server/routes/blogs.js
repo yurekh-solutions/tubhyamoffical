@@ -141,12 +141,22 @@ Do not include any other text, just the JSON.`;
     // Parse AI response
     let articleData;
     try {
-      // Extract JSON from response (in case there's extra text)
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON found in response');
+      // Extract JSON from response (handle markdown code blocks)
+      let jsonStr = aiResponse;
+      
+      // Remove markdown code block wrappers if present
+      const codeBlockMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (codeBlockMatch) {
+        jsonStr = codeBlockMatch[1];
+      } else {
+        // Fallback: extract JSON object
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonStr = jsonMatch[0];
+        }
       }
-      articleData = JSON.parse(jsonMatch[0]);
+      
+      articleData = JSON.parse(jsonStr);
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
       return res.status(500).json({ 
