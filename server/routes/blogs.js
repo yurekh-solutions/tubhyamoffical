@@ -112,15 +112,10 @@ Requirements:
 - Optimize for SEO, GEO (Generative Engine Optimization), and AEO (Answer Engine Optimization)
 - Include a FAQ section at the end with 3-4 common questions
 
-Return ONLY valid JSON with this exact structure:
-{
-  "title": "Your SEO-optimized title",
-  "excerpt": "Your compelling excerpt",
-  "category": "Chosen category",
-  "content": "Full article content in HTML format with <h2>, <p>, <ul>, <li> tags"
-}
+Return ONLY valid JSON with this exact structure (use \\n for line breaks in content, no actual newlines inside strings):
+{"title":"Your SEO-optimized title","excerpt":"Your compelling excerpt","category":"Chosen category","content":"<h2>Heading</h2><p>Paragraph with <strong>bold</strong> text.</p>"}
 
-Do not include any other text, just the JSON.`;
+IMPORTANT: Do not include any markdown formatting, code blocks, or extra text. Return ONLY the raw JSON object.`;
 
     const completion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
@@ -142,21 +137,29 @@ Do not include any other text, just the JSON.`;
     let articleData;
     try {
       // Extract JSON from response (handle markdown code blocks)
-      let jsonStr = aiResponse;
+      let jsonStr = aiResponse.trim();
       
       // Remove markdown code block wrappers if present
-      const codeBlockMatch = aiResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+      const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
       if (codeBlockMatch) {
-        jsonStr = codeBlockMatch[1];
+        jsonStr = codeBlockMatch[1].trim();
       } else {
         // Fallback: extract JSON object
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           jsonStr = jsonMatch[0];
         }
       }
       
-      articleData = JSON.parse(jsonStr);
+      // Try to parse directly first
+      try {
+        articleData = JSON.parse(jsonStr);
+      } catch (directParseError) {
+        // If direct parse fails, try to fix common issues
+        // Replace actual newlines inside strings with \n
+        jsonStr = jsonStr.replace(/"([^"]*?)\n([^"]*?)"/g, '"$1\\n$2"');
+        articleData = JSON.parse(jsonStr);
+      }
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
       return res.status(500).json({ 
