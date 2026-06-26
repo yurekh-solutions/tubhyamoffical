@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Search, Filter, Eye, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Package, Search, Filter, Eye, Truck, CheckCircle, Clock, XCircle, FileText } from 'lucide-react';
 import { api } from '@/config/api';
 import { toast } from 'sonner';
 
@@ -168,12 +168,21 @@ const AdminOrders = () => {
             <h1 className="font-heading text-3xl font-semibold">Order Management</h1>
             <p className="text-muted-foreground mt-1">Manage and track all customer orders</p>
           </div>
-          <button
-            onClick={() => navigate('/admin')}
-            className="px-4 py-2 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
-          >
-            Back to Admin
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate('/admin/seo')}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+            >
+              <FileText size={18} />
+              SEO Content
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
+            >
+              Back to Admin
+            </button>
+          </div>
         </div>
 
         {/* Filters */}

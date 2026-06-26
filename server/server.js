@@ -14,6 +14,7 @@ const orderRoutes = require('./routes/orders');
 const instagramRoutes = require('./routes/instagram');
 const paymentRoutes = require('./routes/payment');
 const chatRoutes = require('./routes/chat');
+const blogRoutes = require('./routes/blogs');
 
 // Services
 const { syncInstagramPosts } = require('./services/instagramSync');
@@ -77,6 +78,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -125,6 +127,33 @@ connectDB().then(() => {
         console.log('Instagram sync completed');
       } catch (error) {
         console.error('Instagram sync failed:', error.message);
+      }
+    });
+    
+    // Schedule blog auto-publish every hour
+    cron.schedule('0 * * * *', async () => {
+      console.log('Checking for scheduled blogs to publish...');
+      try {
+        const Blog = require('./models/Blog');
+        const now = new Date();
+        
+        // Find one blog that's scheduled and ready to publish
+        const blogToPublish = await Blog.findOne({
+          status: 'scheduled',
+          scheduledPublishDate: { $lte: now }
+        }).sort({ scheduledPublishDate: 1 });
+        
+        if (blogToPublish) {
+          blogToPublish.status = 'published';
+          blogToPublish.publishedAt = now;
+          blogToPublish.scheduledPublishDate = null;
+          await blogToPublish.save();
+          console.log(`Published blog: "${blogToPublish.title}"`);
+        } else {
+          console.log('No blogs scheduled for publishing at this time');
+        }
+      } catch (error) {
+        console.error('Blog auto-publish failed:', error.message);
       }
     });
     
