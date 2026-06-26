@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const axios = require('axios');
 
 const INVENTORY_API = process.env.INVENTORY_API_URL || 'http://localhost:3001';
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Initialize Groq (100% free, no billing needed)
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 
 // Website context for the AI
-const WEBSITE_CONTEXT = `
-You are Tubhyam's AI shopping assistant — a friendly, knowledgeable helper for tubhyam.in, an Indian women's fashion brand.
+const SYSTEM_PROMPT = `You are Tubhyam's AI shopping assistant — a friendly, knowledgeable helper for tubhyam.in, an Indian women's fashion brand.
 
 ABOUT TUBHYAM:
 - Premium women's clothing brand specializing in formal pants, jeans, and track pants
@@ -20,9 +19,23 @@ ABOUT TUBHYAM:
 - WhatsApp support: +91 70393 82706
 
 PRODUCT CATEGORIES:
-1. Formal Pants (₹1199 - ₹3999) - Office wear, palazzo, wide-leg, belt pants, lace pants
-2. Jeans (₹2000 - ₹2699) - Wide-leg, flare, straight fit, classic denim
-3. Track Pants (₹999 - ₹3499) - Joggers, cargo, comfort pants, lace statement pants
+1. Formal Pants (₹1199 - ₹3999) - Office wear, palazzo, wide-leg, belt pants, lace pants, cord sets, mom fit, Korean baggy, pleated waist
+2. Jeans (₹2000 - ₹2699) - Wide-leg, flare, straight fit, classic denim, vintage wash
+3. Track Pants (₹999 - ₹3499) - Joggers, cargo, comfort pants, lace statement pants, casual comfort pants
+
+BEST SELLERS:
+- Elegance Wide-Leg Trousers (fp-001) - ₹2499
+- Black Premium Trousers (fp-004) - ₹2899
+- Relaxed Fit Straight Jeans (jn-005) - ₹2699
+- Cargo Pants Collection (tp-013) - ₹999
+- Black Lace Wide-Leg Statement Pants (fp-035) - ₹3499
+- Premium Brown Belt Formal Pants (fp-022) - ₹3999
+
+NEW ARRIVALS:
+- Pleated Waist Formal Pants (fp-041) - ₹1999
+- Korean Baggy Plated Formal Pants (fp-042) - ₹2000
+- Classic Denim Jeans (jn-006) - ₹2000
+- Green/Cream/Grey/Lavender/Navy/Brown Casual Comfort Pants - ₹1299 each
 
 KEY FEATURES:
 - No login required for order tracking (phone-based)
@@ -30,11 +43,12 @@ KEY FEATURES:
 - Size guide available on website
 - Video call shopping assistance
 - Blog with fashion tips and styling guides
+- Instagram gallery: @tubhyamofficial
 
 POLICIES:
-- Shipping: 5-7 business days via Shiprocket
+- Shipping: 5-7 business days via Shiprocket, FREE on all orders
 - Returns: 7 days, unused items with tags
-- Payment: Secure Razorpay gateway
+- Payment: Secure Razorpay gateway (UPI, Cards, Net Banking)
 - Track orders at: tubhyam.in/track-order
 
 COMMON QUESTIONS:
@@ -53,13 +67,19 @@ A: UPI, Credit/Debit Cards, Net Banking via secure Razorpay gateway.
 Q: How do I know my size?
 A: Check our Size Guide page at tubhyam.in/size-guide for detailed measurements.
 
+Q: Do you have cargo pants?
+A: Yes! We have Classic Black Cargo Pants (₹1200) and Cargo Pants Collection in Grey/Black/Lavender (999).
+
+Q: What formal pants do you have?
+A: We have 40+ formal pants including wide-leg, palazzo, belt pants, lace pants, cord sets, Korean baggy, and pleated waist styles ranging from ₹1199 to ₹3999.
+
 When helping customers:
 - Be warm, friendly, and conversational
-- Suggest products based on their needs
+- Suggest specific products with prices based on their needs
 - Help with order tracking when they provide phone numbers
 - Answer questions about sizing, materials, shipping
 - If you don't know something, direct them to WhatsApp support: +91 70393 82706
-`;
+- Keep responses concise and helpful`;
 
 // POST /api/chat - AI chat endpoint
 router.post('/', async (req, res) => {
@@ -125,61 +145,44 @@ router.post('/', async (req, res) => {
       }
     }
 
-    // Regular chat with Gemini
-    if (!process.env.GEMINI_API_KEY) {
+    // Check for Groq API key
+    if (!process.env.GROQ_API_KEY) {
       return res.json({
         success: true,
         reply: "I'm currently offline! Please contact us on WhatsApp: +91 70393 82706 for immediate assistance."
       });
     }
 
-    try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    // Build messages for Groq (OpenAI-compatible format)
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...conversationHistory.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })),
+      { role: 'user', content: message }
+    ];
 
-      // Build conversation context
-      const chatHistory = conversationHistory.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-      }));
+    const completion = await groq.chat.completions.create({
+      messages,
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_tokens: 1024,
+    });
 
-      const chat = model.startChat({
-        history: [
-          {
-            role: 'user',
-            parts: [{ text: WEBSITE_CONTEXT }]
-          },
-          {
-            role: 'model',
-            parts: [{ text: "Understood! I'm ready to help Tubhyam customers with their shopping needs." }]
-          },
-          ...chatHistory
-        ],
-      });
+    const reply = completion.choices[0]?.message?.content || "I couldn't generate a response. Please try again.";
 
-      const result = await chat.sendMessage(message);
-      const response = await result.response;
-      const reply = response.text();
-
-      res.json({
-        success: true,
-        reply: reply,
-        timestamp: new Date().toISOString()
-      });
-    } catch (geminiError) {
-      console.error('Gemini API error:', geminiError.message);
-      // Return fallback response instead of 500
-      res.json({
-        success: true,
-        reply: "I'm having trouble connecting right now. For immediate assistance, please contact us on WhatsApp: +91 70393 82706 or visit our FAQ page."
-      });
-    }
+    res.json({
+      success: true,
+      reply: reply,
+      timestamp: new Date().toISOString()
+    });
 
   } catch (error) {
-    console.error('Chat error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Chat service temporarily unavailable',
-      error: error.message 
+    console.error('Chat error:', error.message);
+    res.json({
+      success: true,
+      reply: "I'm having trouble connecting right now. For immediate assistance, please contact us on WhatsApp: +91 70393 82706 or visit our FAQ page."
     });
   }
 });
