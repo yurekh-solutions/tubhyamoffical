@@ -30,3 +30,12 @@ server/.env
 # Inventory app (separate repo: github.com/yurekh-solutions/inventory-app)
 inventory-app-main/
 .vercel
+
+# Temp files
+.gitmsg.txt
+.gitmsg2.txt
+__deployed_*.js
+check_images.cjs
+
+# WhatsApp auth session
+.wwebjs_auth/
