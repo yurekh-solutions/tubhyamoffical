@@ -4,7 +4,7 @@ import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Instagram, Heart, Play, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import formal1 from '@/assets/formals/formal-7.jpeg';
+const formal1 = '/images/products/formal-7.jpg';
 import { api } from '@/config/api';
 import { instagramConfig } from '@/config/instagramConfig';
 import { instagramFallbackPosts, getFallbackImage } from '@/data/instagramFallback';

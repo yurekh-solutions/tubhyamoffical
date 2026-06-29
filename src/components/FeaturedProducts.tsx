@@ -78,7 +78,7 @@ const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <ProductCard product={product} />
+                <ProductCard product={product} priority={index < 2} />
               </div>
             ))}
           </div>

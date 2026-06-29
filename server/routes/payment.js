@@ -3,11 +3,17 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const router = express.Router();
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Initialize Razorpay (lazy - only create when keys are available)
+let razorpay = null;
+const getRazorpay = () => {
+  if (!razorpay && process.env.RAZORPAY_KEY_ID) {
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+  return razorpay;
+};
 
 // POST /api/payment/create-order - Create Razorpay order
 router.post('/create-order', async (req, res) => {
@@ -25,7 +31,12 @@ router.post('/create-order', async (req, res) => {
       notes: notes || {},
     };
 
-    const order = await razorpay.orders.create(options);
+    const rzp = getRazorpay();
+    if (!rzp) {
+      return res.status(500).json({ success: false, message: 'Payment gateway not configured' });
+    }
+
+    const order = await rzp.orders.create(options);
 
     res.json({
       success: true,
@@ -80,7 +91,12 @@ router.post('/verify', async (req, res) => {
 // GET /api/payment/:paymentId - Get payment details
 router.get('/:paymentId', async (req, res) => {
   try {
-    const payment = await razorpay.payments.fetch(req.params.paymentId);
+    const rzp = getRazorpay();
+    if (!rzp) {
+      return res.status(500).json({ success: false, message: 'Payment gateway not configured' });
+    }
+
+    const payment = await rzp.payments.fetch(req.params.paymentId);
     res.json({ success: true, payment });
   } catch (error) {
     console.error('Fetch payment error:', error);
