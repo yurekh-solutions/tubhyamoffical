@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Calendar, ArrowRight, Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -142,7 +142,7 @@ const Blog = () => {
                 <img
                   src={filteredPosts[0].image || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'}
                   alt={filteredPosts[0].title}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover object-bottom hover:scale-105 transition-transform duration-300"
                 />
               </Link>
               <div className="md:col-span-2 flex flex-col justify-center">
@@ -158,10 +158,6 @@ const Blog = () => {
                   {filteredPosts[0].excerpt}
                 </p>
                 <div className="flex flex-wrap gap-4 text-xs md:text-sm text-foreground/60 mb-4">
-                  <div className="flex items-center gap-2">
-                    <User size={14} />
-                    <span>{filteredPosts[0].author}</span>
-                  </div>
                   <div className="flex items-center gap-2">
                     <Calendar size={14} />
                     <span>{formatDate(filteredPosts[0].publishedAt)}</span>
@@ -202,7 +198,7 @@ const Blog = () => {
                     <img
                       src={post.image || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'}
                       alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover object-bottom group-hover:scale-110 transition-transform duration-300"
                     />
                   </Link>
                   <div className="p-4 flex flex-col flex-1">
@@ -218,10 +214,6 @@ const Blog = () => {
                       {post.excerpt}
                     </p>
                     <div className="flex items-center justify-between text-xs text-foreground/60 mb-3 pb-3 border-b border-primary/20">
-                      <div className="flex items-center gap-1">
-                        <User size={12} />
-                        <span className="line-clamp-1">{post.author}</span>
-                      </div>
                       <span className="flex-shrink-0">{formatDate(post.publishedAt)}</span>
                     </div>
                     <div className="flex items-center justify-between">

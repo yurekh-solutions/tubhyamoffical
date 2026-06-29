@@ -84,11 +84,9 @@ const Cart = () => {
                       to={`/product/${item.product.id}`}
                       className="w-full sm:w-24 md:w-32 h-32 sm:h-32 md:h-40 flex-shrink-0 overflow-hidden rounded-lg border border-border/30 hover:border-primary/50 transition-colors"
                     >
-                      <img
+                      <img 
                         src={item.product.image} 
                         alt={item.product.name}
-                        loading="lazy"
-                        decoding="async"
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
                     </Link>

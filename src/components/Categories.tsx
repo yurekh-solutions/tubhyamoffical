@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { categories, products } from '@/data/products';
 import { motion } from 'framer-motion';
+import jeans1 from '@/assets/products/jeans-8.jpg';
+import trousers from '@/assets/Tracks/trousers.png';
 
 const Categories = () => {
   const categoryImages = {
     formal: products.filter(p => p.category === 'formal')[0]?.image,
-    jeans: '/images/products/jeans-8.jpg',
-    track: '/images/products/trousers.jpg',
+    jeans: jeans1,
+    track: trousers,
   };
 
   const categoryGradients = {

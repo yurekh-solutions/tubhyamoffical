@@ -92,11 +92,9 @@ const CartSidebar = () => {
                       onClick={() => setIsCartOpen(false)}
                       className="w-24 h-28 flex-shrink-0 overflow-hidden rounded-lg border border-border/30 hover:border-primary/50 transition-colors"
                     >
-                      <img
+                      <img 
                         src={item.product.image} 
                         alt={item.product.name}
-                        loading="lazy"
-                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     </Link>

@@ -8,7 +8,6 @@ const blogSchema = new mongoose.Schema({
   },
   slug: {
     type: String,
-    unique: true,
     lowercase: true,
     trim: true
   },
@@ -23,7 +22,7 @@ const blogSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    default: 'Fashion Tips'
+    default: ''
   },
   keywords: [{
     type: String,
@@ -35,7 +34,7 @@ const blogSchema = new mongoose.Schema({
   },
   author: {
     type: String,
-    default: 'ianos'
+    default: ''
   },
   readTime: {
     type: Number,
@@ -53,18 +52,28 @@ const blogSchema = new mongoose.Schema({
   publishedAt: {
     type: Date,
     default: null
+  },
+  trendKeyword: {
+    type: String,
+    default: ''
+  },
+  trendSource: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true
 });
 
-// Auto-generate slug from title
-blogSchema.pre('save', function(next) {
+// Auto-generate slug from title with random suffix to prevent collisions
+blogSchema.pre('save', async function(next) {
   if (this.isModified('title') && !this.slug) {
-    this.slug = this.title
+    const baseSlug = this.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    this.slug = `${baseSlug}-${randomSuffix}`;
   }
   next();
 });

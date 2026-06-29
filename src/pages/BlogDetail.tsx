@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, User, Clock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -135,10 +135,6 @@ const BlogDetail = () => {
               
               <div className="flex flex-wrap items-center gap-6 text-sm text-foreground/60">
                 <div className="flex items-center gap-2">
-                  <User size={16} />
-                  <span>{blog.author}</span>
-                </div>
-                <div className="flex items-center gap-2">
                   <Calendar size={16} />
                   <span>{formatDate(blog.publishedAt)}</span>
                 </div>
@@ -151,11 +147,11 @@ const BlogDetail = () => {
 
             {/* Featured Image */}
             {blog.image && (
-              <div className="mb-8 rounded-xl overflow-hidden border border-primary/20">
+              <div className="mb-8 rounded-xl overflow-hidden border border-primary/20 h-64 md:h-80">
                 <img
                   src={blog.image}
                   alt={blog.title}
-                  className="w-full h-auto object-cover"
+                  className="w-full h-full object-cover object-bottom"
                 />
               </div>
             )}

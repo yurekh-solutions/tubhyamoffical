@@ -1,7 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
-const heroBg = '/images/hero-world-bg.jpg';
+import heroBg from '@/assets/image.png';
 import { Heart, Users, Palette, Ruler, Sparkles, Award, Shield, Leaf, ArrowRight, Check, Star, ShoppingBag, Gem, Crown, Feather } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

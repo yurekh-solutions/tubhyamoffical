@@ -6,7 +6,7 @@ const cron = require('node-cron');
 const path = require('path');
 
 // Load env vars
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Route imports
 const productRoutes = require('./routes/products');
@@ -130,27 +130,30 @@ connectDB().then(() => {
       }
     });
     
-    // Schedule blog auto-publish every hour
-    cron.schedule('0 * * * *', async () => {
+    // Schedule blog auto-publish every 30 minutes
+    cron.schedule('*/30 * * * *', async () => {
       console.log('Checking for scheduled blogs to publish...');
       try {
         const Blog = require('./models/Blog');
         const now = new Date();
         
-        // Find one blog that's scheduled and ready to publish
-        const blogToPublish = await Blog.findOne({
+        // Find up to 2 blogs that are scheduled and ready to publish
+        const blogsToPublish = await Blog.find({
           status: 'scheduled',
           scheduledPublishDate: { $lte: now }
-        }).sort({ scheduledPublishDate: 1 });
+        }).sort({ scheduledPublishDate: 1 }).limit(2);
         
-        if (blogToPublish) {
-          blogToPublish.status = 'published';
-          blogToPublish.publishedAt = now;
-          blogToPublish.scheduledPublishDate = null;
-          await blogToPublish.save();
-          console.log(`Published blog: "${blogToPublish.title}"`);
+        if (blogsToPublish.length > 0) {
+          for (const blog of blogsToPublish) {
+            blog.status = 'published';
+            blog.publishedAt = now;
+            blog.scheduledPublishDate = null;
+            await blog.save();
+            console.log(`Published: "${blog.title}"`);
+          }
+          console.log(`Auto-published ${blogsToPublish.length} blog(s)`);
         } else {
-          console.log('No blogs scheduled for publishing at this time');
+          console.log('No blogs scheduled for publishing');
         }
       } catch (error) {
         console.error('Blog auto-publish failed:', error.message);
