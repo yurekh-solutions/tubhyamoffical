@@ -347,7 +347,7 @@ async function main() {
         category: config.category,
         keywords: [config.targetKeyword].concat(config.secondaryKeywords),
         image: imageUrl,
-        author: 'ianos',
+        author: 'ainos',
         readTime: calcReadTime(article.content),
         status: 'published',
         publishedAt: new Date(Date.now() - (ARTICLE_CONFIGS.length - i) * 86400000),

@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import { api } from '@/config/api';
+import ainosImg from '@/assets/ainos.jpeg';
 
 interface Blog {
   _id: string;
@@ -121,6 +122,10 @@ const BlogDetail = () => {
           <article className="max-w-4xl mx-auto">
             {/* Header */}
             <header className="mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <img src={ainosImg} alt="AINOS" className="w-12 h-12 rounded-full object-cover border-2 border-primary/30 p-0.5" />
+                <span className="text-sm font-semibold text-primary/80">Powered by AINOS</span>
+              </div>
               <div className="inline-block mb-4 px-4 py-2 bg-primary/20 border border-primary/30 rounded-full text-sm font-semibold text-primary">
                 {blog.category}
               </div>
@@ -158,7 +163,7 @@ const BlogDetail = () => {
 
             {/* Content */}
             <div 
-              className="prose prose-lg max-w-none prose-headings:font-heading prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-4 prose-ul:list-disc prose-ul:pl-6 prose-li:text-foreground/80 prose-strong:text-foreground"
+              className="prose prose-lg max-w-none prose-invert prose-headings:font-heading prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-4 prose-ul:list-disc prose-ul:pl-6 prose-li:text-foreground/80 prose-strong:text-foreground"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
 

@@ -136,18 +136,23 @@ connectDB().then(() => {
       try {
         const Blog = require('./models/Blog');
         const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
-        // Find up to 2 blogs that are scheduled and ready to publish
+        // Find scheduled posts ready to publish (not on hold, must have image)
         const blogsToPublish = await Blog.find({
           status: 'scheduled',
-          scheduledPublishDate: { $lte: now }
-        }).sort({ scheduledPublishDate: 1 }).limit(2);
+          scheduledPublishDate: { $lte: now },
+          held: false,
+          image: { $ne: '' },
+          content: { $ne: '<p>Content pending generation.</p>' }
+        }).sort({ scheduledPublishDate: 1 }).limit(5);
         
         if (blogsToPublish.length > 0) {
           for (const blog of blogsToPublish) {
             blog.status = 'published';
             blog.publishedAt = now;
             blog.scheduledPublishDate = null;
+            blog.held = false;
             await blog.save();
             console.log(`Published: "${blog.title}"`);
           }

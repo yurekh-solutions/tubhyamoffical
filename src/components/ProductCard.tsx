@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '@/data/products';
@@ -11,6 +12,9 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, priority = false }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const [showSecondImage, setShowSecondImage] = useState(false);
+  const hasMultipleImages = product.images && product.images.length > 1;
+  const currentImage = showSecondImage && hasMultipleImages ? product.images[1] : product.image;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,13 +31,13 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
   };
 
   return (
-    <Link to={`/product/${product.id}`} className="group block h-full">
+    <Link to={`/product/${product.id}`} className="group block h-full" onMouseEnter={() => hasMultipleImages && setShowSecondImage(true)} onMouseLeave={() => hasMultipleImages && setShowSecondImage(false)}>
       <div className="glass-card h-full rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden">
           <div className="product-image-zoom absolute inset-0 w-full h-full">
             <OptimizedImage
-              src={product.image}
+              src={currentImage}
               alt={product.name}
               containerClassName="absolute inset-0 w-full h-full bg-background"
               className="transition-transform duration-700 group-hover:scale-105"

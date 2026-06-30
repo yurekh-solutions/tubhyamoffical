@@ -9,6 +9,11 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
+      // Catch-all API proxy to local backend
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
       // Inventory dashboard & API — same origin at /inventory
       '/inventory': {
         target: 'http://localhost:3001',

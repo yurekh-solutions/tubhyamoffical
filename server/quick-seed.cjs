@@ -259,7 +259,7 @@ async function main() {
       category: article.category,
       keywords: article.keywords,
       image: imageUrl,
-      author: 'ianos',
+      author: 'ainos',
       readTime: article.readTime,
       status: 'published',
       publishedAt: new Date(Date.now() - (ARTICLES.length - i) * 86400000),

@@ -2,566 +2,538 @@ const express = require('express');
 const router = express.Router();
 const Blog = require('../models/Blog');
 const Groq = require('groq-sdk');
+const crypto = require('crypto');
 
 console.log('[blogs.js] Route file loaded successfully');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 
-// Admin secret for protecting write operations
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'tubhyam_admin_2024';
 
-// ─── Middleware ─────────────────────────────────────────────────────────────────
 const verifyAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ success: false, message: 'Admin access required' });
-  }
+  if (!authHeader) return res.status(401).json({ success: false, message: 'Admin access required' });
   const token = authHeader.replace('Bearer ', '');
-  const validTokens = [
-    ADMIN_SECRET,
-    'tubhyam_admin_2024',
-    'tubhyam-admin-2024',
-  ];
-  if (!validTokens.includes(token)) {
-    return res.status(401).json({ success: false, message: 'Admin access required' });
-  }
+  const validTokens = [ADMIN_SECRET, 'tubhyam_admin_2024', 'tubhyam-admin-2024'];
+  if (!validTokens.includes(token)) return res.status(401).json({ success: false, message: 'Admin access required' });
   next();
 };
 
-// ─── Phase 1: Trend Research ───────────────────────────────────────────────────
-router.post('/research-trends', verifyAdmin, async (req, res) => {
-  try {
-    const { keyword } = req.body;
-    if (!keyword || !keyword.trim()) {
-      return res.status(400).json({ success: false, message: 'Keyword is required' });
-    }
-    if (!process.env.GROQ_API_KEY) {
-      return res.status(500).json({ success: false, message: 'Groq API key not configured' });
-    }
+// ═══ ADMIN STATS & QUEUE ══════════════════════════════════════════════════════
 
-    const prompt = `You are a fashion trend researcher for the Indian e-commerce market.
-
-Research what's currently trending for "${keyword}" across major Indian and global fashion platforms.
-
-Identify 6-8 specific trending styles, variations, or angles for "${keyword}". For each trend, provide:
-1. **trendName**: A short, catchy name for the trend (e.g., "Oversized Cargo Tracks", "Minimalist Slim-Fit Joggers")
-2. **sourcePlatform**: Which platform this trend is popular on (e.g., Myntra, Ajio, Zara, Nykaa Fashion, H&M India, Urbanic, SHEIN India, etc.)
-3. **whyTrending**: 1-2 sentences explaining WHY this trend is popular right now (celebrity influence, seasonal demand, lifestyle shift, etc.)
-4. **suggestedTitle**: A catchy, SEO-friendly article title for a blog post about this trend
-
-Return ONLY valid JSON with this exact structure:
-{
-  "trends": [
-    {
-      "trendName": "Trend name here",
-      "sourcePlatform": "Platform name",
-      "whyTrending": "Why it's trending explanation",
-      "suggestedTitle": "Catchy SEO article title"
-    }
-  ]
-}
-
-CRITICAL: Return ONLY the raw JSON object. No markdown code blocks, no extra text.`;
-
-    const completion = await groq.chat.completions.create({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'llama-3.3-70b-versatile',
-      temperature: 0.7,
-      max_tokens: 4096,
-    });
-
-    const aiResponse = completion.choices[0]?.message?.content;
-    if (!aiResponse) {
-      return res.status(500).json({ success: false, message: 'No response from AI' });
-    }
-
-    // Parse JSON from response
-    let jsonStr = aiResponse.trim();
-    const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      jsonStr = codeBlockMatch[1].trim();
-    } else {
-      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-      if (jsonMatch) jsonStr = jsonMatch[0];
-    }
-
-    let parsed;
-    try {
-      parsed = JSON.parse(jsonStr);
-    } catch {
-      jsonStr = jsonStr.replace(/"([^"]*?)\n([^"]*?)"/g, '"$1\\n$2"');
-      parsed = JSON.parse(jsonStr);
-    }
-
-    res.json({
-      success: true,
-      keyword,
-      trends: parsed.trends || [],
-    });
-  } catch (error) {
-    console.error('Error researching trends:', error);
-    res.status(500).json({ success: false, message: 'Failed to research trends', error: error.message });
-  }
-});
-
-// ─── Phase 2: Generate Articles from Trends ────────────────────────────────────
-router.post('/generate-from-trends', verifyAdmin, async (req, res) => {
-  try {
-    const { keyword, trends, publishIntervalHours = 24 } = req.body;
-
-    if (!keyword || !keyword.trim()) {
-      return res.status(400).json({ success: false, message: 'Keyword is required' });
-    }
-    if (!trends || !Array.isArray(trends) || trends.length === 0) {
-      return res.status(400).json({ success: false, message: 'At least one trend is required' });
-    }
-    if (!process.env.GROQ_API_KEY) {
-      return res.status(500).json({ success: false, message: 'Groq API key not configured' });
-    }
-
-    const results = [];
-    const errors = [];
-
-    for (let i = 0; i < trends.length; i++) {
-      try {
-        const trend = trends[i];
-
-        // Generate high-fidelity image with varied professional style per article
-        const imagePrompt = buildHighFidelityImagePrompt(keyword, trend, i);
-        const imageUrl = buildImageUrl(imagePrompt, keyword, i);
-
-        // Generate article for this specific trend
-        const articleData = await generateArticleFromTrend(keyword, trend);
-        if (!articleData) {
-          errors.push(`Article ${i + 1} (${trend.trendName}): Failed to generate`);
-          continue;
-        }
-
-        // Schedule articles publishIntervalHours apart
-        const hoursOffset = i * publishIntervalHours;
-        const scheduledPublishDate = new Date(Date.now() + hoursOffset * 60 * 60 * 1000);
-        const readTime = calcReadTime(articleData.content);
-
-        const blog = new Blog({
-          title: articleData.title,
-          excerpt: articleData.excerpt,
-          content: articleData.content,
-          category: articleData.category || '',
-          keywords: [keyword, trend.trendName, trend.sourcePlatform],
-          image: imageUrl,
-          author: articleData.author || '',
-          readTime,
-          status: 'scheduled',
-          scheduledPublishDate,
-          trendKeyword: keyword,
-          trendSource: trend.sourcePlatform,
-        });
-        await blog.save();
-
-        results.push({
-          id: blog._id,
-          title: blog.title,
-          category: blog.category,
-          image: blog.image,
-          readTime: blog.readTime,
-          scheduledPublishDate: blog.scheduledPublishDate,
-          trendName: trend.trendName,
-          sourcePlatform: trend.sourcePlatform,
-        });
-      } catch (err) {
-        console.error(`Trend article ${i + 1} failed:`, err.message);
-        errors.push(`Article ${i + 1}: ${err.message}`);
-      }
-    }
-
-    res.json({
-      success: true,
-      message: `Generated ${results.length} of ${trends.length} articles successfully`,
-      articles: results,
-      errors: errors.length > 0 ? errors : undefined,
-    });
-  } catch (error) {
-    console.error('Error generating articles from trends:', error);
-    res.status(500).json({ success: false, message: 'Failed to generate articles', error: error.message });
-  }
-});
-
-// ─── Admin Routes ───────────────────────────────────────────────────────────────
-
-// GET /api/blogs/admin/queue - All drafts + scheduled
 router.get('/admin/queue', verifyAdmin, async (req, res) => {
   try {
-    const blogs = await Blog.find({ status: { $in: ['draft', 'scheduled'] } })
-      .sort({ createdAt: -1 });
-
+    const blogs = await Blog.find({ status: { $in: ['planned', 'generating', 'draft', 'scheduled'] } }).sort({ createdAt: -1 });
     res.json({ success: true, count: blogs.length, blogs });
   } catch (error) {
-    console.error('Error fetching queue:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch queue' });
   }
 });
 
-// GET /api/blogs/admin/stats - Dashboard stats
 router.get('/admin/stats', verifyAdmin, async (req, res) => {
   try {
-    const [published, scheduled, draft] = await Promise.all([
+    const [published, scheduled, draft, planned, failed] = await Promise.all([
       Blog.countDocuments({ status: 'published' }),
       Blog.countDocuments({ status: 'scheduled' }),
       Blog.countDocuments({ status: 'draft' }),
+      Blog.countDocuments({ status: 'planned' }),
+      Blog.countDocuments({ status: 'failed' }),
     ]);
-    res.json({ success: true, stats: { published, scheduled, draft, total: published + scheduled + draft } });
+    res.json({ success: true, stats: { published, scheduled, draft, planned, failed, total: published + scheduled + draft + planned + failed } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch stats' });
   }
 });
 
-// ─── Public Routes ──────────────────────────────────────────────────────────────
+// ═══ CAMPAIGNS ════════════════════════════════════════════════════════════════
 
-// GET /api/blogs - List published blogs
-router.get('/', async (req, res) => {
+// POST /campaigns — Create campaign + plan topics via LLM
+router.post('/campaigns', verifyAdmin, async (req, res) => {
   try {
-    const blogs = await Blog.find({ status: 'published' })
-      .sort({ publishedAt: -1 })
-      .select('-content');
+    const { keyword, days = 30, tone = 'Friendly', wordCount = 1000, imagesPerPost = 1, autoPublish = true, generationMode = 'jit' } = req.body;
+    if (!keyword || !keyword.trim()) return res.status(400).json({ success: false, message: 'Keyword is required' });
+    if (!process.env.GROQ_API_KEY) return res.status(500).json({ success: false, message: 'Groq API key not configured' });
 
-    res.json({ success: true, count: blogs.length, blogs });
-  } catch (error) {
-    console.error('Error fetching blogs:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch blogs' });
-  }
-});
+    const campaignId = crypto.randomBytes(8).toString('hex');
+    const numDays = Math.min(Math.max(parseInt(days) || 30, 1), 30);
 
-// GET /api/blogs/:slug - Single blog post
-router.get('/:slug', async (req, res) => {
-  try {
-    const blog = await Blog.findOne({ slug: req.params.slug, status: 'published' });
-    if (!blog) {
-      return res.status(404).json({ success: false, message: 'Blog post not found' });
+    const prompt = `You are a senior content strategist for Tubhyam (tubhyam.in), a premium Indian women's fashion brand.
+
+Create a ${numDays}-day blog content plan based on the seed keyword: "${keyword}"
+
+For EACH day, generate a unique, non-overlapping blog topic. Vary the intent across: how-to guides, listicles, styling guides, buying guides, trend reports, FAQ posts, comparison posts, and seasonal pieces.
+
+Tone: ${tone}. Target audience: Indian women 20-40.
+
+Return ONLY valid JSON:
+{
+  "topics": [
+    {
+      "dayIndex": 1,
+      "title": "SEO-optimized title (max 65 chars)",
+      "focusKeyword": "primary focus keyword",
+      "angle": "One-line description of the article angle",
+      "category": "Category name",
+      "tags": ["tag1", "tag2", "tag3"]
     }
-    res.json({ success: true, blog });
-  } catch (error) {
-    console.error('Error fetching blog:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch blog' });
-  }
-});
-
-// POST /api/blogs/:id/publish - Manually publish
-router.post('/:id/publish', verifyAdmin, async (req, res) => {
-  try {
-    const blog = await Blog.findById(req.params.id);
-    if (!blog) {
-      return res.status(404).json({ success: false, message: 'Blog not found' });
-    }
-    blog.status = 'published';
-    blog.publishedAt = new Date();
-    blog.scheduledPublishDate = null;
-    await blog.save();
-    res.json({ success: true, message: 'Blog published successfully', blog });
-  } catch (error) {
-    console.error('Error publishing blog:', error);
-    res.status(500).json({ success: false, message: 'Failed to publish blog' });
-  }
-});
-
-// DELETE /api/blogs/:id - Delete a blog
-router.delete('/:id', verifyAdmin, async (req, res) => {
-  try {
-    const blog = await Blog.findByIdAndDelete(req.params.id);
-    if (!blog) {
-      return res.status(404).json({ success: false, message: 'Blog not found' });
-    }
-    res.json({ success: true, message: 'Blog deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting blog:', error);
-    res.status(500).json({ success: false, message: 'Failed to delete blog' });
-  }
-});
-
-// ─── Faceless Fashion Image Generator ──────────────────────────────────────
-// Images DYNAMICALLY match the keyword/trend. NEVER show face.
-
-const KEYWORD_SCENES = {
-  // ── Western Wear ──
-  'western wear': 'neck-down crop of woman in trendy western outfit with crop top and wide-leg pants, modern studio',
-  'western': 'neck-down crop of woman in stylish western wear outfit with bag and heels, urban setting',
-  'top': 'neck-down crop of woman in fashionable top with jeans, hands adjusting sleeve, bright studio',
-  'crop top': 'neck-down crop of woman in crop top with high-waist jeans, hands on bag, outdoor cafe',
-  'shirt': 'neck-down crop of woman in crisp button-down shirt with tailored bottoms, clean studio',
-  'blouse': 'neck-down crop of woman in elegant blouse with skirt, hands visible, boutique setting',
-  't-shirt': 'neck-down crop of woman in graphic tee with jeans and sneakers, casual urban street',
-  // ── Bottoms ──
-  'bottom': 'neck-down crop of woman in stylish bottoms with tucked-in top, full outfit visible, studio',
-  'formal pants': 'neck-down crop of woman in tailored formal pants with blazer and heels, modern office',
-  'trousers': 'neck-down crop of woman in structured trousers with elegant top, professional studio',
-  'palazzo': 'neck-down crop of woman in flowing palazzo pants with fitted top, breezy outdoor terrace',
-  'wide leg': 'neck-down crop of woman in wide-leg pants with tucked-in blouse, modern studio',
-  'pant': 'neck-down crop of woman in perfectly fitted pants with stylish top, clean background',
-  'cargo': 'neck-down crop of woman in cargo pants with crop top and sneakers, urban street',
-  'track pants': 'neck-down crop of woman in stylish track pants with fitted top and sneakers, outdoor setting',
-  'tracks': 'neck-down crop of woman in coordinated track suit with sneakers, sporty outdoor setting',
-  'jogger': 'neck-down crop of woman in slim joggers with oversized sweatshirt and sneakers, park setting',
-  'legging': 'neck-down crop of woman in high-waist leggings with long top and sneakers, gym studio',
-  // ── Jeans & Denim ──
-  'jeans': 'neck-down crop of woman in perfect-fit jeans with stylish top and belt, urban street',
-  'denim': 'neck-down crop of woman in denim outfit with jeans and jacket, hands in pockets, street style',
-  'wide leg jeans': 'neck-down crop of woman in wide-leg jeans with tucked-in top and heels, boutique',
-  'mom jeans': 'neck-down crop of woman in high-waist mom jeans with crop top and sneakers, cafe',
-  'skinny jeans': 'neck-down crop of woman in skinny jeans with oversized blazer and boots, city street',
-  'straight jeans': 'neck-down crop of woman in straight-leg jeans with classic white shirt, studio',
-  'boyfriend jeans': 'neck-down crop of woman in relaxed boyfriend jeans with fitted top and heels, street',
-  // ── Casual ──
-  'casual': 'neck-down crop of woman in relaxed casual outfit with jeans and sneakers, outdoor cafe',
-  'casual pants': 'neck-down crop of woman in comfortable casual pants with soft top, relaxed setting',
-  'ootd': 'neck-down crop of woman in perfectly styled outfit of the day, hands on bag, Instagram-worthy setting',
-  'outfit of the day': 'neck-down crop of woman in stylish daily outfit with accessories, bright natural lighting',
-  'daily wear': 'neck-down crop of woman in chic everyday outfit with crossbody bag, city street',
-  // ── Gen Z ──
-  'gen z': 'neck-down crop of woman in gen-z trendy outfit with baggy jeans and crop top, neon studio',
-  'genz': 'neck-down crop of woman in youthful trendy outfit with layered accessories, modern street',
-  'y2k': 'neck-down crop of woman in Y2K-inspired outfit with low-rise jeans and baby tee, retro studio',
-  'streetwear': 'neck-down crop of woman in oversized streetwear with baggy pants and chunky sneakers, graffiti wall',
-  'aesthetic': 'neck-down crop of woman in aesthetic outfit with coordinated layers and accessories, dreamy setting',
-  'coquette': 'neck-down crop of woman in coquette aesthetic outfit with lace and pearls, soft pink studio',
-  // ── Collection & Seasonal ──
-  'collection': 'neck-down crop of woman modeling latest fashion collection piece, editorial studio',
-  'new arrival': 'neck-down crop of woman in fresh new-season outfit with statement piece, bright studio',
-  'summer': 'neck-down crop of woman in light summer outfit with sandals and tote, sunny outdoor',
-  'winter': 'neck-down crop of woman in cozy winter layers with scarf and boots, warm indoor setting',
-  'spring': 'neck-down crop of woman in fresh spring outfit with pastel colors, garden setting',
-  // ── Ethnic & Fusion ──
-  'ethnic': 'neck-down crop of woman in fusion ethnic-western outfit with jhumkas, art gallery setting',
-  'kurta': 'neck-down crop of woman in modern kurta with jeans and juttis, bright patio',
-  'saree': 'neck-down crop of woman in modern saree drape with heels, elegant venue',
-  'suit': 'neck-down crop of woman in tailored suit with structured shoulders, corporate lobby',
-  // ── Accessories & Styling ──
-  'style': 'neck-down crop of woman styling outfit with hands adjusting blazer, bright studio',
-  'accessorize': 'neck-down crop of woman hands styling jewelry bag and shoes on marble surface, boutique',
-  'jewelry': 'neck-down crop of woman hands wearing bangles and rings with outfit, soft lighting',
-  'shoe': 'neck-down crop of woman feet in stylish heels with outfit visible, boutique floor',
-  'bag': 'neck-down crop of woman carrying designer bag with complete outfit, city street',
-  // ── Trends & Categories ──
-  'trend': 'neck-down crop of woman in trendy 2025 fashion with statement accessories, modern studio',
-  'wardrobe': 'neck-down crop of woman selecting clothes from curated capsule wardrobe, clean white closet',
-  'occasion': 'neck-down crop of woman in elegant occasion wear with clutch and heels, luxury venue',
-  'season': 'neck-down crop of woman in layered seasonal outfit with scarf and boots, outdoor garden',
-  'body type': 'neck-down crop of woman in perfectly fitted flattering outfit, studio with warm backdrop',
-  'color': 'neck-down crop of woman in bold color-coordinated outfit with matching accessories, vibrant background',
-  'fabric': 'neck-down crop of woman touching premium fabric texture, design studio with swatches',
-  'budget': 'neck-down crop of woman holding shopping bags with stylish outfit, city street',
-  'travel': 'neck-down crop of woman in travel-ready outfit with tote and sunglasses, airport lounge',
-  'sustainable': 'neck-down crop of woman in eco-friendly cotton outfit, natural green setting',
-  'blazer': 'neck-down crop of woman in structured blazer outfit with hands in pockets, office lobby',
-  'dress': 'neck-down crop of woman in elegant dress with heels and clutch, evening setting',
-  'festival': 'neck-down crop of woman in festive outfit with bangles and clutch, decorated venue',
-  'office wear': 'neck-down crop of woman in modern professional outfit with laptop bag, corporate space',
-  'workwear': 'neck-down crop of woman in modern professional outfit with laptop bag, corporate space',
-  'party': 'neck-down crop of woman in glamorous party outfit with metallic heels and clutch, nightlife venue',
-  'beige': 'neck-down crop of woman in elegant beige-toned outfit with matching accessories, neutral studio',
-  'black': 'neck-down crop of woman in all-black outfit with statement accessories, sleek modern studio',
-  'white': 'neck-down crop of woman in fresh all-white outfit with gold accessories, bright sunlit studio',
-  'cotton': 'neck-down crop of woman in soft cotton outfit with natural drape, relaxed setting',
-  'linen': 'neck-down crop of woman in premium linen outfit with relaxed fit, airy bright room',
-  'formal': 'neck-down crop of woman in tailored formal outfit with structured bag, professional setting',
-};
-
-const DEFAULT_SCENE = 'neck-down crop of stylish Indian woman in chic outfit, hands visible, clean studio';
-
-function getSceneForKeyword(keyword) {
-  if (!keyword) return DEFAULT_SCENE;
-  const lower = keyword.toLowerCase();
-  const keys = Object.keys(KEYWORD_SCENES);
-  for (const key of keys) {
-    if (lower.indexOf(key) !== -1) return KEYWORD_SCENES[key];
-  }
-  return DEFAULT_SCENE;
+  ]
 }
 
-function buildHighFidelityImagePrompt(keyword, trend, styleIndex) {
-  const scene = getSceneForKeyword(keyword);
-  return `Fashion editorial photography, ${scene}, NO FACE VISIBLE, faceless, cropped at chin, show outfit hands and body only, natural lighting, photorealistic, warm tones, clean composition, magazine quality, no text, no watermark`;
-}
+Rules:
+- Exactly ${numDays} topics
+- Each title must include "${keyword}" or a close variant naturally
+- All topics must be distinct — no duplicates or near-duplicates
+- Categories: Fashion Trends, Styling Guide, Buying Guide, Trend Report, Outfit Ideas, Wardrobe Guide, Seasonal Fashion
+- Tags: 3-5 relevant SEO tags per topic
+- Focus keyword: the primary search term for that article
 
-function buildImageUrl(prompt, keyword, index) {
-  const seed = `tubhyam-${keyword.replace(/\s+/g, '-')}-${index}-${Math.floor(Math.random() * 99999)}`;
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=720&seed=${seed}&nologo=true&model=flux`;
-}
+CRITICAL: Raw JSON only. No markdown blocks.`;
 
-// ─── Helpers ────────────────────────────────────────────────────────────────────
+    const completion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.8,
+      max_tokens: 4096,
+    });
 
-async function generateArticleFromTrend(keyword, trend) {
-  const prompt = `You are an expert SEO content writer. Write a comprehensive, engaging blog article about this specific fashion trend:
+    const aiResponse = completion.choices[0]?.message?.content;
+    if (!aiResponse) return res.status(500).json({ success: false, message: 'No response from AI' });
 
-**Keyword**: ${keyword}
-**Trend Name**: ${trend.trendName}
-**Platform**: ${trend.sourcePlatform}
-**Why It's Trending**: ${trend.whyTrending}
-**Suggested Title**: ${trend.suggestedTitle}
+    let jsonStr = aiResponse.trim();
+    const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch) jsonStr = codeBlockMatch[1].trim();
+    else { const m = jsonStr.match(/\{[\s\S]*\}/); if (m) jsonStr = m[0]; }
 
-Requirements:
-- Title: Use the suggested title or improve it. SEO-optimized, max 65 characters.
-- Excerpt: Compelling summary, max 140 characters with a call-to-action feel.
-- Category: Choose a relevant category (e.g., Fashion Trends, Styling Guide, Trend Report, etc.)
-- Content: 800-1200 words in clean HTML. Use <h2> for headings, <p> for paragraphs, <ul>/<li> for lists, <strong> for emphasis. No markdown.
-- SEO: Use "${keyword}" and "${trend.trendName}" naturally throughout. Mention "${trend.sourcePlatform}" as the source of this trend.
-- GEO (Generative Engine Optimization): Include concise, quotable definitions (1-2 sentences) that AI engines can extract.
-- AEO (Answer Engine Optimization): Include a FAQ section at the end using <h2>FAQ</h2> followed by <h3> questions and <p> answers.
-- Tone: Professional yet friendly, targeting fashion-conscious readers.
-- Do NOT include any specific pricing or product IDs.
-
-Return ONLY valid JSON with this exact structure:
-{"title":"Your SEO title","excerpt":"Your compelling excerpt","category":"Chosen category","content":"<h2>Heading</h2><p>Paragraph...</p>","author":"ianos"}
-
-CRITICAL: Return ONLY the raw JSON object. No markdown code blocks, no extra text, no actual newlines inside strings (use \\n if needed).`;
-
-  const completion = await groq.chat.completions.create({
-    messages: [{ role: 'user', content: prompt }],
-    model: 'llama-3.3-70b-versatile',
-    temperature: 0.7,
-    max_tokens: 4096,
-  });
-
-  const aiResponse = completion.choices[0]?.message?.content;
-  if (!aiResponse) return null;
-
-  // Parse JSON from response
-  let jsonStr = aiResponse.trim();
-  const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (codeBlockMatch) {
-    jsonStr = codeBlockMatch[1].trim();
-  } else {
-    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-    if (jsonMatch) jsonStr = jsonMatch[0];
-  }
-
-  try {
-    return JSON.parse(jsonStr);
-  } catch {
-    jsonStr = jsonStr.replace(/"([^"]*?)\n([^"]*?)"/g, '"$1\\n$2"');
-    return JSON.parse(jsonStr);
-  }
-}
-
-function calcReadTime(htmlContent) {
-  const wordCount = htmlContent.replace(/<[^>]*>/g, '').split(/\s+/).length;
-  return Math.max(3, Math.ceil(wordCount / 200));
-}
-
-// ─── Batch Generate: Multiple keywords at once ────────────────────────────────
-router.post('/generate-batch', verifyAdmin, async (req, res) => {
-  try {
-    const { keywords, articlesPerKeyword = 2, publishIntervalHours = 20 } = req.body;
-
-    if (!keywords || !Array.isArray(keywords) || keywords.length === 0) {
-      return res.status(400).json({ success: false, message: 'At least one keyword is required' });
-    }
-    if (!process.env.GROQ_API_KEY) {
-      return res.status(500).json({ success: false, message: 'Groq API key not configured' });
+    let parsed;
+    try { parsed = JSON.parse(jsonStr); } catch {
+      jsonStr = jsonStr.replace(/"([^"]*?)\n([^"]*?)"/g, '"$1\\n$2"');
+      parsed = JSON.parse(jsonStr);
     }
 
-    const results = [];
-    const errors = [];
-    let globalIndex = 0;
+    const topics = parsed.topics || [];
+    const startDate = new Date();
+    const posts = [];
 
-    for (let k = 0; k < keywords.length; k++) {
-      const keyword = keywords[k].trim();
-      if (!keyword) continue;
+    for (const topic of topics) {
+      const scheduledDate = new Date(startDate);
+      scheduledDate.setDate(scheduledDate.getDate() + (topic.dayIndex - 1));
 
-      for (let a = 0; a < articlesPerKeyword; a++) {
-        try {
-          globalIndex++;
-          const articleData = await generateArticleFromKeyword(keyword, a);
-          if (!articleData) {
-            errors.push(`Keyword "${keyword}" article ${a + 1}: Failed to generate`);
-            continue;
-          }
-
-          // Dynamic image based on keyword
-          const imagePrompt = buildHighFidelityImagePrompt(keyword, null, globalIndex);
-          const imageUrl = buildImageUrl(imagePrompt, keyword, globalIndex);
-
-          const hoursOffset = globalIndex * publishIntervalHours;
-          const scheduledPublishDate = new Date(Date.now() + hoursOffset * 60 * 60 * 1000);
-          const readTime = calcReadTime(articleData.content || '');
-
-          const blog = new Blog({
-            title: articleData.title,
-            excerpt: articleData.excerpt,
-            content: articleData.content,
-            category: articleData.category || '',
-            keywords: [keyword],
-            image: imageUrl,
-            author: articleData.author || 'ianos',
-            readTime,
-            status: 'scheduled',
-            scheduledPublishDate,
-            trendKeyword: keyword,
-            trendSource: 'batch-generation',
-          });
-          await blog.save();
-
-          results.push({
-            id: blog._id,
-            title: blog.title,
-            keyword,
-            image: blog.image,
-            scheduledPublishDate: blog.scheduledPublishDate,
-          });
-
-          // Rate limit delay (3s between articles)
-          await new Promise(r => setTimeout(r, 3000));
-        } catch (err) {
-          console.error(`Batch article failed (${keyword} #${a + 1}):`, err.message);
-          errors.push(`"${keyword}" article ${a + 1}: ${err.message}`);
-        }
-      }
+      const blog = new Blog({
+        title: topic.title,
+        content: '<p>Content pending generation.</p>',
+        excerpt: topic.angle || '',
+        category: topic.category || '',
+        keywords: [keyword, topic.focusKeyword],
+        image: '',
+        author: 'ainos',
+        readTime: 5,
+        status: 'planned',
+        scheduledPublishDate: autoPublish ? scheduledDate : null,
+        autoPublish,
+        generationMode,
+        campaignId,
+        dayIndex: topic.dayIndex,
+        metaTitle: topic.title,
+        metaDescription: topic.angle || '',
+        focusKeyword: topic.focusKeyword || '',
+        tags: topic.tags || [],
+        generationStatus: 'planned',
+        trendKeyword: keyword,
+        trendSource: 'campaign',
+      });
+      await blog.save();
+      posts.push(blog);
     }
 
     res.json({
       success: true,
-      message: `Generated ${results.length} of ${keywords.length * articlesPerKeyword} articles`,
-      articles: results,
-      errors: errors.length > 0 ? errors : undefined,
+      campaign: {
+        id: campaignId,
+        keyword,
+        days: topics.length,
+        autoPublish,
+        generationMode,
+        startDate: startDate.toISOString(),
+      },
+      posts: posts.map(p => ({
+        _id: p._id, title: p.title, dayIndex: p.dayIndex, status: p.status,
+        focusKeyword: p.focusKeyword, category: p.category, scheduledPublishDate: p.scheduledPublishDate,
+        image: p.image, generationStatus: p.generationStatus,
+      })),
+      message: `Campaign created with ${topics.length} planned posts`,
     });
   } catch (error) {
-    console.error('Batch generation error:', error);
-    res.status(500).json({ success: false, message: 'Failed to generate batch', error: error.message });
+    console.error('Campaign creation failed:', error);
+    res.status(500).json({ success: false, message: 'Failed to create campaign', error: error.message });
   }
 });
 
-// Generate a standalone article from a keyword (no trend research needed)
-async function generateArticleFromKeyword(keyword, variation) {
-  const variations = [
-    `Write a comprehensive buying guide for "${keyword}" — what to look for, best styles, how to choose, how to style them.`,
-    `Write a styling guide for "${keyword}" — outfit ideas, what to pair with, day vs night looks, common mistakes to avoid.`,
-    `Write a trend report on "${keyword}" — what's trending in 2025, popular styles on Myntra/Ajio/Zara, celebrity-inspired looks.`,
-    `Write an occasion guide for "${keyword}" — what to wear where, how to dress up or down, budget vs premium options.`,
-  ];
+// GET /campaigns — List all campaigns
+router.get('/campaigns', verifyAdmin, async (req, res) => {
+  try {
+    const posts = await Blog.find({ campaignId: { $ne: '' } }).sort({ campaignId: 1, dayIndex: 1 });
+    const campaignMap = {};
+    for (const p of posts) {
+      if (!campaignMap[p.campaignId]) {
+        campaignMap[p.campaignId] = {
+          id: p.campaignId, keyword: p.trendKeyword, posts: [],
+          published: 0, scheduled: 0, planned: 0, failed: 0, total: 0,
+          autoPublish: p.autoPublish, generationMode: p.generationMode,
+        };
+      }
+      const c = campaignMap[p.campaignId];
+      c.posts.push({ _id: p._id, title: p.title, dayIndex: p.dayIndex, status: p.status, focusKeyword: p.focusKeyword, image: p.image, scheduledPublishDate: p.scheduledPublishDate, held: p.held, generationStatus: p.generationStatus, autoPublish: p.autoPublish, generationMode: p.generationMode });
+      c.total++;
+      if (p.status === 'published') c.published++;
+      else if (p.status === 'scheduled') c.scheduled++;
+      else if (p.status === 'planned') c.planned++;
+      else if (p.status === 'failed') c.failed++;
+    }
+    res.json({ success: true, campaigns: Object.values(campaignMap).reverse() });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to list campaigns' });
+  }
+});
 
-  const angle = variations[variation % variations.length];
+// GET /campaigns/:id — Get single campaign with all posts
+router.get('/campaigns/:id', verifyAdmin, async (req, res) => {
+  try {
+    const posts = await Blog.find({ campaignId: req.params.id }).sort({ dayIndex: 1 });
+    if (posts.length === 0) return res.status(404).json({ success: false, message: 'Campaign not found' });
+    const first = posts[0];
+    res.json({
+      success: true,
+      campaign: { id: first.campaignId, keyword: first.trendKeyword, totalPosts: posts.length, autoPublish: first.autoPublish, generationMode: first.generationMode },
+      posts: posts.map(p => ({
+        _id: p._id, title: p.title, dayIndex: p.dayIndex, status: p.status,
+        focusKeyword: p.focusKeyword, category: p.category, image: p.image,
+        scheduledPublishDate: p.scheduledPublishDate, held: p.held,
+        generationStatus: p.generationStatus, excerpt: p.excerpt, readTime: p.readTime,
+        metaTitle: p.metaTitle, metaDescription: p.metaDescription, tags: p.tags,
+        autoPublish: p.autoPublish, generationMode: p.generationMode,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch campaign' });
+  }
+});
 
-  const prompt = `You are an expert SEO content writer for Tubhyam (tubhyam.in), a premium Indian women's fashion brand.
+// POST /campaigns/:id/generate — Generate content for all planned posts in a campaign
+router.post('/campaigns/:id/generate', verifyAdmin, async (req, res) => {
+  try {
+    const posts = await Blog.find({ campaignId: req.params.id, status: 'planned' }).sort({ dayIndex: 1 });
+    if (posts.length === 0) return res.status(400).json({ success: false, message: 'No planned posts to generate' });
+    if (!process.env.GROQ_API_KEY) return res.status(500).json({ success: false, message: 'Groq API key not configured' });
 
-${angle}
+    const results = [];
+    const errors = [];
 
-Keyword: "${keyword}"
-Target audience: Indian women 20-40.
+    for (const post of posts) {
+      try {
+        post.status = 'generating';
+        post.generationStatus = 'generating';
+        await post.save();
+
+        const articleData = await generateCampaignArticle(post.trendKeyword, post);
+        if (!articleData) throw new Error('AI returned empty response');
+
+        post.title = articleData.title || post.title;
+        post.content = articleData.content;
+        post.excerpt = articleData.excerpt || post.excerpt;
+        post.metaTitle = articleData.metaTitle || post.title;
+        post.metaDescription = articleData.metaDescription || post.excerpt;
+        post.readTime = calcReadTime(articleData.content);
+
+        // Generate faceless image
+        const imagePrompt = buildHighFidelityImagePrompt(post.trendKeyword || post.focusKeyword, null, post.dayIndex);
+        post.image = buildImageUrl(imagePrompt, post.trendKeyword || post.focusKeyword, post.dayIndex);
+
+        post.status = post.scheduledPublishDate ? 'scheduled' : 'draft';
+        post.generationStatus = 'ready';
+        post.errorMessage = '';
+        await post.save();
+        results.push({ _id: post._id, title: post.title, dayIndex: post.dayIndex, status: post.status });
+        await new Promise(r => setTimeout(r, 3000));
+      } catch (err) {
+        post.status = 'failed';
+        post.generationStatus = 'failed';
+        post.errorMessage = err.message;
+        await post.save();
+        errors.push({ _id: post._id, dayIndex: post.dayIndex, error: err.message });
+      }
+    }
+
+    res.json({ success: true, message: `Generated ${results.length} of ${posts.length} posts`, results, errors: errors.length ? errors : undefined });
+  } catch (error) {
+    console.error('Campaign generation failed:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate campaign', error: error.message });
+  }
+});
+
+// POST /campaigns/:id/pause — Hold all non-published posts
+router.post('/campaigns/:id/pause', verifyAdmin, async (req, res) => {
+  try {
+    await Blog.updateMany({ campaignId: req.params.id, status: { $in: ['planned', 'draft', 'scheduled'] } }, { held: true });
+    res.json({ success: true, message: 'Campaign paused — all posts on hold' });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to pause campaign' }); }
+});
+
+// POST /campaigns/:id/resume — Unhold all posts
+router.post('/campaigns/:id/resume', verifyAdmin, async (req, res) => {
+  try {
+    await Blog.updateMany({ campaignId: req.params.id }, { held: false });
+    res.json({ success: true, message: 'Campaign resumed — holds removed' });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to resume campaign' }); }
+});
+
+// DELETE /campaigns/:id — Delete entire campaign and all its posts
+router.delete('/campaigns/:id', verifyAdmin, async (req, res) => {
+  try {
+    const result = await Blog.deleteMany({ campaignId: req.params.id });
+    if (result.deletedCount === 0) return res.status(404).json({ success: false, message: 'Campaign not found' });
+    res.json({ success: true, message: `Campaign deleted — ${result.deletedCount} posts removed` });
+  } catch (error) {
+    console.error('Campaign deletion failed:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete campaign' });
+  }
+});
+
+// ═══ POSTS (individual) ═══════════════════════════════════════════════════════
+
+// GET /posts/:id
+router.get('/posts/:id', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Post not found' });
+    res.json({ success: true, post: blog });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to fetch post' }); }
+});
+
+// PUT /posts/:id — Edit post
+router.put('/posts/:id', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Post not found' });
+    const fields = ['title', 'content', 'excerpt', 'slug', 'category', 'metaTitle', 'metaDescription', 'focusKeyword', 'tags', 'scheduledPublishDate', 'held'];
+    for (const f of fields) { if (req.body[f] !== undefined) blog[f] = req.body[f]; }
+    await blog.save();
+    res.json({ success: true, message: 'Post updated', post: blog });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to update post' }); }
+});
+
+// POST /posts/:id/regenerate
+router.post('/posts/:id/regenerate', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Post not found' });
+    const { target = 'all', instruction = '' } = req.body;
+
+    if (target === 'text' || target === 'all') {
+      const articleData = await generateCampaignArticle(blog.trendKeyword || blog.focusKeyword, blog, instruction);
+      if (articleData) {
+        blog.title = articleData.title || blog.title;
+        blog.content = articleData.content;
+        blog.excerpt = articleData.excerpt || blog.excerpt;
+        blog.metaTitle = articleData.metaTitle || blog.title;
+        blog.metaDescription = articleData.metaDescription || blog.excerpt;
+        blog.readTime = calcReadTime(articleData.content);
+      }
+    }
+    if (target === 'images' || target === 'all') {
+      const imagePrompt = buildHighFidelityImagePrompt(blog.trendKeyword || blog.focusKeyword, null, blog.dayIndex || 1);
+      blog.image = buildImageUrl(imagePrompt, blog.trendKeyword || blog.focusKeyword, Date.now());
+    }
+    blog.status = blog.scheduledPublishDate ? 'scheduled' : 'draft';
+    blog.generationStatus = 'ready';
+    blog.errorMessage = '';
+    await blog.save();
+    res.json({ success: true, message: 'Post regenerated', post: blog });
+  } catch (error) {
+    console.error('Regenerate failed:', error);
+    res.status(500).json({ success: false, message: 'Failed to regenerate', error: error.message });
+  }
+});
+
+// POST /posts/:id/hold — Toggle hold
+router.post('/posts/:id/hold', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Post not found' });
+    blog.held = !blog.held;
+    await blog.save();
+    res.json({ success: true, message: blog.held ? 'Post on hold' : 'Hold removed', held: blog.held });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to toggle hold' }); }
+});
+
+// POST /posts/:id/publish
+router.post('/posts/:id/publish', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
+    blog.status = 'published';
+    blog.publishedAt = new Date();
+    blog.scheduledPublishDate = null;
+    blog.held = false;
+    await blog.save();
+    res.json({ success: true, message: 'Blog published successfully', blog });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to publish blog' }); }
+});
+
+// POST /posts/:id/unpublish
+router.post('/posts/:id/unpublish', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
+    blog.status = 'draft';
+    blog.publishedAt = null;
+    await blog.save();
+    res.json({ success: true, message: 'Blog unpublished' });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to unpublish' }); }
+});
+
+// DELETE /posts/:id
+router.delete('/posts/:id', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findByIdAndDelete(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
+    res.json({ success: true, message: 'Blog deleted successfully' });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to delete blog' }); }
+});
+
+// GET /admin/search?q=keyword — Search blog posts
+router.get('/admin/search', verifyAdmin, async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json({ success: true, blogs: [] });
+    const regex = new RegExp(q, 'i');
+    const blogs = await Blog.find({
+      $or: [
+        { title: regex },
+        { focusKeyword: regex },
+        { slug: regex },
+        { excerpt: regex },
+        { tags: regex },
+        { trendKeyword: regex },
+      ]
+    }).sort({ createdAt: -1 }).select('-content');
+    res.json({ success: true, count: blogs.length, blogs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to search blogs' });
+  }
+});
+
+// ═══ PUBLIC ROUTES ═══════════════════════════════════════════════════════════
+
+router.get('/', async (req, res) => {
+  try {
+    const blogs = await Blog.find({ status: 'published' }).sort({ publishedAt: -1 }).select('-content');
+    res.json({ success: true, count: blogs.length, blogs });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to fetch blogs' }); }
+});
+
+router.get('/:slug', async (req, res) => {
+  try {
+    const blog = await Blog.findOne({ slug: req.params.slug, status: 'published' });
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog post not found' });
+    res.json({ success: true, blog });
+  } catch (error) { res.status(500).json({ success: false, message: 'Failed to fetch blog' }); }
+});
+
+// ═══ FACELESS IMAGE GENERATION ════════════════════════════════════════════════
+
+// Professional photography style preset - consistent across all images
+const PHOTO_PRESET = 'Canon EOS R5, 85mm f/1.8 lens, editorial fashion photography, Vogue India style, soft natural lighting, shallow depth of field, warm color grading, premium fabric texture detail';
+
+const KEYWORD_SCENES = {
+  'western wear': 'Indian woman in trendy western outfit, modern minimalist studio, hands resting on designer bag',
+  'western': 'Indian woman in stylish western wear with leather handbag and heels, urban cafe setting',
+  'top': 'Indian woman in fashionable silk blouse with high-waisted jeans, bright studio with soft shadows',
+  'formal pants': 'Indian woman in tailored charcoal formal pants with white silk blouse, modern glass office, laptop bag visible',
+  'trousers': 'Indian woman in structured high-waisted trousers with elegant cream top, marble studio floor',
+  'palazzo': 'Indian woman in flowing ivory palazzo pants with fitted black top, outdoor terrace with plants',
+  'wide leg': 'Indian woman in high-waisted wide-leg denim jeans with tucked-in white shirt, minimalist white studio, hands in pockets',
+  'cargo': 'Indian woman in olive cargo pants with black crop top and white sneakers, urban street with graffiti',
+  'track pants': 'Indian woman in stylish black track pants with cropped hoodie and sneakers, outdoor park path',
+  'jogger': 'Indian woman in slim beige joggers with oversized cream sweatshirt, park bench setting',
+  'jeans': 'Indian woman in perfect-fit blue jeans with white t-shirt and leather belt, city street with warm sunlight',
+  'denim': 'Indian woman in classic blue denim jeans with denim jacket over white top, street style photography',
+  'casual': 'Indian woman in relaxed casual outfit with light wash jeans and white sneakers, cozy cafe interior',
+  'ootd': 'Indian woman in styled outfit of the day, hands on designer handbag, Instagram-worthy setting',
+  'gen z': 'Indian woman in gen-z trendy outfit with baggy jeans and layered necklaces, neon-lit studio',
+  'genz': 'Indian woman in youthful trendy outfit with oversized blazer and chunky sneakers, urban street',
+  'streetwear': 'Indian woman in oversized streetwear hoodie with baggy pants and chunky sneakers, graffiti wall background',
+  'summer': 'Indian woman in light linen summer outfit with strappy sandals and woven tote, sunny garden setting',
+  'winter': 'Indian woman in cozy winter layers with wool scarf and ankle boots, warm indoor setting with window light',
+  'ethnic': 'Indian woman in fusion ethnic-western outfit with silver jhumkas and contemporary kurta, art gallery',
+  'kurta': 'Indian woman in modern printed kurta with white jeans and embroidered juttis, bright patio with flowers',
+  'saree': 'Indian woman in modern saree drape with statement earrings and heels, elegant marble venue',
+  'wardrobe': 'Indian woman selecting from organized capsule wardrobe, walk-in closet with white shelves',
+  'occasion': 'Indian woman in elegant occasion wear with embellished clutch and heels, luxury hotel lobby',
+  'body type': 'Indian woman in perfectly fitted flattering outfit that accentuates curves, warm studio with soft lighting',
+  'color': 'Indian woman in bold color-blocked outfit with coordinated accessories, vibrant gradient background',
+  'blazer': 'Indian woman in structured navy blazer with matching trousers and pointed heels, corporate office lobby',
+  'dress': 'Indian woman in elegant midi dress with strappy heels and clutch, evening cocktail setting',
+  'party': 'Indian woman in glamorous sequin party outfit with statement earrings, nightlife venue with ambient lighting',
+  'beige': 'Indian woman in beige-toned monochrome outfit with tan accessories, neutral cream studio',
+  'cotton': 'Indian woman in soft organic cotton outfit with natural drape and texture, airy bright room with plants',
+  'linen': 'Indian woman in premium linen outfit with relaxed fit, airy bright room with natural light',
+  'formal': 'Indian woman in tailored formal outfit with structured blazer and pointed-toe pumps, professional setting',
+  'office wear': 'Indian woman in professional outfit with laptop bag and minimal jewelry, modern co-working space',
+  'sustainable': 'Indian woman in eco-friendly organic cotton outfit, green garden setting with natural light',
+  'travel': 'Indian woman in travel-ready comfortable outfit with leather tote and sunglasses, airport lounge interior',
+};
+const DEFAULT_SCENE = 'stylish Indian woman in chic contemporary outfit, hands visible with designer accessories, clean white studio with soft shadows';
+
+function getSceneForKeyword(keyword) {
+  if (!keyword) return DEFAULT_SCENE;
+  const lower = keyword.toLowerCase();
+  // Try exact match first, then partial match
+  for (const key of Object.keys(KEYWORD_SCENES)) {
+    if (lower === key || lower.includes(key)) return KEYWORD_SCENES[key];
+  }
+  // Check for common terms
+  if (lower.includes('jean') || lower.includes('denim')) return KEYWORD_SCENES['jeans'];
+  if (lower.includes('pant') || lower.includes('trouser')) return KEYWORD_SCENES['formal pants'];
+  if (lower.includes('formal')) return KEYWORD_SCENES['formal'];
+  return DEFAULT_SCENE;
+}
+
+function buildHighFidelityImagePrompt(keyword) {
+  const scene = getSceneForKeyword(keyword);
+  return `NECK-DOWN CROP, NO FACE VISIBLE, chin-up framing only, ${scene}, ${PHOTO_PRESET}, photorealistic, magazine quality, no text overlay, no watermark, sharp focus on garment details`;
+}
+
+function buildImageUrl(prompt, keyword, index) {
+  const seed = `tubhyam-${(keyword || 'blog').replace(/\s+/g, '-')}-${index}-${Math.floor(Math.random() * 99999)}`;
+  const negative = 'face, head, eyes, nose, mouth, hair, forehead, ears, neck up, distorted, blurry, low quality, text, watermark, cartoon, illustration, painting';
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=720&seed=${seed}&nologo=true&model=flux&negative=${encodeURIComponent(negative)}`;
+}
+
+// ═══ ARTICLE GENERATION ═══════════════════════════════════════════════════════
+
+async function generateCampaignArticle(keyword, post, extraInstruction = '') {
+  const tweakLine = extraInstruction ? `\nAdditional instruction: ${extraInstruction}` : '';
+  const prompt = `You are an expert SEO content writer for Tubhyam (tubhyam.in), a premium Indian women's fashion brand. Voice: warm, inclusive, body-positive.
+
+Write a comprehensive blog article:
+- Title: "${post.title}"
+- Focus keyword: "${post.focusKeyword || keyword}"
+- Angle: ${post.excerpt || 'Comprehensive fashion guide'}
+- Target audience: Indian women 20-40${tweakLine}
 
 Requirements:
-- Title: SEO-optimized, max 65 characters, include "${keyword}" naturally.
-- Excerpt: Compelling summary, max 140 characters.
-- Category: Choose from: Fashion Trends, Styling Guide, Buying Guide, Trend Report, Outfit Ideas.
-- Content: 1000-1500 words in clean HTML. Use <h2>, <h3>, <p>, <ul>/<li>, <strong>. No markdown.
-- SEO: Use "${keyword}" 5-7 times naturally. Include related terms.
-- GEO: Include quotable definitions AI engines can extract.
-- AEO: FAQ section with <h2>FAQ</h2> then <h3> questions and <p> answers.
-- Internal link: <a href="/products">Explore Tubhyam's collection</a>
-- Mention Tubhyam 2 times naturally.
-- NO pricing or product IDs.
+- Title: SEO-optimized, max 65 chars, include focus keyword naturally.
+- Meta title: max 60 chars. Meta description: 150-160 chars.
+- Content: 800-1200 words in clean HTML. Use <h2>, <h3>, <p>, <ul>, <li>, <strong>.
+- Structure: Hook intro, 4-7 H2 sections, practical tips, FAQ with 3-4 questions, closing CTA.
+- CTA: <a href="/products">Explore Tubhyam's collection</a>
+- SEO: Use "${keyword}" 5-7 times naturally. GEO: Include quotable definitions.
+- Mention Tubhyam 2 times. NO pricing or product IDs.
 
 Return ONLY valid JSON:
-{"title":"...","excerpt":"...","category":"...","content":"<h2>...</h2><p>...</p>","author":"ianos"}
+{"title":"...","excerpt":"...","metaTitle":"...","metaDescription":"...","content":"<h2>...</h2><p>...</p>","author":"ainos"}
 
-CRITICAL: Raw JSON only. No markdown blocks. No newlines inside strings (use \\n).`;
+CRITICAL: Raw JSON only. No markdown blocks.`;
 
   const completion = await groq.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
@@ -572,22 +544,20 @@ CRITICAL: Raw JSON only. No markdown blocks. No newlines inside strings (use \\n
 
   const aiResponse = completion.choices[0]?.message?.content;
   if (!aiResponse) return null;
-
   let jsonStr = aiResponse.trim();
-  const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (codeBlockMatch) jsonStr = codeBlockMatch[1].trim();
-  else {
-    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-    if (jsonMatch) jsonStr = jsonMatch[0];
-  }
-
-  try {
-    return JSON.parse(jsonStr);
-  } catch {
+  const cb = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (cb) jsonStr = cb[1].trim();
+  else { const m = jsonStr.match(/\{[\s\S]*\}/); if (m) jsonStr = m[0]; }
+  try { return JSON.parse(jsonStr); } catch {
     jsonStr = jsonStr.replace(/"([^"]*?)\n([^"]*?)"/g, '"$1\\n$2"');
     jsonStr = jsonStr.replace(/,\s*}/g, '}');
     try { return JSON.parse(jsonStr); } catch { return null; }
   }
+}
+
+function calcReadTime(htmlContent) {
+  const wordCount = (htmlContent || '').replace(/<[^>]*>/g, '').split(/\s+/).length;
+  return Math.max(3, Math.ceil(wordCount / 200));
 }
 
 module.exports = router;

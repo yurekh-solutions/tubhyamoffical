@@ -1,492 +1,892 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FileText, Trash2, Eye, Clock, CheckCircle, Loader2, AlertCircle, BarChart3, Zap, Calendar, Search, Sparkles, ChevronRight, Layers, Play } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  FileText, Loader2, AlertCircle, Calendar, Sparkles, Play, Pause,
+  ChevronRight, Zap, Hash, Tag, Send, RefreshCw, Hand, Trash2,
+  Clock, CheckCircle, Settings, LayoutGrid, Plus, Search, X, Eye,
+  Edit3, Image as ImageIcon, ArrowLeft, RotateCcw, Globe, Save, BookOpen
+} from 'lucide-react';
 import { toast } from 'sonner';
-import Navbar from '@/components/Navbar';
+import ainosImg from '@/assets/ainos.jpeg';
 
-interface Blog {
-  _id: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  keywords: string[];
-  image: string;
-  author: string;
-  content: string;
-  status: 'draft' | 'scheduled' | 'published';
-  scheduledPublishDate: string | null;
-  publishedAt: string | null;
-  readTime: number;
-  createdAt: string;
-  trendKeyword?: string;
-  trendSource?: string;
+// ═══ Simple Bot Icon ═══════════════════════════════════════════════════════
+const BotIcon = ({ size = 20, color = '#ffcd94' }: { size?: number; color?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="8" width="14" height="11" rx="3" />
+    <circle cx="9.5" cy="13.5" r="1.2" fill={color} />
+    <circle cx="14.5" cy="13.5" r="1.2" fill={color} />
+    <path d="M9 17h6" />
+    <path d="M12 2v3" />
+    <circle cx="12" cy="2" r="0.8" fill={color} />
+    <path d="M3 12h2" />
+    <path d="M19 12h2" />
+  </svg>
+);
+
+// ═══ Types ═══════════════════════════════════════════════════════════════════
+
+interface CampaignPost {
+  _id: string; title: string; dayIndex: number; status: string;
+  focusKeyword: string; category: string; image: string;
+  scheduledPublishDate: string | null; held: boolean;
+  generationStatus: string; excerpt?: string; readTime?: number;
+  metaTitle?: string; metaDescription?: string; tags?: string[];
+  content?: string; slug?: string; errorMessage?: string; author?: string;
+  autoPublish?: boolean; generationMode?: string;
+}
+interface Campaign {
+  id: string; keyword: string; posts: CampaignPost[];
+  published: number; scheduled: number; planned: number; failed: number; total: number;
+  autoPublish?: boolean; generationMode?: string;
+}
+interface Stats { published: number; scheduled: number; draft: number; planned: number; failed: number; total: number; }
+interface BlogSearchResult {
+  _id: string; title: string; status: string; focusKeyword?: string;
+  category?: string; image?: string; scheduledPublishDate?: string | null;
+  held?: boolean; excerpt?: string; slug?: string;
 }
 
-interface Trend {
-  trendName: string;
-  sourcePlatform: string;
-  whyTrending: string;
-  suggestedTitle: string;
-  selected: boolean;
-}
-
-interface Stats {
-  published: number;
-  scheduled: number;
-  draft: number;
-  total: number;
-}
+// ═══ Constants ══════════════════════════════════════════════════════════════
 
 const ADMIN_SECRET = 'tubhyam_admin_2024';
 const API_BASE = `${import.meta.env.VITE_API_URL || 'https://tubhyamoffical.onrender.com/api'}`;
+const authHeaders = { 'Authorization': `Bearer ${ADMIN_SECRET}`, 'Content-Type': 'application/json' };
+const authOnly = { 'Authorization': `Bearer ${ADMIN_SECRET}` };
 
-const authHeaders = {
-  'Authorization': `Bearer ${ADMIN_SECRET}`,
-  'Content-Type': 'application/json',
+// ═══ Tubhyam Warm Theme Colors ════════════════════════════════════════════
+
+const C = {
+  bg: '#1A1410', sidebar: '#151010', card: '#2B2220', cardAlt: '#332A26',
+  accent: '#FFD3AC', accentHover: '#F5C49C', accentLight: '#FFD3AC20',
+  sidebarText: '#F0E6DA', sidebarTextDim: '#B0A090', sidebarActive: '#FFD3AC',
+  textDark: '#F0E6DA', textMed: '#C4B5A6', textLight: '#8A7D70',
+  border: '#4A3E36', borderLight: '#3D322C',
+  green: '#66BB6A', greenBg: '#1B3A1B', greenText: '#81C784',
+  blue: '#64B5F6', blueBg: '#1A2D40', blueText: '#90CAF9',
+  mint: '#81C784', mintText: '#A5D6A7',
+  pink: '#F48FB1', pinkBg: '#3D1A2E', pinkText: '#F48FB1',
+  yellowBg: '#3D3520', yellowText: '#FFD54F',
+  redBg: '#3D1A1A', redText: '#EF9A9A',
+  holdBg: '#4A4036', grayTag: '#555048',
 };
 
-const AdminSEO = () => {
-  const navigate = useNavigate();
-  const [keyword, setKeyword] = useState('');
-  const [isResearching, setIsResearching] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [trends, setTrends] = useState<Trend[]>([]);
-  const [queue, setQueue] = useState<Blog[]>([]);
-  const [stats, setStats] = useState<Stats>({ published: 0, scheduled: 0, draft: 0, total: 0 });
-  const [isLoading, setIsLoading] = useState(true);
-  const [previewBlog, setPreviewBlog] = useState<Blog | null>(null);
-  const [publishInterval, setPublishInterval] = useState(24);
-  const [generationProgress, setGenerationProgress] = useState('');
-  const [searchedKeyword, setSearchedKeyword] = useState('');
-  const [activeTab, setActiveTab] = useState<'trends' | 'batch'>('trends');
-  const [batchKeywords, setBatchKeywords] = useState('');
-  const [batchArticlesPer, setBatchArticlesPer] = useState(2);
-  const [batchInterval, setBatchInterval] = useState(20);
-  const [isBatchGenerating, setIsBatchGenerating] = useState(false);
-  const [batchProgress, setBatchProgress] = useState('');
+// ═══ Helpers ═══════════════════════════════════════════════════════════════
 
-  useEffect(() => {
-    fetchQueue();
-    fetchStats();
-  }, []);
+const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
+const fmtShort = (d: string | null) => d ? new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : '-';
 
-  const fetchQueue = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/blogs/admin/queue`, {
-        headers: { 'Authorization': `Bearer ${ADMIN_SECRET}` }
-      });
-      const data = await response.json();
-      if (data.success) setQueue(data.blogs);
-    } catch (error) {
-      console.error('Failed to fetch queue:', error);
-      toast.error('Failed to load queue');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const statusPill = (status: string, held?: boolean) => {
+  if (held) return <span style={{ background: '#FFF3E0', color: '#E65100', fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>On Hold</span>;
+  switch (status) {
+    case 'planned': return <span style={{ background: C.blueBg, color: C.blueText, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>Planned</span>;
+    case 'generating': return <span style={{ background: C.blueBg, color: C.blue, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Loader2 size={10} className="animate-spin" />Generating...</span>;
+    case 'draft': return <span style={{ background: C.yellowBg, color: C.yellowText, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>Draft</span>;
+    case 'scheduled': return <span style={{ background: C.pinkBg, color: C.pinkText, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>Scheduled</span>;
+    case 'published': return <span style={{ background: C.greenBg, color: C.greenText, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>Published</span>;
+    case 'failed': return <span style={{ background: C.redBg, color: C.redText, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>Failed</span>;
+    default: return null;
+  }
+};
 
-  const fetchStats = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/blogs/admin/stats`, {
-        headers: { 'Authorization': `Bearer ${ADMIN_SECRET}` }
-      });
-      const data = await response.json();
-      if (data.success) setStats(data.stats);
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
-    }
-  };
+const campaignStatus = (c: Campaign) => {
+  if (c.published > 0 || c.scheduled > 0) return { label: 'Active', bg: C.greenBg, color: C.greenText };
+  return { label: 'Planned', bg: C.blueBg, color: C.blueText };
+};
 
-  const handleResearchTrends = async () => {
-    if (!keyword.trim()) { toast.error('Please enter a keyword'); return; }
-    setIsResearching(true);
-    setTrends([]);
-    setSearchedKeyword('');
-    try {
-      const response = await fetch(`${API_BASE}/blogs/research-trends`, {
-        method: 'POST', headers: authHeaders,
-        body: JSON.stringify({ keyword: keyword.trim() })
-      });
-      const data = await response.json();
-      if (data.success && data.trends.length > 0) {
-        setTrends(data.trends.map((t: Trend) => ({ ...t, selected: true })));
-        setSearchedKeyword(data.keyword);
-        toast.success(`Found ${data.trends.length} trends for "${data.keyword}"`);
-      } else {
-        toast.error(data.message || 'No trends found');
-      }
-    } catch (error) {
-      console.error('Trend research failed:', error);
-      toast.error('Failed to research trends');
-    } finally {
-      setIsResearching(false);
-    }
-  };
+// ═══ Sub-components ═════════════════════════════════════════════════════════
 
-  const handleGenerateFromTrends = async () => {
-    const selectedTrends = trends.filter(t => t.selected);
-    if (selectedTrends.length === 0) { toast.error('Please select at least one trend'); return; }
-    setIsGenerating(true);
-    setGenerationProgress(`Generating ${selectedTrends.length} articles with AI... This may take a minute.`);
-    try {
-      const response = await fetch(`${API_BASE}/blogs/generate-from-trends`, {
-        method: 'POST', headers: authHeaders,
-        body: JSON.stringify({
-          keyword: searchedKeyword,
-          trends: selectedTrends.map(({ trendName, sourcePlatform, whyTrending, suggestedTitle }) => ({
-            trendName, sourcePlatform, whyTrending, suggestedTitle
-          })),
-          publishIntervalHours: publishInterval,
-        })
-      });
-      const data = await response.json();
-      if (data.success) {
-        toast.success(data.message);
-        if (data.errors?.length) toast.warning(`${data.errors.length} articles failed`);
-        setTrends([]); setSearchedKeyword(''); setKeyword('');
-        fetchQueue(); fetchStats();
-      } else {
-        toast.error(data.message || 'Generation failed');
-      }
-    } catch (error) {
-      console.error('Generation failed:', error);
-      toast.error('Failed to generate articles');
-    } finally {
-      setIsGenerating(false); setGenerationProgress('');
-    }
-  };
+interface SidebarProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: (v: boolean) => void;
+  view: 'list' | 'create' | 'detail';
+  onList: () => void;
+  onNewCampaign: () => void;
+}
 
-  const handlePublish = async (blogId: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/blogs/${blogId}/publish`, {
-        method: 'POST', headers: { 'Authorization': `Bearer ${ADMIN_SECRET}` }
-      });
-      const data = await response.json();
-      if (data.success) { toast.success('Blog published'); fetchQueue(); fetchStats(); }
-      else toast.error(data.message || 'Failed to publish');
-    } catch (error) { toast.error('Failed to publish blog'); }
-  };
-
-  const handleDelete = async (blogId: string) => {
-    if (!confirm('Are you sure you want to delete this article?')) return;
-    try {
-      const response = await fetch(`${API_BASE}/blogs/${blogId}`, {
-        method: 'DELETE', headers: { 'Authorization': `Bearer ${ADMIN_SECRET}` }
-      });
-      const data = await response.json();
-      if (data.success) { toast.success('Blog deleted'); fetchQueue(); fetchStats(); }
-      else toast.error(data.message || 'Failed to delete');
-    } catch (error) { toast.error('Failed to delete blog'); }
-  };
-
-  const toggleTrendSelection = (index: number) => {
-    setTrends(prev => prev.map((t, i) => i === index ? { ...t, selected: !t.selected } : t));
-  };
-
-  const handleBatchGenerate = async () => {
-    const keywords = batchKeywords.split(/[\n,]+/).map(k => k.trim()).filter(k => k.length > 0);
-    if (keywords.length === 0) { toast.error('Please enter at least one keyword'); return; }
-    setIsBatchGenerating(true);
-    const total = keywords.length * batchArticlesPer;
-    setBatchProgress(`Generating ${total} articles for ${keywords.length} keywords... This may take ${Math.ceil(total * 0.5)} minutes.`);
-    try {
-      const response = await fetch(`${API_BASE}/blogs/generate-batch`, {
-        method: 'POST', headers: authHeaders,
-        body: JSON.stringify({ keywords, articlesPerKeyword: batchArticlesPer, publishIntervalHours: batchInterval })
-      });
-      const data = await response.json();
-      if (data.success) {
-        toast.success(data.message);
-        if (data.errors?.length) toast.warning(`${data.errors.length} articles failed`);
-        setBatchKeywords(''); fetchQueue(); fetchStats();
-      } else {
-        toast.error(data.message || 'Batch generation failed');
-      }
-    } catch (error) { toast.error('Failed to generate batch'); }
-    finally { setIsBatchGenerating(false); setBatchProgress(''); }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'draft': return <span className="px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground">Draft</span>;
-      case 'scheduled': return <span className="px-2 py-1 text-xs rounded-full bg-blue-900/40 text-blue-300 flex items-center gap-1"><Clock size={12} />Scheduled</span>;
-      case 'published': return <span className="px-2 py-1 text-xs rounded-full bg-green-900/40 text-green-300 flex items-center gap-1"><CheckCircle size={12} />Published</span>;
-      default: return null;
-    }
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  };
-
-  const getNextPublishDate = () => {
-    const scheduled = queue.filter(b => b.status === 'scheduled' && b.scheduledPublishDate).sort((a, b) => new Date(a.scheduledPublishDate!).getTime() - new Date(b.scheduledPublishDate!).getTime());
-    return scheduled.length > 0 ? formatDate(scheduled[0].scheduledPublishDate) : null;
-  };
-
-  const nextPublish = getNextPublishDate();
-  const selectedCount = trends.filter(t => t.selected).length;
-  const kwCount = batchKeywords.split(/[\n,]+/).filter(k => k.trim()).length;
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="font-heading text-3xl md:text-4xl font-bold text-gradient-gold">SEO / Content</h1>
-            <p className="text-sm text-foreground/60 mt-1">Trend-driven AI content marketing for your blog</p>
-          </div>
-          <button onClick={() => navigate('/')} className="px-4 py-2 text-sm font-medium text-foreground/80 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors">
-            Back to Site
-          </button>
+const Sidebar = ({ sidebarOpen, setSidebarOpen, view, onList, onNewCampaign }: SidebarProps) => (
+  <>
+    {sidebarOpen && <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+    <aside className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} style={{ width: 240, background: C.sidebar, borderRight: `1px solid ${C.border}` }}>
+      <div className="p-4 flex items-center gap-3" style={{ borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${C.accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <img src={ainosImg} alt="AINOS" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
+        <div>
+          <span style={{ fontWeight: 700, fontSize: 16, color: '#ffcd94', letterSpacing: 1.5, display: 'block', lineHeight: 1.2 }}>AINOS</span>
+          <span style={{ fontSize: 9, color: '#B0A090', letterSpacing: 0.5, fontWeight: 500 }}>AI Blog Assistant</span>
+        </div>
+      </div>
+      <nav className="p-3 space-y-1">
+        <button onClick={onList}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          style={{ background: view !== 'create' ? C.accentLight : 'transparent', color: view !== 'create' ? C.accent : C.sidebarTextDim, borderLeft: view !== 'create' ? '3px solid #FFD3AC' : '3px solid transparent' }}>
+          <LayoutGrid size={16} /> Campaigns
+        </button>
+        <button onClick={onNewCampaign}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          style={{ background: view === 'create' ? C.accentLight : 'transparent', color: view === 'create' ? C.accent : C.sidebarTextDim, borderLeft: view === 'create' ? '3px solid #FFD3AC' : '3px solid transparent' }}>
+          <Settings size={16} /> New Campaign
+        </button>
+      </nav>
+      <div className="absolute bottom-4 left-0 right-0 px-5">
+        <a href="/" className="flex items-center gap-2 text-sm" style={{ color: C.sidebarTextDim }}>
+          <ArrowLeft size={14} /> Back to Site
+        </a>
+        <p style={{ fontSize: 8, color: '#5A5048', marginTop: 8, letterSpacing: 0.5 }}>PRODUCT BY YUREKH</p>
+      </div>
+    </aside>
+  </>
+);
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-          {[
-            { icon: <CheckCircle size={20} className="text-green-400" />, value: stats.published, label: 'Published', bg: 'bg-green-900/20' },
-            { icon: <Clock size={20} className="text-blue-400" />, value: stats.scheduled, label: 'Scheduled', bg: 'bg-blue-900/20' },
-            { icon: <FileText size={20} className="text-gray-400" />, value: stats.draft, label: 'Drafts', bg: 'bg-gray-900/20' },
-            { icon: <BarChart3 size={20} className="text-primary" />, value: stats.total, label: 'Total', bg: 'bg-primary/10' },
-          ].map((s, i) => (
-            <div key={i} className="bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${s.bg}`}>{s.icon}</div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{s.value}</p>
-                  <p className="text-xs text-muted-foreground">{s.label}</p>
+interface CampaignsListProps {
+  campaigns: Campaign[];
+  filteredCampaigns: Campaign[];
+  searchQuery: string;
+  blogSearchResults: BlogSearchResult[];
+  isSearching: boolean;
+  isLoadingData: boolean;
+  onSearchChange: (value: string) => void;
+  onClearSearch: () => void;
+  onNewCampaign: () => void;
+  onSelectCampaign: (id: string) => void;
+  onOpenPost: (id: string) => void;
+  onDeleteCampaign: (id: string, keyword: string) => void;
+}
+
+const CampaignsList = ({
+  filteredCampaigns, searchQuery, blogSearchResults, isSearching, isLoadingData,
+  onSearchChange, onClearSearch, onNewCampaign, onSelectCampaign, onOpenPost, onDeleteCampaign
+}: CampaignsListProps) => (
+  <div>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 700, color: C.textDark, margin: 0 }}>Content Campaigns</h1>
+        <p style={{ color: C.textMed, fontSize: 14, marginTop: 4 }}>Manage your automated SEO editorial calendar.</p>
+      </div>
+      <button onClick={onNewCampaign} style={{ background: C.accent, color: '#1A1410', padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, border: 'none', cursor: 'pointer' }}>
+        <Plus size={16} /> New Campaign
+      </button>
+    </div>
+
+    <div style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, padding: '12px 16px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <Search size={16} style={{ color: C.textLight }} />
+      <input type="text" value={searchQuery} onChange={e => onSearchChange(e.target.value)} placeholder="Search blog posts by keyword, title, tags..." style={{ border: 'none', outline: 'none', flex: 1, fontSize: 14, color: C.textDark, background: 'transparent' }} />
+      {searchQuery && <button onClick={onClearSearch} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight }}><X size={14} /></button>}
+    </div>
+
+    {isLoadingData && !searchQuery ? (
+      <div className="text-center py-16"><Loader2 size={32} className="animate-spin mx-auto" style={{ color: C.textLight }} /></div>
+    ) : searchQuery ? (
+      isSearching ? (
+        <div className="text-center py-16"><Loader2 size={32} className="animate-spin mx-auto" style={{ color: C.textLight }} /></div>
+      ) : blogSearchResults.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="mx-auto mb-4 opacity-30" style={{ width: 64, height: 64, borderRadius: 12, background: '#4A4036', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Search size={28} />
+          </div>
+          <p style={{ color: C.textLight, fontSize: 14 }}>No blog posts found for &quot;{searchQuery}&quot;</p>
+        </div>
+      ) : (
+        <div>
+          <p style={{ color: C.textMed, fontSize: 13, marginBottom: 16 }}>{blogSearchResults.length} result{blogSearchResults.length !== 1 ? 's' : ''} found</p>
+          <div className="space-y-3">
+            {blogSearchResults.map((blog) => (
+              <div key={blog._id} onClick={() => onOpenPost(blog._id)} style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, padding: 16, cursor: 'pointer', transition: 'box-shadow 0.2s' }} className="hover:shadow-md">
+                <div className="flex items-start gap-3">
+                  {blog.image && <img src={blog.image} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />}
+                  <div className="flex-1 min-w-0">
+                    <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 600, color: C.textDark, margin: '0 0 6px', lineHeight: 1.3 }}>{blog.title || 'Untitled'}</h3>
+                    <div className="flex items-center gap-3 flex-wrap" style={{ fontSize: 12, color: C.textMed }}>
+                      {statusPill(blog.status, blog.held)}
+                      {blog.focusKeyword && <span className="flex items-center gap-1"><Hash size={11} /> {blog.focusKeyword}</span>}
+                      {blog.category && <span className="flex items-center gap-1"><Tag size={11} /> {blog.category}</span>}
+                      {blog.scheduledPublishDate && <span className="flex items-center gap-1"><Calendar size={11} /> {fmtDate(blog.scheduledPublishDate)}</span>}
+                    </div>
+                    {blog.excerpt && <p style={{ fontSize: 12, color: C.textLight, marginTop: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{blog.excerpt.replace(/<[^>]*>/g, '')}</p>}
+                  </div>
+                  <ChevronRight size={16} style={{ color: C.textLight, flexShrink: 0 }} />
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-
-        {/* Tab Switcher */}
-        <div className="flex gap-2 mb-6">
-          <button onClick={() => setActiveTab('trends')} className={`px-4 md:px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition-all ${activeTab === 'trends' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-card border border-border text-foreground/70 hover:bg-secondary'}`}>
-            <Search size={16} /> Trend Research
-          </button>
-          <button onClick={() => setActiveTab('batch')} className={`px-4 md:px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition-all ${activeTab === 'batch' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-card border border-border text-foreground/70 hover:bg-secondary'}`}>
-            <Layers size={16} /> Batch Generate
-          </button>
+      )
+    ) : filteredCampaigns.length === 0 ? (
+      <div className="text-center py-16">
+        <div className="mx-auto mb-4 opacity-30" style={{ width: 64, height: 64, borderRadius: 12, background: '#4A4036', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <BotIcon size={32} />
         </div>
-
-        {/* ─── TREND RESEARCH TAB ─── */}
-        {activeTab === 'trends' && (
-          <>
-            <div className="bg-card rounded-xl border border-border p-4 md:p-6 mb-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Search size={20} className="text-primary" /> Step 1: Research Trends
-              </h2>
-              <label className="block text-sm font-medium text-foreground/80 mb-2">Enter a keyword to discover trending styles</label>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="e.g., track pants, formal pants, wide leg trousers"
-                  className="flex-1 px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
-                  disabled={isResearching || isGenerating} onKeyDown={(e) => e.key === 'Enter' && handleResearchTrends()} />
-                <button onClick={handleResearchTrends} disabled={isResearching || isGenerating || !keyword.trim()}
-                  className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap">
-                  {isResearching ? (<><Loader2 size={18} className="animate-spin" /> Researching...</>) : (<><Sparkles size={18} /> Research Trends</>)}
+        <p style={{ color: C.textLight, fontSize: 14 }}>No campaigns yet. Create your first one!</p>
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredCampaigns.map(c => {
+          const s = campaignStatus(c);
+          return (
+            <div key={c.id} onClick={() => onSelectCampaign(c.id)} style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, padding: 20, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', transition: 'box-shadow 0.2s' }} className="hover:shadow-md">
+              <div className="flex items-center gap-2 mb-3">
+                <span style={{ background: s.bg, color: s.color, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>{s.label}</span>
+                <span style={{ background: C.grayTag, color: C.textMed, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 500 }}>{c.generationMode === 'bulk' ? 'Bulk Gen' : 'JIT Gen'}</span>
+                <button onClick={(e) => { e.stopPropagation(); onDeleteCampaign(c.id, c.keyword); }} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 4, color: C.textLight, transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#DC2626')} onMouseLeave={(e) => (e.currentTarget.style.color = C.textLight)} title="Delete campaign">
+                  <Trash2 size={14} />
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">AI identifies trends across Myntra, Ajio, Zara, and other platforms.</p>
-            </div>
-
-            {trends.length > 0 && (
-              <div className="bg-card rounded-xl border border-border p-4 md:p-6 mb-6">
-                <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                  <Sparkles size={20} className="text-primary" /> Step 2: Review Trends & Generate
-                </h2>
-                <p className="text-sm text-foreground/70 mb-4">Found <strong>{trends.length} trends</strong> for "<strong>{searchedKeyword}</strong>"</p>
-                <div className="grid md:grid-cols-2 gap-3 mb-6">
-                  {trends.map((trend, index) => (
-                    <div key={index} onClick={() => toggleTrendSelection(index)}
-                      className={`border rounded-lg p-3 md:p-4 cursor-pointer transition-all ${trend.selected ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'border-border bg-background/50 opacity-50'}`}>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <input type="checkbox" checked={trend.selected} onChange={() => toggleTrendSelection(index)} className="w-4 h-4 text-primary border-border rounded focus:ring-primary" />
-                          <h3 className="font-semibold text-foreground text-sm">{trend.trendName}</h3>
-                        </div>
-                        <span className="px-2 py-0.5 text-xs bg-blue-900/30 text-blue-300 rounded-full">{trend.sourcePlatform}</span>
-                      </div>
-                      <p className="text-xs text-foreground/60 mb-2">{trend.whyTrending}</p>
-                      <p className="text-xs text-muted-foreground italic flex items-center gap-1"><ChevronRight size={12} />{trend.suggestedTitle}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex flex-wrap items-end gap-4 pt-4 border-t border-border">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground/80 mb-1">Hours between articles</label>
-                    <input type="number" value={publishInterval} onChange={(e) => setPublishInterval(Math.max(1, parseInt(e.target.value) || 1))} min={1} max={168}
-                      className="w-24 px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary" disabled={isGenerating} />
-                    <p className="text-xs text-muted-foreground mt-1">Default: 24 hours</p>
-                  </div>
-                  <button onClick={handleGenerateFromTrends} disabled={isGenerating || selectedCount === 0}
-                    className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                    {isGenerating ? (<><Loader2 size={18} className="animate-spin" /> Generating...</>) : (<><Zap size={18} /> Generate {selectedCount} Article{selectedCount !== 1 ? 's' : ''}</>)}
-                  </button>
-                </div>
-                {generationProgress && (
-                  <div className="flex items-center gap-3 p-3 bg-blue-900/20 border border-blue-800/30 rounded-lg mt-4">
-                    <Loader2 size={18} className="animate-spin text-blue-400" /><p className="text-sm text-blue-300">{generationProgress}</p>
-                  </div>
-                )}
+              <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 16, fontWeight: 700, color: C.textDark, margin: '0 0 12px', lineHeight: 1.3 }}>{c.keyword}</h3>
+              <div className="flex items-center gap-4" style={{ fontSize: 12, color: C.textMed }}>
+                <span className="flex items-center gap-1"><Calendar size={12} /> Starts {fmtDate(c.posts[0]?.scheduledPublishDate || null)}</span>
+                <span className="flex items-center gap-1"><Clock size={12} /> {c.total} days &bull; 1 post/day</span>
               </div>
-            )}
-          </>
-        )}
-
-        {/* ─── BATCH GENERATE TAB ─── */}
-        {activeTab === 'batch' && (
-          <div className="bg-card rounded-xl border border-border p-4 md:p-6 mb-6">
-            <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
-              <Layers size={20} className="text-primary" /> Batch Generate: Multiple Keywords
-            </h2>
-            <p className="text-sm text-foreground/60 mb-4">Enter keywords (one per line or comma-separated). AI generates SEO articles with matching images. Auto-publishes every {batchInterval}h.</p>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground/80 mb-2">Keywords (one per line or comma-separated)</label>
-                <textarea value={batchKeywords} onChange={(e) => setBatchKeywords(e.target.value)}
-                  placeholder={"western wear\nformal pants\njeans denim\ncasual pants\ntrack pants\nOOTD genz collection\npalazzo pants\ncargo pants"}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary font-mono text-sm"
-                  rows={8} disabled={isBatchGenerating} />
-                <p className="text-xs text-muted-foreground mt-1">{kwCount} keyword(s) detected</p>
+              <div className="flex items-center gap-2 mt-3 pt-3" style={{ borderTop: `1px solid ${C.borderLight}`, fontSize: 11, color: C.textLight }}>
+                {c.published > 0 && <span style={{ color: C.greenText }}>{c.published} published</span>}
+                {c.planned > 0 && <span style={{ color: C.blueText }}>{c.planned} planned</span>}
+                {c.failed > 0 && <span style={{ color: C.redText }}>{c.failed} failed</span>}
+                <ChevronRight size={14} className="ml-auto" style={{ color: C.textLight }} />
               </div>
-
-              <div className="flex flex-wrap gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground/80 mb-1">Articles per keyword</label>
-                  <select value={batchArticlesPer} onChange={(e) => setBatchArticlesPer(parseInt(e.target.value))}
-                    className="px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary" disabled={isBatchGenerating}>
-                    <option value={1}>1 article</option><option value={2}>2 articles</option><option value={3}>3 articles</option><option value={4}>4 articles</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground/80 mb-1">Hours between publishes</label>
-                  <input type="number" value={batchInterval} onChange={(e) => setBatchInterval(Math.max(6, parseInt(e.target.value) || 20))} min={6} max={168}
-                    className="w-24 px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary" disabled={isBatchGenerating} />
-                  <p className="text-xs text-muted-foreground mt-1">Default: 20 hours</p>
-                </div>
-                <div className="flex items-end">
-                  <div className="bg-background rounded-lg p-3 border border-border">
-                    <p className="text-sm font-medium text-foreground">Total: {kwCount * batchArticlesPer} articles</p>
-                    <p className="text-xs text-muted-foreground">Publishes over ~{Math.ceil((kwCount * batchArticlesPer * batchInterval) / 24)} days</p>
-                  </div>
-                </div>
-              </div>
-
-              <button onClick={handleBatchGenerate} disabled={isBatchGenerating || kwCount === 0}
-                className="px-6 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                {isBatchGenerating ? (<><Loader2 size={18} className="animate-spin" /> Generating Batch...</>) : (<><Play size={18} /> Generate Batch</>)}
-              </button>
-              {batchProgress && (
-                <div className="flex items-center gap-3 p-3 bg-blue-900/20 border border-blue-800/30 rounded-lg">
-                  <Loader2 size={18} className="animate-spin text-blue-400" /><p className="text-sm text-blue-300">{batchProgress}</p>
-                </div>
-              )}
             </div>
-          </div>
-        )}
+          );
+        })}
+      </div>
+    )}
+  </div>
+);
 
-        {/* ─── QUEUE ─── */}
-        <div className="bg-card rounded-xl border border-border">
-          <div className="px-4 md:px-6 py-4 border-b border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Content Queue</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {queue.length} article{queue.length !== 1 ? 's' : ''} in queue
-                {nextPublish && <span className="ml-2 text-blue-400"><Calendar size={12} className="inline mr-1" />Next: {nextPublish}</span>}
-              </p>
-            </div>
-          </div>
+interface CreateCampaignProps {
+  keyword: string; setKeyword: (v: string) => void;
+  days: number; setDays: (v: number) => void;
+  tone: string; setTone: (v: string) => void;
+  wordCount: number; setWordCount: (v: number) => void;
+  imagesPerPost: number; setImagesPerPost: (v: number) => void;
+  autoPublish: boolean; setAutoPublish: (v: boolean) => void;
+  genMode: 'jit' | 'bulk'; setGenMode: (v: 'jit' | 'bulk') => void;
+  isCreating: boolean; onCreate: () => void; onCancel: () => void;
+}
 
-          {isLoading ? (
-            <div className="p-8 text-center"><Loader2 size={32} className="animate-spin mx-auto text-muted-foreground" /><p className="text-sm text-muted-foreground mt-2">Loading queue...</p></div>
-          ) : queue.length === 0 ? (
-            <div className="p-8 text-center"><FileText size={48} className="mx-auto text-muted-foreground/30" /><p className="text-sm text-muted-foreground mt-2">No articles in queue</p></div>
-          ) : (
-            <div className="divide-y divide-border">
-              {queue.map((blog) => (
-                <div key={blog._id} className="p-4 md:p-6 hover:bg-secondary/30 transition-colors">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      {blog.image && <img src={blog.image} alt={blog.title} className="w-16 h-12 md:w-20 md:h-16 object-cover object-bottom rounded-lg flex-shrink-0 hidden sm:block border border-border" />}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <h3 className="text-sm md:text-base font-semibold text-foreground truncate">{blog.title}</h3>
-                          {getStatusBadge(blog.status)}
-                        </div>
-                        <p className="text-xs md:text-sm text-foreground/60 line-clamp-2 mb-2">{blog.excerpt}</p>
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                          {blog.category && <span className="flex items-center gap-1"><FileText size={12} />{blog.category}</span>}
-                          <span className="flex items-center gap-1"><Clock size={12} />{blog.readTime} min</span>
-                          {blog.trendSource && <span className="px-2 py-0.5 text-xs bg-blue-900/20 text-blue-300 rounded">{blog.trendSource}</span>}
-                          {blog.scheduledPublishDate && <span className="flex items-center gap-1 text-blue-400"><Calendar size={12} />{formatDate(blog.scheduledPublishDate)}</span>}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-                      <button onClick={() => setPreviewBlog(blog)} className="p-2 text-foreground/60 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Preview"><Eye size={16} /></button>
-                      {blog.status !== 'published' && (
-                        <button onClick={() => handlePublish(blog._id)} className="px-2 md:px-3 py-1.5 text-xs font-medium text-white bg-green-700 hover:bg-green-600 rounded-lg transition-colors">Publish</button>
-                      )}
-                      <button onClick={() => handleDelete(blog._id)} className="p-2 text-foreground/60 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors" title="Delete"><Trash2 size={16} /></button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+const CreateCampaign = ({
+  keyword, setKeyword, days, setDays, tone, setTone, wordCount, setWordCount,
+  imagesPerPost, setImagesPerPost, autoPublish, setAutoPublish, genMode, setGenMode,
+  isCreating, onCreate, onCancel
+}: CreateCampaignProps) => (
+  <div>
+    <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 700, color: C.textDark, margin: 0 }}>Plan New Campaign</h1>
+    <p style={{ color: C.textMed, fontSize: 14, marginTop: 4, marginBottom: 8 }}>Define your topic and let AINOS generate a full editorial calendar.</p>
+    <div style={{ height: 4, background: C.borderLight, borderRadius: 2, marginBottom: 32, overflow: 'hidden' }}>
+      <div style={{ height: '100%', width: keyword.trim() ? '100%' : '10%', background: C.accent, borderRadius: 2, transition: 'width 0.3s' }} />
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Left column */}
+      <div className="space-y-6">
+        {/* Core Topic */}
+        <div style={{ background: C.cardAlt, borderRadius: 12, padding: 24, border: `1px solid ${C.border}` }}>
+          <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 16, fontWeight: 700, color: C.accent, margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} /> Core Topic</h3>
+          <p style={{ color: C.textMed, fontSize: 13, marginBottom: 16 }}>The main focus for this content cluster.</p>
+          <label style={{ fontSize: 13, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 6 }}>Seed Keyword</label>
+          <input type="text" value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="e.g. Plus Size Kurti Styling"
+            style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }}
+            disabled={isCreating} onKeyDown={e => e.key === 'Enter' && onCreate()} />
+          <p style={{ fontSize: 11, color: C.textLight, marginTop: 6 }}>This keyword drives the AI topic planning of the entire campaign.</p>
+          <label style={{ fontSize: 13, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 6, marginTop: 16 }}>Brand Voice & Tone</label>
+          <input type="text" value={tone} onChange={e => setTone(e.target.value)}
+            style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }}
+            disabled={isCreating} />
+          <p style={{ fontSize: 11, color: C.textLight, marginTop: 6 }}>Describe how the articles should sound.</p>
         </div>
 
-        {/* Info */}
-        <div className="mt-6 bg-primary/5 border border-primary/20 rounded-xl p-4">
-          <div className="flex gap-3">
-            <AlertCircle size={20} className="text-primary flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-foreground/70">
-              <p className="font-medium text-foreground mb-1">How it works:</p>
-              <ul className="list-disc list-inside space-y-1 text-foreground/60">
-                <li><strong>Trend Research:</strong> Enter keyword, AI finds trends across Myntra/Ajio/Zara, generate articles</li>
-                <li><strong>Batch Generate:</strong> Enter multiple keywords, AI generates articles with matching images</li>
-                <li>Articles auto-publish every 18-24 hours via the scheduler</li>
-                <li>You can manually publish or delete articles anytime</li>
-              </ul>
+        {/* Schedule */}
+        <div style={{ background: C.cardAlt, borderRadius: 12, padding: 24, border: `1px solid ${C.border}` }}>
+          <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 16, fontWeight: 700, color: C.accent, margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} /> Schedule</h3>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 6 }}>Duration (Days)</label>
+              <input type="number" value={days} onChange={e => setDays(Math.min(30, Math.max(1, parseInt(e.target.value) || 30)))} min={1} max={30}
+                style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }} disabled={isCreating} />
+            </div>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 6 }}>Posts per Day</label>
+              <input type="number" value={1} readOnly style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.textMed, background: C.cardAlt, outline: 'none', boxSizing: 'border-box' }} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Preview Modal */}
-      {previewBlog && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" onClick={() => setPreviewBlog(null)}>
-          <div className="bg-card border border-border rounded-xl max-w-3xl w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-card border-b border-border px-4 md:px-6 py-4 flex items-center justify-between z-10">
-              <h3 className="text-lg font-semibold text-foreground">Article Preview</h3>
-              <button onClick={() => setPreviewBlog(null)} className="text-muted-foreground hover:text-foreground text-xl">&times;</button>
-            </div>
-            <div className="p-4 md:p-6">
-              {previewBlog.image && <img src={previewBlog.image} alt={previewBlog.title} className="w-full h-40 md:h-48 object-cover object-bottom rounded-lg mb-6 border border-border" />}
-              {previewBlog.category && <div className="mb-4"><span className="px-3 py-1 text-xs bg-primary/10 text-primary rounded-full">{previewBlog.category}</span></div>}
-              <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3">{previewBlog.title}</h2>
-              <p className="text-foreground/60 mb-4 italic">{previewBlog.excerpt}</p>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6 pb-6 border-b border-border">
-                {previewBlog.author && <span>By {previewBlog.author}</span>}
-                <span>{previewBlog.readTime} min read</span>
-                {previewBlog.trendSource && <span className="px-2 py-0.5 text-xs bg-blue-900/20 text-blue-300 rounded">Trend: {previewBlog.trendSource}</span>}
-                {getStatusBadge(previewBlog.status)}
-              </div>
-              {previewBlog.content ? (
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground/70 prose-a:text-primary prose-strong:text-foreground" dangerouslySetInnerHTML={{ __html: previewBlog.content }} />
-              ) : (
-                <p className="text-muted-foreground italic">No content available.</p>
-              )}
-            </div>
+      {/* Right column */}
+      <div style={{ background: C.cardAlt, borderRadius: 12, padding: 24, border: `1px solid ${C.border}`, height: 'fit-content' }}>
+        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 16, fontWeight: 700, color: C.accent, margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: 8 }}><FileText size={16} /> Content Settings</h3>
+        <div className="space-y-4 mt-4">
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 6 }}>Target Word Count</label>
+            <input type="number" value={wordCount} onChange={e => setWordCount(parseInt(e.target.value) || 1000)}
+              style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }} disabled={isCreating} />
+          </div>
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 6 }}>Images per Post</label>
+            <input type="number" value={imagesPerPost} onChange={e => setImagesPerPost(parseInt(e.target.value) || 1)} min={1} max={3}
+              style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }} disabled={isCreating} />
+          </div>
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 8 }}>Generation Mode</label>
+            {([['jit', 'Just-in-Time (Recommended)', 'Generate posts 2 days before publishing.'], ['bulk', 'Generate All Now', 'Generate all posts immediately.']] as const).map(([mode, label, desc]) => (
+              <label key={mode} className="flex items-start gap-3 mb-3 cursor-pointer" style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${genMode === mode ? C.accent : C.border}`, background: genMode === mode ? C.accentLight + '30' : C.card }}>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${genMode === mode ? C.accent : C.border}`, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {genMode === mode && <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.accent }} />}
+                </div>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: C.textDark, margin: 0 }}>{label}</p>
+                  <p style={{ fontSize: 11, color: C.textMed, margin: 0 }}>{desc}</p>
+                </div>
+                <input type="radio" name="genMode" checked={genMode === mode} onChange={() => setGenMode(mode)} className="sr-only" />
+              </label>
+            ))}
           </div>
         </div>
+
+        {/* Auto-Publish */}
+        <div style={{ marginTop: 20, paddingTop: 20, borderTop: `1px solid ${C.border}` }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: C.textDark, margin: 0 }}>Auto-Publish Automation</p>
+              <p style={{ fontSize: 11, color: C.textMed, margin: '2px 0 0' }}>Automatically publish posts on scheduled dates.</p>
+            </div>
+            <button onClick={() => setAutoPublish(!autoPublish)} style={{ width: 48, height: 26, borderRadius: 13, background: autoPublish ? C.accent : C.border, border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, left: autoPublish ? 25 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Footer buttons */}
+    <div className="flex items-center justify-end gap-3 mt-8">
+      <button onClick={onCancel} style={{ padding: '10px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: C.card, border: `1px solid ${C.border}`, color: C.textMed, cursor: 'pointer' }}>Cancel</button>
+      <button onClick={onCreate} disabled={isCreating || !keyword.trim()} style={{ padding: '10px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: isCreating ? C.textLight : C.accent, border: 'none', color: '#1A1410', cursor: isCreating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+        {isCreating ? <><Loader2 size={16} className="animate-spin" /> Planning...</> : <><CheckCircle size={16} /> Create Campaign & Plan</>}
+      </button>
+    </div>
+  </div>
+);
+
+interface CampaignDetailProps {
+  campaignMeta: Campaign | null;
+  campaignPosts: CampaignPost[];
+  isGenerating: boolean;
+  onGenerate: (id: string) => void;
+  onPause: (id: string) => void;
+  onResume: (id: string) => void;
+  onOpenPost: (id: string) => void;
+  onBack: () => void;
+}
+
+const CampaignDetail = ({ campaignMeta, campaignPosts, isGenerating, onGenerate, onPause, onResume, onOpenPost, onBack }: CampaignDetailProps) => {
+  if (!campaignMeta) return <div className="text-center py-16"><Loader2 size={32} className="animate-spin mx-auto" style={{ color: C.textLight }} /></div>;
+  const hasPlanned = campaignPosts.some(p => p.status === 'planned');
+  const generatedCount = campaignPosts.filter(p => p.generationStatus === 'ready' || p.status === 'published' || p.status === 'draft' || p.status === 'scheduled').length;
+
+  return (
+    <div>
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 mb-4" style={{ fontSize: 12, color: C.textLight }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color: C.textLight, cursor: 'pointer', padding: 0, fontSize: 12 }}>Campaigns</button>
+        <ChevronRight size={12} />
+        <span style={{ color: C.textMed }}>{campaignMeta.keyword}</span>
+      </div>
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-2">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            {hasPlanned ? statusPill('planned') : <span style={{ background: C.greenBg, color: C.greenText, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>Active</span>}
+            {campaignMeta.autoPublish && <span style={{ background: C.pinkBg, color: C.pinkText, fontSize: 11, padding: '2px 10px', borderRadius: 20, fontWeight: 600 }}>Auto-Publish ON</span>}
+          </div>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 700, color: C.textDark, margin: 0 }}>{campaignMeta.keyword}</h1>
+          <p style={{ fontSize: 14, color: C.textMed, marginTop: 4 }}>{campaignMeta.total} days &bull; {campaignPosts.filter(p => p.status === 'planned').length} planned posts &bull; Starts {fmtDate(campaignPosts[0]?.scheduledPublishDate || null)}</p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {hasPlanned && (
+            <button onClick={() => onGenerate(campaignMeta.id)} disabled={isGenerating} style={{ background: C.accent, color: '#1A1410', padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: 'none', cursor: isGenerating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {isGenerating ? <><Loader2 size={14} className="animate-spin" /> Generating...</> : <><Sparkles size={14} /> Start Generation</>}
+            </button>
+          )}
+          <button onClick={() => onPause(campaignMeta.id)} style={{ background: C.card, border: `1px solid ${C.border}`, padding: '8px 14px', borderRadius: 8, fontSize: 12, color: C.textMed, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Pause size={14} /> Pause
+          </button>
+          <button onClick={() => onResume(campaignMeta.id)} style={{ background: C.card, border: `1px solid ${C.border}`, padding: '8px 14px', borderRadius: 8, fontSize: 12, color: C.textMed, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Play size={14} /> Resume
+          </button>
+        </div>
+      </div>
+
+      {/* Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 mt-6">
+        {[
+          { icon: <FileText size={18} style={{ color: C.textMed }} />, label: 'Total Posts', value: campaignMeta.total },
+          { icon: <Sparkles size={18} style={{ color: C.accent }} />, label: 'Generated', value: generatedCount },
+          { icon: <CheckCircle size={18} style={{ color: C.green }} />, label: 'Published', value: campaignPosts.filter(p => p.status === 'published').length },
+          { icon: <Clock size={18} style={{ color: C.blue }} />, label: 'Mode', value: campaignMeta.generationMode === 'bulk' ? 'Bulk All' : 'Just In Time' },
+        ].map((m, i) => (
+          <div key={i} style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            <div className="flex items-center gap-3">
+              {m.icon}
+              <div>
+                <p style={{ fontSize: 22, fontWeight: 700, color: C.textDark, margin: 0 }}>{m.value}</p>
+                <p style={{ fontSize: 11, color: C.textMed, margin: 0 }}>{m.label}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Content Calendar */}
+      <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: C.textDark, marginBottom: 16 }}>Content Calendar</h2>
+      <div style={{ background: C.card, borderRadius: 12, border: `1px solid ${C.border}`, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+        {campaignPosts.map((post, idx) => (
+          <div key={post._id} style={{ padding: '16px 20px', borderBottom: idx < campaignPosts.length - 1 ? `1px solid ${C.borderLight}` : 'none', display: 'flex', gap: 16, alignItems: 'flex-start', cursor: 'pointer', transition: 'background 0.15s' }}
+            className="hover:bg-[#332A26]" onClick={() => onOpenPost(post._id)}>
+            {/* Day column */}
+            <div style={{ minWidth: 80, flexShrink: 0 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: C.textLight, letterSpacing: 1, margin: 0 }}>DAY {post.dayIndex}</p>
+              <p style={{ fontSize: 11, color: C.textMed, margin: '2px 0 0' }}>{fmtShort(post.scheduledPublishDate)}</p>
+            </div>
+            {/* Status */}
+            <div style={{ minWidth: 90, flexShrink: 0, paddingTop: 2 }}>{statusPill(post.status, post.held)}</div>
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <p style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0, lineHeight: 1.4 }}>{post.title}</p>
+              {post.excerpt && <p style={{ fontSize: 12, color: C.textMed, margin: '4px 0 0', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.excerpt}</p>}
+            </div>
+            {/* Thumbnail */}
+            {post.image && (
+              <div style={{ width: 56, height: 40, borderRadius: 6, overflow: 'hidden', flexShrink: 0, border: `1px solid ${C.borderLight}` }}>
+                <img src={post.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'bottom' }} loading="lazy" />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+interface PostEditorProps {
+  editPost: CampaignPost | null;
+  editForm: Record<string, string>;
+  setEditForm: (v: Record<string, string>) => void;
+  editTab: 'preview' | 'markdown';
+  setEditTab: (v: 'preview' | 'markdown') => void;
+  isSaving: boolean;
+  isRegenerating: boolean;
+  regenTarget: 'all' | 'text' | 'images';
+  setRegenTarget: (v: 'all' | 'text' | 'images') => void;
+  onSave: () => void;
+  onRegen: () => void;
+  onPublish: () => void;
+  onUnpublish: () => void;
+  onHold: () => void;
+  onDelete: () => void;
+  onClose: () => void;
+}
+
+const PostEditor = ({
+  editPost, editForm, setEditForm, editTab, setEditTab,
+  isSaving, isRegenerating, regenTarget, setRegenTarget,
+  onSave, onRegen, onPublish, onUnpublish, onHold, onDelete, onClose
+}: PostEditorProps) => {
+  if (!editPost) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex" style={{ background: C.bg }}>
+      {/* Sidebar inside modal */}
+      <div className="hidden lg:block" style={{ width: 240, background: C.sidebar, borderRight: `1px solid ${C.border}`, flexShrink: 0, overflowY: 'auto', padding: 20 }}>
+        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 14, fontWeight: 700, color: C.accent, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}><BookOpen size={14} /> Meta Data</h3>
+        <div className="space-y-3">
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Topic Angle</label>
+            <div style={{ background: C.cardAlt, padding: '8px 10px', borderRadius: 6, fontSize: 12, color: C.textMed, lineHeight: 1.4 }}>{editPost.excerpt || '-'}</div>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Title</label>
+            <input type="text" value={editForm.title || ''} onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+              style={{ width: '100%', padding: '8px 10px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Slug</label>
+            <input type="text" value={editForm.slug || ''} onChange={e => setEditForm({ ...editForm, slug: e.target.value })}
+              style={{ width: '100%', padding: '8px 10px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 11, color: C.textMed, background: C.card, outline: 'none', fontFamily: 'monospace', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Excerpt</label>
+            <textarea value={editForm.excerpt || ''} onChange={e => setEditForm({ ...editForm, excerpt: e.target.value })} rows={3}
+              style={{ width: '100%', padding: '8px 10px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: C.card, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>SEO Focus</label>
+            <div style={{ background: C.cardAlt, padding: '8px 10px', borderRadius: 6, fontSize: 12, color: C.textDark }}>{editForm.focusKeyword || '-'}</div>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Tags</label>
+            <div className="flex flex-wrap gap-1">
+              {(editPost.tags || []).map((tag, i) => (
+                <span key={i} style={{ background: '#D7CCC8', color: '#5D4037', fontSize: 10, padding: '2px 8px', borderRadius: 12 }}>{tag}</span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Meta Title</label>
+            <input type="text" value={editForm.metaTitle || ''} onChange={e => setEditForm({ ...editForm, metaTitle: e.target.value })}
+              style={{ width: '100%', padding: '8px 10px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Meta Description</label>
+            <textarea value={editForm.metaDescription || ''} onChange={e => setEditForm({ ...editForm, metaDescription: e.target.value })} rows={2}
+              style={{ width: '100%', padding: '8px 10px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: C.card, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Main editor area */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Top bar */}
+        <div style={{ borderBottom: `1px solid ${C.border}`, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: C.card, position: 'sticky', top: 0, zIndex: 10 }}>
+          <div className="flex items-center gap-3">
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textMed, display: 'flex', alignItems: 'center', padding: 0 }}><ArrowLeft size={18} /></button>
+            {statusPill(editPost.status, editPost.held)}
+            <span style={{ fontSize: 12, color: C.textMed }}>Day {editPost.dayIndex}</span>
+            <span style={{ fontSize: 12, color: C.textLight }}>Scheduled: {fmtDate(editPost.scheduledPublishDate)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={onSave} disabled={isSaving} style={{ padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: C.card, border: `1px solid ${C.border}`, color: C.textMed, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Save Draft
+            </button>
+            <button onClick={onRegen} disabled={isRegenerating} style={{ padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: C.card, border: `1px solid ${C.border}`, color: C.textMed, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              {isRegenerating ? <Loader2 size={12} className="animate-spin" /> : <RotateCcw size={12} />} Regenerate
+            </button>
+            {editPost.status !== 'published' ? (
+              <button onClick={onPublish} style={{ padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: C.green, border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Globe size={12} /> Publish Now
+              </button>
+            ) : (
+              <button onClick={onUnpublish} style={{ padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: C.yellowBg, border: `1px solid #FFF9C4`, color: C.yellowText, cursor: 'pointer' }}>
+                Unpublish
+              </button>
+            )}
+            <button onClick={onHold} style={{ padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: C.holdBg, border: 'none', color: C.textMed, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Pause size={12} /> Hold
+            </button>
+          </div>
+        </div>
+
+        {/* Preview/Edit tabs */}
+        <div style={{ borderBottom: `1px solid ${C.border}`, padding: '8px 20px', display: 'flex', gap: 8, background: C.card }}>
+          <button onClick={() => setEditTab('preview')} style={{ padding: '4px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: editTab === 'preview' ? C.accent : 'transparent', color: editTab === 'preview' ? '#1A1410' : C.textMed, border: 'none', cursor: 'pointer' }}>
+            <Eye size={12} className="inline mr-1" /> Preview
+          </button>
+          <button onClick={() => setEditTab('markdown')} style={{ padding: '4px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: editTab === 'markdown' ? C.accent : 'transparent', color: editTab === 'markdown' ? '#1A1410' : C.textMed, border: 'none', cursor: 'pointer' }}>
+            <Edit3 size={12} className="inline mr-1" /> Edit Content
+          </button>
+          {/* Regen target pills */}
+          <div className="ml-auto flex items-center gap-1">
+            {(['all', 'text', 'images'] as const).map(t => (
+              <button key={t} onClick={() => setRegenTarget(t)} style={{ padding: '3px 10px', borderRadius: 12, fontSize: 10, fontWeight: 600, background: regenTarget === t ? C.accent : C.cardAlt, color: regenTarget === t ? '#1A1410' : C.textMed, border: `1px solid ${regenTarget === t ? C.accent : C.border}`, cursor: 'pointer' }}>
+                {t === 'all' ? 'All' : t === 'text' ? 'Text' : 'Images'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content area */}
+        <div style={{ padding: '24px 32px', maxWidth: 800 }}>
+          {editTab === 'preview' ? (
+            <div>
+              {/* Hero image */}
+              {editPost.image && (
+                <div style={{ borderRadius: 10, overflow: 'hidden', marginBottom: 24, border: `1px solid ${C.border}`, position: 'relative' }}>
+                  <img src={editPost.image} alt={editPost.title} style={{ width: '100%', height: 280, objectFit: 'cover', objectPosition: 'bottom', display: 'block' }} />
+                  <span style={{ position: 'absolute', bottom: 8, left: 8, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>HERO</span>
+                </div>
+              )}
+              {/* Title */}
+              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 700, color: C.textDark, lineHeight: 1.3, margin: '0 0 8px' }}>{editPost.title}</h1>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 600, color: C.textMed, lineHeight: 1.4, margin: '0 0 24px' }}>{editPost.metaTitle || editPost.title}</p>
+              {/* Body */}
+              {editPost.content ? (
+                <div style={{ fontSize: 15, lineHeight: 1.8, color: C.textDark }} className="prose-content"
+                  dangerouslySetInnerHTML={{ __html: editPost.content }} />
+              ) : (
+                <p style={{ color: C.textLight, fontStyle: 'italic' }}>Content pending generation.</p>
+              )}
+
+              {/* Google preview */}
+              <div style={{ marginTop: 32, padding: 16, background: C.cardAlt, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: C.textLight, letterSpacing: 1, margin: '0 0 8px' }}>GOOGLE PREVIEW</p>
+                <p style={{ fontSize: 14, color: '#1a0dab', margin: 0, fontWeight: 500 }}>{editForm.metaTitle || editPost.title}</p>
+                <p style={{ fontSize: 12, color: '#006621', margin: '2px 0' }}>tubhyam.in/blog/{editForm.slug || '...'}</p>
+                <p style={{ fontSize: 12, color: C.textMed, margin: 0 }}>{editForm.metaDescription || editPost.excerpt}</p>
+              </div>
+
+              {/* Delete */}
+              <div style={{ marginTop: 24, paddingTop: 16, borderTop: `1px solid ${C.border}`, display: 'flex', gap: 8 }}>
+                <button onClick={onDelete} style={{ padding: '8px 16px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: C.redBg, border: `1px solid #FFCDD2`, color: C.redText, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Trash2 size={12} /> Delete Post
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Title</label>
+                <input type="text" value={editForm.title || ''} onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Content (HTML)</label>
+                <textarea value={editForm.content || ''} onChange={e => setEditForm({ ...editForm, content: e.target.value })} rows={20}
+                  style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, color: C.textDark, background: C.card, outline: 'none', fontFamily: 'monospace', resize: 'vertical', boxSizing: 'border-box' }} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Slug</label>
+                  <input type="text" value={editForm.slug || ''} onChange={e => setEditForm({ ...editForm, slug: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, color: C.textDark, background: C.card, outline: 'none', fontFamily: 'monospace', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.textMed, display: 'block', marginBottom: 4 }}>Tags (comma-separated)</label>
+                  <input type="text" value={editForm.tags || ''} onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, color: C.textDark, background: C.card, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <button onClick={onSave} disabled={isSaving} style={{ padding: '10px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600, background: C.accent, border: 'none', color: '#1A1410', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                {isSaving ? <><Loader2 size={14} className="animate-spin" /> Saving...</> : <><Save size={14} /> Save Changes</>}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ═══ Main Component ═════════════════════════════════════════════════════════
+
+const AdminSEO = () => {
+  const [view, setView] = useState<'list' | 'create' | 'detail'>('list');
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [campaignPosts, setCampaignPosts] = useState<CampaignPost[]>([]);
+  const [campaignMeta, setCampaignMeta] = useState<Campaign | null>(null);
+  const [stats, setStats] = useState<Stats>({ published: 0, scheduled: 0, draft: 0, planned: 0, failed: 0, total: 0 });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [blogSearchResults, setBlogSearchResults] = useState<BlogSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Create form
+  const [keyword, setKeyword] = useState('');
+  const [days, setDays] = useState(30);
+  const [tone, setTone] = useState('Warm, elegant, confident, premium Indian fashion');
+  const [wordCount, setWordCount] = useState(1000);
+  const [imagesPerPost, setImagesPerPost] = useState(1);
+  const [autoPublish, setAutoPublish] = useState(true);
+  const [genMode, setGenMode] = useState<'jit' | 'bulk'>('jit');
+  const [isCreating, setIsCreating] = useState(false);
+
+  // Generation
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Post editor
+  const [editPost, setEditPost] = useState<CampaignPost | null>(null);
+  const [editForm, setEditForm] = useState<Record<string, string>>({});
+  const [editTab, setEditTab] = useState<'preview' | 'markdown'>('preview');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenTarget, setRegenTarget] = useState<'all' | 'text' | 'images'>('all');
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  // ═══ Fetchers ════════════════════════════════════════════════════════════
+
+  const fetchStats = useCallback(async () => {
+    try { const r = await fetch(`${API_BASE}/blogs/admin/stats`, { headers: authOnly }); const d = await r.json(); if (d.success) setStats(d.stats); } catch { /* silent */ }
+  }, []);
+  const fetchCampaigns = useCallback(async () => {
+    try { const r = await fetch(`${API_BASE}/blogs/campaigns`, { headers: authOnly }); const d = await r.json(); if (d.success) setCampaigns(d.campaigns || []); } catch { /* silent */ } finally { setIsLoadingData(false); }
+  }, []);
+  const fetchCampaign = useCallback(async (id: string) => {
+    try { const r = await fetch(`${API_BASE}/blogs/campaigns/${id}`, { headers: authOnly }); const d = await r.json(); if (d.success) { setCampaignMeta(d.campaign); setCampaignPosts(d.posts); } } catch { toast.error('Failed to load campaign'); }
+  }, []);
+
+  // Blog post search
+  const searchBlogPosts = useCallback(async (q: string) => {
+    if (!q.trim()) { setBlogSearchResults([]); setIsSearching(false); return; }
+    setIsSearching(true);
+    try {
+      const r = await fetch(`${API_BASE}/blogs/admin/search?q=${encodeURIComponent(q)}`, { headers: authOnly });
+      const d = await r.json();
+      if (d.success) setBlogSearchResults(d.blogs || []);
+    } catch { /* silent */ } finally { setIsSearching(false); }
+  }, []);
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => searchBlogPosts(value), 300);
+  };
+
+  useEffect(() => { fetchCampaigns(); fetchStats(); }, [fetchCampaigns, fetchStats]);
+  useEffect(() => { if (selectedCampaignId) { fetchCampaign(selectedCampaignId); setView('detail'); } }, [selectedCampaignId, fetchCampaign]);
+
+  // ═══ Actions ═════════════════════════════════════════════════════════════
+
+  const handleCreateCampaign = async () => {
+    if (!keyword.trim()) { toast.error('Please enter a seed keyword'); return; }
+    setIsCreating(true);
+    try {
+      const r = await fetch(`${API_BASE}/blogs/campaigns`, { method: 'POST', headers: authHeaders, body: JSON.stringify({ keyword: keyword.trim(), days, tone, wordCount, imagesPerPost, autoPublish, generationMode: genMode }) });
+      const d = await r.json();
+      if (d.success) { toast.success(d.message); setSelectedCampaignId(d.campaign.id); setKeyword(''); fetchCampaigns(); fetchStats(); }
+      else toast.error(d.message || 'Failed');
+    } catch { toast.error('Failed to create campaign'); } finally { setIsCreating(false); }
+  };
+
+  const handleGenerate = async (id: string) => {
+    if (!confirm('Generate articles + images for all planned posts? This may take several minutes.')) return;
+    setIsGenerating(true);
+    try {
+      const r = await fetch(`${API_BASE}/blogs/campaigns/${id}/generate`, { method: 'POST', headers: authHeaders });
+      const d = await r.json();
+      if (d.success) { toast.success(d.message); if (d.errors?.length) toast.warning(`${d.errors.length} failed`); fetchCampaign(id); fetchCampaigns(); fetchStats(); }
+      else toast.error(d.message);
+    } catch { toast.error('Generation failed'); } finally { setIsGenerating(false); }
+  };
+
+  const handlePause = async (id: string) => { try { const r = await fetch(`${API_BASE}/blogs/campaigns/${id}/pause`, { method: 'POST', headers: authHeaders }); const d = await r.json(); if (d.success) { toast.success(d.message); fetchCampaign(id); } } catch { /* silent */ } };
+  const handleResume = async (id: string) => { try { const r = await fetch(`${API_BASE}/blogs/campaigns/${id}/resume`, { method: 'POST', headers: authHeaders }); const d = await r.json(); if (d.success) { toast.success(d.message); fetchCampaign(id); } } catch { /* silent */ } };
+
+  const openPostEditor = async (postId: string) => {
+    try {
+      const r = await fetch(`${API_BASE}/blogs/posts/${postId}`, { headers: authOnly }); const d = await r.json();
+      if (d.success) {
+        setEditPost(d.post); setEditTab('preview');
+        setEditForm({ title: d.post.title || '', content: d.post.content || '', excerpt: d.post.excerpt || '', slug: d.post.slug || '', metaTitle: d.post.metaTitle || '', metaDescription: d.post.metaDescription || '', focusKeyword: d.post.focusKeyword || '', tags: (d.post.tags || []).join(', '), held: d.post.held ? 'true' : 'false' });
+      }
+    } catch { toast.error('Failed to load post'); }
+  };
+
+  const handleSavePost = async () => {
+    if (!editPost) return; setIsSaving(true);
+    try {
+      const body = { ...editForm, tags: typeof editForm.tags === 'string' ? editForm.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : editForm.tags, held: editForm.held === 'true' };
+      const r = await fetch(`${API_BASE}/blogs/posts/${editPost._id}`, { method: 'PUT', headers: authHeaders, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (d.success) { toast.success('Post updated'); setEditPost(null); if (selectedCampaignId) fetchCampaign(selectedCampaignId); fetchCampaigns(); }
+      else toast.error(d.message);
+    } catch { toast.error('Failed to save'); } finally { setIsSaving(false); }
+  };
+
+  const handleRegenPost = async (postId: string) => {
+    setIsRegenerating(true);
+    try { const r = await fetch(`${API_BASE}/blogs/posts/${postId}/regenerate`, { method: 'POST', headers: authHeaders, body: JSON.stringify({ target: regenTarget }) }); const d = await r.json(); if (d.success) { toast.success('Regenerated'); setEditPost(null); if (selectedCampaignId) fetchCampaign(selectedCampaignId); fetchCampaigns(); fetchStats(); } else toast.error(d.message); } catch { toast.error('Regenerate failed'); } finally { setIsRegenerating(false); }
+  };
+
+  const handleHold = async (postId: string) => { try { const r = await fetch(`${API_BASE}/blogs/posts/${postId}/hold`, { method: 'POST', headers: authHeaders }); const d = await r.json(); if (d.success) { toast.success(d.message); if (editPost?._id === postId) { setEditPost({ ...editPost, held: !editPost.held }); setEditForm(p => ({ ...p, held: p.held === 'true' ? 'false' : 'true' })); } if (selectedCampaignId) fetchCampaign(selectedCampaignId); } } catch { /* silent */ } };
+  const handlePublish = async (postId: string) => { try { const r = await fetch(`${API_BASE}/blogs/posts/${postId}/publish`, { method: 'POST', headers: authHeaders }); const d = await r.json(); if (d.success) { toast.success('Published!'); setEditPost(null); if (selectedCampaignId) fetchCampaign(selectedCampaignId); fetchCampaigns(); fetchStats(); } } catch { /* silent */ } };
+  const handleUnpublish = async (postId: string) => { try { const r = await fetch(`${API_BASE}/blogs/posts/${postId}/unpublish`, { method: 'POST', headers: authHeaders }); const d = await r.json(); if (d.success) { toast.success('Unpublished'); setEditPost(null); if (selectedCampaignId) fetchCampaign(selectedCampaignId); fetchCampaigns(); fetchStats(); } } catch { /* silent */ } };
+  const handleDelete = async (postId: string) => { if (!confirm('Delete this post?')) return; try { const r = await fetch(`${API_BASE}/blogs/posts/${postId}`, { method: 'DELETE', headers: authOnly }); const d = await r.json(); if (d.success) { toast.success('Deleted'); setEditPost(null); if (selectedCampaignId) fetchCampaign(selectedCampaignId); fetchCampaigns(); fetchStats(); } } catch { /* silent */ } };
+
+  const handleDeleteCampaign = async (id: string, keyword: string) => {
+    if (!confirm(`Delete campaign "${keyword}" and all its posts? This cannot be undone.`)) return;
+    try {
+      const r = await fetch(`${API_BASE}/blogs/campaigns/${id}`, { method: 'DELETE', headers: authHeaders });
+      const d = await r.json();
+      if (d.success) { toast.success(d.message); fetchCampaigns(); fetchStats(); }
+      else toast.error(d.message);
+    } catch { toast.error('Failed to delete campaign'); }
+  };
+
+  const filteredCampaigns = campaigns.filter(c => c.keyword.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  return (
+    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'Montserrat', -apple-system, sans-serif" }}>
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        view={view}
+        onList={() => { setView('list'); setSelectedCampaignId(null); setCampaignMeta(null); setCampaignPosts([]); fetchCampaigns(); setSidebarOpen(false); }}
+        onNewCampaign={() => { setView('create'); setSidebarOpen(false); }}
+      />
+      <div style={{ marginLeft: 0 }} className="lg:ml-[240px]">
+        {/* Mobile header */}
+        <div className="lg:hidden flex items-center justify-between p-4" style={{ borderBottom: `1px solid ${C.border}`, background: C.card }}>
+          <button onClick={() => setSidebarOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textDark, padding: 4 }}>
+            <LayoutGrid size={20} />
+          </button>
+          <div className="flex items-center gap-2">
+            <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: `1px solid ${C.accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={ainosImg} alt="AINOS" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <span style={{ fontWeight: 700, fontSize: 15, color: C.textDark, letterSpacing: 1.5 }}>AINOS</span>
+          </div>
+          <div style={{ width: 28 }} />
+        </div>
+        <div style={{ padding: '24px 32px', maxWidth: 1100, margin: '0 auto' }}>
+          {view === 'list' && (
+            <CampaignsList
+              campaigns={campaigns}
+              filteredCampaigns={filteredCampaigns}
+              searchQuery={searchQuery}
+              blogSearchResults={blogSearchResults}
+              isSearching={isSearching}
+              isLoadingData={isLoadingData}
+              onSearchChange={handleSearchChange}
+              onClearSearch={() => { setSearchQuery(''); setBlogSearchResults([]); }}
+              onNewCampaign={() => setView('create')}
+              onSelectCampaign={(id) => setSelectedCampaignId(id)}
+              onOpenPost={openPostEditor}
+              onDeleteCampaign={handleDeleteCampaign}
+            />
+          )}
+          {view === 'create' && (
+            <CreateCampaign
+              keyword={keyword} setKeyword={setKeyword}
+              days={days} setDays={setDays}
+              tone={tone} setTone={setTone}
+              wordCount={wordCount} setWordCount={setWordCount}
+              imagesPerPost={imagesPerPost} setImagesPerPost={setImagesPerPost}
+              autoPublish={autoPublish} setAutoPublish={setAutoPublish}
+              genMode={genMode} setGenMode={setGenMode}
+              isCreating={isCreating} onCreate={handleCreateCampaign}
+              onCancel={() => setView('list')}
+            />
+          )}
+          {view === 'detail' && (
+            <CampaignDetail
+              campaignMeta={campaignMeta}
+              campaignPosts={campaignPosts}
+              isGenerating={isGenerating}
+              onGenerate={handleGenerate}
+              onPause={handlePause}
+              onResume={handleResume}
+              onOpenPost={openPostEditor}
+              onBack={() => { setView('list'); setSelectedCampaignId(null); setCampaignMeta(null); setCampaignPosts([]); fetchCampaigns(); }}
+            />
+          )}
+        </div>
+      </div>
+      {editPost && (
+        <PostEditor
+          editPost={editPost}
+          editForm={editForm}
+          setEditForm={setEditForm}
+          editTab={editTab}
+          setEditTab={setEditTab}
+          isSaving={isSaving}
+          isRegenerating={isRegenerating}
+          regenTarget={regenTarget}
+          setRegenTarget={setRegenTarget}
+          onSave={handleSavePost}
+          onRegen={() => handleRegenPost(editPost._id)}
+          onPublish={() => handlePublish(editPost._id)}
+          onUnpublish={() => handleUnpublish(editPost._id)}
+          onHold={() => handleHold(editPost._id)}
+          onDelete={() => handleDelete(editPost._id)}
+          onClose={() => setEditPost(null)}
+        />
       )}
     </div>
   );

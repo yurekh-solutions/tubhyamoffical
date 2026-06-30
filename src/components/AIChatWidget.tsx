@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { api } from '@/config/api';
+import ainosImg from '@/assets/ainos.jpeg';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,7 +18,7 @@ const AIChatWidget = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hi! I'm ianos, Tubhyam's AI shopping assistant. How can I help you today? You can ask me about products, order tracking, sizing, or anything else!",
+      content: "Hi! I'm ainos, Tubhyam's AI blog assistant. Ask me about fashion trends, styling tips, outfit ideas, or anything you'd like to read about!",
       timestamp: new Date()
     }
   ]);
@@ -121,12 +122,10 @@ const AIChatWidget = () => {
           <CardHeader className="bg-primary text-primary-foreground p-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center">
-                  <Bot className="w-6 h-6" />
-                </div>
+                <img src={ainosImg} alt="AINOS" className="w-10 h-10 rounded-full object-cover border-2 border-primary-foreground/30" />
                 <div>
-                  <CardTitle className="text-lg">ianos</CardTitle>
-                  <p className="text-xs text-primary-foreground/80">AI Shopping Helper</p>
+                  <CardTitle className="text-lg">ainos</CardTitle>
+                  <p className="text-xs text-primary-foreground/80">AI Blog Assistant</p>
                 </div>
               </div>
               <Button
@@ -149,9 +148,7 @@ const AIChatWidget = () => {
                   className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {message.role === 'assistant' && (
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-primary" />
-                    </div>
+                    <img src={ainosImg} alt="AINOS" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-primary/30" />
                   )}
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
@@ -176,9 +173,9 @@ const AIChatWidget = () => {
               ))}
               {isLoading && (
                 <div className="flex gap-3 justify-start">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-primary" />
-                  </div>
+                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-primary/30">
+                  <img src={ainosImg} alt="AINOS" className="w-full h-full object-cover" />
+                </div>
                   <div className="bg-muted rounded-2xl px-4 py-3">
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                   </div>
@@ -230,7 +227,7 @@ const AIChatWidget = () => {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Powered by ianos • <a href="https://wa.me/917039382706" className="underline">WhatsApp Support</a>
+              Powered by ainos • <a href="https://wa.me/917039382706" className="underline">WhatsApp Support</a>
             </p>
           </div>
         </Card>

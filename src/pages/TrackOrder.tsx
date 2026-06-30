@@ -4,11 +4,28 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Search, Package, Truck, CheckCircle, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
 
-const API_URL = 'https://tubhyamoffical.onrender.com/api';
+interface OrderItem {
+  name?: string;
+  sku?: string;
+  quantity?: number;
+  price?: number;
+}
+
+interface Order {
+  id?: string;
+  status?: string;
+  shippingStatus?: string;
+  awbCode?: string;
+  items?: OrderItem[];
+  amount?: number;
+  createdAt?: string;
+}
+
+const API_URL = import.meta.env.VITE_API_URL || 'https://tubhyamoffical.onrender.com/api';
 
 const TrackOrder = () => {
   const [phone, setPhone] = useState('');
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState('');
@@ -167,7 +184,7 @@ const TrackOrder = () => {
                 {/* Items */}
                 {order.items && order.items.length > 0 && (
                   <div className="space-y-2 pt-2 border-t border-border/50">
-                    {order.items.map((item: any, itemIdx: number) => (
+                    {order.items.map((item: OrderItem, itemIdx: number) => (
                       <div key={itemIdx} className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
                           {item.name} {item.sku && <span className="text-xs">({item.sku})</span>} × {item.quantity}

@@ -179,7 +179,7 @@ async function generateArticle(index, retries = 3) {
   const keywords = ["women fashion", "Indian fashion", "fashion tips", "style guide", "premium fashion"];
   const otherKw = keywords.slice(1).join(', ');
 
-  const prompt = `You are an expert SEO content writer for Tubhyam (tubhyam.in), a premium Indian women's fashion brand. Author: ianos.
+  const prompt = `You are an expert SEO content writer for Tubhyam (tubhyam.in), a premium Indian women's fashion brand. Author: ainos.
 
 ${topic.prompt}
 
@@ -305,7 +305,7 @@ async function main() {
         category: article.category || 'Fashion Tips',
         keywords: ["women fashion", "Indian fashion", "fashion tips", "style guide", "premium fashion"],
         image,
-        author: 'ianos',
+        author: 'ainos',
         readTime: calcReadTime(article.content),
         status: isPublished ? 'published' : 'scheduled',
         publishedAt: isPublished ? new Date() : null,

@@ -38,7 +38,7 @@ const Checkout = () => {
     pincode: '',
   });
 
-  const API_URL = 'https://tubhyamoffical.onrender.com/api';
+  const API_URL = import.meta.env.VITE_API_URL || 'https://tubhyamoffical.onrender.com/api';
   const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
   const formatPrice = (price: number) => {

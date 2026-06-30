@@ -42,7 +42,7 @@ const blogSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'scheduled', 'published'],
+    enum: ['planned', 'generating', 'draft', 'scheduled', 'published', 'failed'],
     default: 'draft'
   },
   scheduledPublishDate: {
@@ -58,6 +58,56 @@ const blogSchema = new mongoose.Schema({
     default: ''
   },
   trendSource: {
+    type: String,
+    default: ''
+  },
+  // ── Campaign fields ──
+  campaignId: {
+    type: String,
+    default: ''
+  },
+  dayIndex: {
+    type: Number,
+    default: 0
+  },
+  autoPublish: {
+    type: Boolean,
+    default: true
+  },
+  generationMode: {
+    type: String,
+    default: 'jit'
+  },
+  metaTitle: {
+    type: String,
+    default: ''
+  },
+  metaDescription: {
+    type: String,
+    default: ''
+  },
+  focusKeyword: {
+    type: String,
+    default: ''
+  },
+  tags: [{
+    type: String
+  }],
+  inlineImages: [{
+    url: String,
+    altText: String,
+    role: String
+  }],
+  held: {
+    type: Boolean,
+    default: false
+  },
+  generationStatus: {
+    type: String,
+    enum: ['planned', 'generating', 'ready', 'failed'],
+    default: 'planned'
+  },
+  errorMessage: {
     type: String,
     default: ''
   }
@@ -78,9 +128,10 @@ blogSchema.pre('save', async function(next) {
   next();
 });
 
-// Index for efficient queries
+// Indexes for efficient queries
 blogSchema.index({ status: 1, publishedAt: -1 });
 blogSchema.index({ slug: 1 });
 blogSchema.index({ scheduledPublishDate: 1, status: 1 });
+blogSchema.index({ campaignId: 1, dayIndex: 1 });
 
 module.exports = mongoose.model('Blog', blogSchema);

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowRight, Loader2 } from 'lucide-react';
+import { Calendar, ArrowRight, Loader2, Search, X } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import { api } from '@/config/api';
+import ainosImg from '@/assets/ainos.jpeg';
 
 interface BlogPost {
   _id: string;
@@ -18,12 +19,14 @@ interface BlogPost {
   publishedAt: string;
   image: string;
   readTime: number;
+  keywords?: string[];
 }
 
 const Blog = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchBlogs();
@@ -42,11 +45,18 @@ const Blog = () => {
     }
   };
 
-  const categories = ['All', ...new Set(blogPosts.map(post => post.category))];
+  const categories = ['All', ...new Set(blogPosts.map(post => post.category).filter(Boolean))];
   
-  const filteredPosts = selectedCategory === 'All' 
-    ? blogPosts 
-    : blogPosts.filter(post => post.category === selectedCategory);
+  const filteredPosts = blogPosts.filter(post => {
+    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+    const q = searchTerm.toLowerCase().trim();
+    const matchesSearch = !q ||
+      post.title.toLowerCase().includes(q) ||
+      post.excerpt.toLowerCase().includes(q) ||
+      post.category.toLowerCase().includes(q) ||
+      post.keywords?.some((k: string) => k.toLowerCase().includes(q));
+    return matchesCategory && matchesSearch;
+  });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -73,6 +83,7 @@ const Blog = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto text-center"
           >
+            <img src={ainosImg} alt="AINOS" className="w-20 h-20 rounded-full object-cover mx-auto mb-6 border-4 border-primary/30 shadow-lg p-1" />
             <h1 className="text-5xl md:text-6xl font-heading font-bold text-gradient-gold mb-6">
               Our Blog
             </h1>
@@ -82,9 +93,27 @@ const Blog = () => {
           </motion.div>
         </section>
 
-        {/* Categories */}
-        {categories.length > 1 && (
-          <section className="container mx-auto px-4 py-12">
+        {/* Search & Categories */}
+        <section className="container mx-auto px-4 py-12">
+          <div className="max-w-xl mx-auto mb-10 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/60" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search articles by keyword, topic, or style..."
+              className="w-full pl-12 pr-10 py-3 bg-background border border-primary/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-foreground/50"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+          {categories.length > 1 && (
             <div className="flex flex-wrap gap-3 justify-center">
               {categories.map((category, index) => (
                 <motion.button
@@ -103,8 +132,8 @@ const Blog = () => {
                 </motion.button>
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
         {/* Loading State */}
         {loading && (
@@ -112,6 +141,20 @@ const Blog = () => {
             <div className="flex flex-col items-center justify-center">
               <Loader2 size={48} className="animate-spin text-primary" />
               <p className="text-foreground/60 mt-4">Loading articles...</p>
+            </div>
+          </section>
+        )}
+
+        {/* No Results State */}
+        {!loading && blogPosts.length > 0 && filteredPosts.length === 0 && (
+          <section className="container mx-auto px-4 py-20">
+            <div className="text-center">
+              <h2 className="text-2xl font-heading font-bold text-foreground mb-4">
+                No matching articles
+              </h2>
+              <p className="text-foreground/60">
+                Try a different search term or category.
+              </p>
             </div>
           </section>
         )}
@@ -131,7 +174,7 @@ const Blog = () => {
         )}
 
         {/* Featured Post */}
-        {!loading && filteredPosts.length > 0 && (
+        {!loading && filteredPosts.length > 0 && !searchTerm && (
           <section className="container mx-auto px-4 py-12">
             <motion.article
               initial={{ opacity: 0, y: 20 }}
@@ -176,17 +219,20 @@ const Blog = () => {
         )}
 
         {/* Blog Grid */}
-        {!loading && filteredPosts.length > 1 && (
+        {!loading && (
+          (searchTerm && filteredPosts.length > 0) ||
+          (!searchTerm && filteredPosts.length > 1)
+        ) && (
           <section className="container mx-auto px-4 py-16">
             <motion.h2
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               className="text-3xl font-heading font-bold mb-12 text-gradient-gold"
             >
-              Latest Articles
+              {searchTerm ? `Search Results (${filteredPosts.length})` : 'Latest Articles'}
             </motion.h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPosts.slice(1).map((post, index) => (
+              {(searchTerm ? filteredPosts : filteredPosts.slice(1)).map((post, index) => (
                 <motion.article
                   key={post._id}
                   initial={{ opacity: 0, y: 20 }}

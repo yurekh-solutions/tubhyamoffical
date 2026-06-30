@@ -42,6 +42,34 @@ function mapProduct(p) {
   };
 }
 
+/**
+ * Deduplicates products with the same name by merging their images.
+ * If two products have the same name (case-insensitive), they are merged:
+ * - The first product's details are kept
+ * - Images from duplicate products are added to the first product's images array
+ * - The duplicate product is removed from the list
+ */
+function deduplicateProducts(products) {
+  const seen = new Map();
+  for (const product of products) {
+    const key = product.name.toLowerCase().trim();
+    if (seen.has(key)) {
+      const existing = seen.get(key);
+      // Merge images (avoid duplicates)
+      const existingUrls = new Set(existing.images);
+      for (const img of product.images) {
+        if (!existingUrls.has(img)) {
+          existing.images.push(img);
+          existingUrls.add(img);
+        }
+      }
+    } else {
+      seen.set(key, { ...product });
+    }
+  }
+  return Array.from(seen.values());
+}
+
 // GET /api/products - Get all products (proxied from inventory app)
 router.get('/', async (req, res) => {
   try {
@@ -56,7 +84,7 @@ router.get('/', async (req, res) => {
       { timeout: 10000 }
     );
 
-    const products = (Array.isArray(data) ? data : []).map(mapProduct);
+    const products = deduplicateProducts((Array.isArray(data) ? data : []).map(mapProduct));
     res.json({ success: true, products, totalCount: products.length });
   } catch (error) {
     console.error('Products proxy error:', error.message);
@@ -68,10 +96,10 @@ router.get('/', async (req, res) => {
 router.get('/featured/bestsellers', async (req, res) => {
   try {
     const { data } = await axios.get(`${INVENTORY_API}/api/products`, { timeout: 10000 });
-    const products = (Array.isArray(data) ? data : [])
+    const products = deduplicateProducts((Array.isArray(data) ? data : [])
       .filter(p => (p.currentStock || 0) > 30)
       .slice(0, 8)
-      .map(mapProduct);
+      .map(mapProduct));
     res.json({ success: true, products });
   } catch (error) {
     res.json({ success: true, products: [] });
@@ -83,10 +111,10 @@ router.get('/featured/new-arrivals', async (req, res) => {
   try {
     const { data } = await axios.get(`${INVENTORY_API}/api/products`, { timeout: 10000 });
     // Sort by createdAt descending, take top 8
-    const products = (Array.isArray(data) ? data : [])
+    const products = deduplicateProducts((Array.isArray(data) ? data : [])
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 8)
-      .map(mapProduct);
+      .map(mapProduct));
     res.json({ success: true, products });
   } catch (error) {
     res.json({ success: true, products: [] });
@@ -100,7 +128,7 @@ router.get('/category/:category', async (req, res) => {
       `${INVENTORY_API}/api/products?category=${req.params.category}`,
       { timeout: 10000 }
     );
-    const products = (Array.isArray(data) ? data : []).map(mapProduct);
+    const products = deduplicateProducts((Array.isArray(data) ? data : []).map(mapProduct));
     res.json({ success: true, products, totalCount: products.length });
   } catch (error) {
     res.json({ success: true, products: [], totalCount: 0 });
