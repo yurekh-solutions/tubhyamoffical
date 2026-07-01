@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Calendar, ArrowRight, Loader2, Search, X } from 'lucide-react';
+import { Calendar, ArrowRight, Loader2, Clock, Tag } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import { api } from '@/config/api';
 import ainosImg from '@/assets/ainos.jpeg';
+
+type ProductImageMap = Record<string, string[]>;
 
 interface BlogPost {
   _id: string;
@@ -20,6 +21,7 @@ interface BlogPost {
   image: string;
   readTime: number;
   keywords?: string[];
+  focusKeyword?: string;
 }
 
 const Blog = () => {
@@ -27,278 +29,317 @@ const Blog = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [productImages, setProductImages] = useState<ProductImageMap>({});
 
+  useEffect(() => { fetchBlogs(); }, []);
+
+  // Fetch product images once on mount
   useEffect(() => {
-    fetchBlogs();
+    api.get<{ success: boolean; mapping: ProductImageMap }>('/blogs/product-images')
+      .then(res => { if (res.success && res.mapping) setProductImages(res.mapping); })
+      .catch(() => { /* silent */ });
   }, []);
 
   const fetchBlogs = async () => {
     try {
       const response = await api.get<{ success: boolean; blogs: BlogPost[] }>('/blogs');
-      if (response.success) {
-        setBlogPosts(response.blogs);
-      }
+      if (response.success) setBlogPosts(response.blogs);
     } catch (error) {
       console.error('Failed to fetch blogs:', error);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  const categories = ['All', ...new Set(blogPosts.map(post => post.category).filter(Boolean))];
-  
+  const categories = ['All', ...new Set(blogPosts.map(p => p.category).filter(Boolean))];
   const filteredPosts = blogPosts.filter(post => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+    const matchCat = selectedCategory === 'All' || post.category === selectedCategory;
     const q = searchTerm.toLowerCase().trim();
-    const matchesSearch = !q ||
-      post.title.toLowerCase().includes(q) ||
-      post.excerpt.toLowerCase().includes(q) ||
-      post.category.toLowerCase().includes(q) ||
-      post.keywords?.some((k: string) => k.toLowerCase().includes(q));
-    return matchesCategory && matchesSearch;
+    const matchSearch = !q || post.title.toLowerCase().includes(q) || post.excerpt.toLowerCase().includes(q) || post.category.toLowerCase().includes(q) || post.keywords?.some((k: string) => k.toLowerCase().includes(q)) || post.focusKeyword?.toLowerCase().includes(q);
+    return matchCat && matchSearch;
   });
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+  const formatShort = (d: string) => new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  // Get real product image for a blog post — uses cardIndex to guarantee different images per card
+  const getProductImage = useMemo(() => {
+    return (post: BlogPost, cardIndex: number = 0): string => {
+      const isAI = (url: string) => url.includes('pollinations.ai') || url.includes('image.pollinations');
+      const fallback = (!post.image || isAI(post.image)) ? '' : post.image;
+
+      if (!productImages || Object.keys(productImages).length === 0) return fallback;
+
+      // Try keyword match first
+      const searchTerms = [
+        post.focusKeyword || '',
+        ...(post.keywords || []),
+        post.category,
+      ].map(t => t.toLowerCase().trim()).filter(Boolean);
+      for (const term of searchTerms) {
+        for (const [key, imgs] of Object.entries(productImages)) {
+          if (key === 'all') continue;
+          if (term.includes(key) || key.includes(term)) {
+            return imgs.length > 0 ? imgs[cardIndex % imgs.length] : fallback;
+          }
+        }
+      }
+      // No keyword match — use 'all' pool, spread by cardIndex
+      const allImgs = productImages['all'];
+      return allImgs && allImgs.length > 0 ? allImgs[cardIndex % allImgs.length] : fallback;
+    };
+  }, [productImages]);
+
+  const featured = filteredPosts[0];
+  const secondary = filteredPosts.slice(1, 3);
+  const rest = searchTerm ? filteredPosts : filteredPosts.slice(3);
 
   return (
     <>
       <Helmet>
-        <title>Blog - Fashion Tips & Styling Guides | Tubhyam</title>
-        <meta name="description" content="Explore fashion tips, styling guides, and stories from the Tubhyam community. Discover the latest trends in women's formal wear." />
+        <title>Fashion Blog - Styling Guides, Trends & Tips | Tubhyam</title>
+        <meta name="description" content="Expert fashion guides, styling tips, and trend reports for Indian women. Discover how to style formal pants, palazzo, wide-leg jeans, ethnic wear and more. Updated weekly by Tubhyam's style editors." />
+        <meta property="og:title" content="Fashion Blog - Styling Guides & Trend Reports | Tubhyam" />
+        <meta property="og:description" content="Expert fashion guides, styling tips, and trend reports for Indian women." />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://tubhyam.in/blog" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          "name": "Tubhyam Fashion Blog",
+          "description": "Fashion guides, styling tips, and trend reports for Indian women",
+          "url": "https://tubhyam.in/blog",
+          "publisher": { "@type": "Organization", "name": "Tubhyam", "url": "https://tubhyam.in" }
+        })}</script>
       </Helmet>
-      
+
       <Navbar />
       <ScrollToTop />
-      <main className="min-h-screen bg-background">
-        {/* Header Section */}
-        <section className="container mx-auto px-4 py-16 md:py-24 border-b border-primary/20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-4xl mx-auto text-center"
-          >
-            <img src={ainosImg} alt="AINOS" className="w-20 h-20 rounded-full object-cover mx-auto mb-6 border-4 border-primary/30 shadow-lg p-1" />
-            <h1 className="text-5xl md:text-6xl font-heading font-bold text-gradient-gold mb-6">
-              Our Blog
-            </h1>
-            <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto">
-              Fashion tips, styling guides, and stories from the Tubhyam community
-            </p>
-          </motion.div>
+      <main style={{ minHeight: '100vh', background: '#0F0B09' }}>
+
+        {/* ═══ HERO BANNER ═══ */}
+        <section style={{ position: 'relative', overflow: 'hidden', padding: '80px 0 60px' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at top, rgba(255,211,172,0.08) 0%, transparent 60%)' }} />
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-3xl mx-auto text-center">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                <img src={ainosImg} alt="AINOS" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 70%', border: '2px solid rgba(255,211,172,0.3)' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#FFD3AC', letterSpacing: 2, textTransform: 'uppercase' }}>Powered by AINOS</span>
+              </div>
+              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(36px, 6vw, 56px)', fontWeight: 700, color: '#F0E6DA', lineHeight: 1.15, margin: '0 0 16px' }}>
+                The Style <span style={{ color: '#FFD3AC' }}>Journal</span>
+              </h1>
+              <p style={{ fontSize: 17, color: '#B0A090', lineHeight: 1.6, maxWidth: 520, margin: '0 auto' }}>
+                Expert styling guides, trend reports & fashion tips curated for the modern Indian woman
+              </p>
+            </div>
+          </div>
         </section>
 
-        {/* Search & Categories */}
-        <section className="container mx-auto px-4 py-12">
-          <div className="max-w-xl mx-auto mb-10 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/60" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search articles by keyword, topic, or style..."
-              className="w-full pl-12 pr-10 py-3 bg-background border border-primary/30 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-foreground/50"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        {/* ═══ SEARCH + CATEGORY BAR ═══ */}
+        <section style={{ borderBottom: '1px solid rgba(255,211,172,0.1)', padding: '0 0 24px' }}>
+          <div className="container mx-auto px-4">
+            {/* Search */}
+            <div style={{ maxWidth: 560, margin: '0 auto 20px', position: 'relative' }}>
+              <input
+                type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                placeholder="Search guides: baggy jeans, formal pants, palazzo styling..."
+                style={{
+                  width: '100%', padding: '14px 48px 14px 20px', background: '#1A1410', border: '1px solid rgba(255,211,172,0.15)',
+                  borderRadius: 50, fontSize: 14, color: '#F0E6DA', outline: 'none', boxSizing: 'border-box',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={e => e.target.style.borderColor = 'rgba(255,211,172,0.4)'}
+                onBlur={e => e.target.style.borderColor = 'rgba(255,211,172,0.15)'}
+              />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8A7D70', fontSize: 18 }}>×</button>
+              )}
+            </div>
+            {/* Categories */}
+            {categories.length > 1 && (
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                {categories.map(cat => (
+                  <button key={cat} onClick={() => setSelectedCategory(cat)}
+                    style={{
+                      padding: '8px 20px', borderRadius: 50, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                      background: selectedCategory === cat ? '#FFD3AC' : 'transparent',
+                      color: selectedCategory === cat ? '#1A1410' : '#B0A090',
+                      border: selectedCategory === cat ? '1px solid #FFD3AC' : '1px solid rgba(255,211,172,0.15)',
+                    }}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
-          {categories.length > 1 && (
-            <div className="flex flex-wrap gap-3 justify-center">
-              {categories.map((category, index) => (
-                <motion.button
-                  key={category}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-6 py-2 rounded-full font-medium transition-all border ${
-                    selectedCategory === category
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'border-primary/30 text-foreground hover:border-primary/60 hover:bg-primary/10'
-                  }`}
-                >
-                  {category}
-                </motion.button>
-              ))}
-            </div>
-          )}
         </section>
 
-        {/* Loading State */}
+        {/* ═══ LOADING ═══ */}
         {loading && (
-          <section className="container mx-auto px-4 py-20">
-            <div className="flex flex-col items-center justify-center">
-              <Loader2 size={48} className="animate-spin text-primary" />
-              <p className="text-foreground/60 mt-4">Loading articles...</p>
-            </div>
-          </section>
+          <div style={{ padding: '80px 0', textAlign: 'center' }}>
+            <Loader2 size={36} className="animate-spin" style={{ color: '#8A7D70', margin: '0 auto' }} />
+            <p style={{ color: '#8A7D70', marginTop: 12, fontSize: 14 }}>Loading style guides...</p>
+          </div>
         )}
 
-        {/* No Results State */}
-        {!loading && blogPosts.length > 0 && filteredPosts.length === 0 && (
-          <section className="container mx-auto px-4 py-20">
-            <div className="text-center">
-              <h2 className="text-2xl font-heading font-bold text-foreground mb-4">
-                No matching articles
-              </h2>
-              <p className="text-foreground/60">
-                Try a different search term or category.
-              </p>
-            </div>
-          </section>
+        {/* ═══ NO RESULTS ═══ */}
+        {!loading && filteredPosts.length === 0 && (
+          <div style={{ padding: '80px 24px', textAlign: 'center' }}>
+            <p style={{ fontSize: 48, marginBottom: 16 }}>🔍</p>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: '#F0E6DA', marginBottom: 8 }}>No articles found</h2>
+            <p style={{ color: '#8A7D70', fontSize: 15 }}>Try a different search term or browse all categories above.</p>
+          </div>
         )}
 
-        {/* No Posts State */}
+        {/* ═══ NO POSTS ═══ */}
         {!loading && blogPosts.length === 0 && (
-          <section className="container mx-auto px-4 py-20">
-            <div className="text-center">
-              <h2 className="text-2xl font-heading font-bold text-foreground mb-4">
-                No articles yet
-              </h2>
-              <p className="text-foreground/60">
-                Check back soon for fashion tips and styling guides!
-              </p>
-            </div>
-          </section>
+          <div style={{ padding: '80px 24px', textAlign: 'center' }}>
+            <p style={{ fontSize: 48, marginBottom: 16 }}>✨</p>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: '#F0E6DA', marginBottom: 8 }}>Coming Soon</h2>
+            <p style={{ color: '#8A7D70', fontSize: 15 }}>Our style editors are crafting amazing guides. Check back soon!</p>
+          </div>
         )}
 
-        {/* Featured Post */}
-        {!loading && filteredPosts.length > 0 && !searchTerm && (
-          <section className="container mx-auto px-4 py-12">
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="glass-card overflow-hidden rounded-xl border border-primary/30 grid md:grid-cols-3 gap-6 items-start mb-16 p-6"
-            >
-              <Link to={`/blog/${filteredPosts[0].slug}`} className="md:col-span-1 h-64 overflow-hidden rounded-lg flex-shrink-0 block">
-                <img
-                  src={filteredPosts[0].image || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'}
-                  alt={filteredPosts[0].title}
-                  className="w-full h-full object-cover object-bottom hover:scale-105 transition-transform duration-300"
-                />
-              </Link>
-              <div className="md:col-span-2 flex flex-col justify-center">
-                <div className="inline-block mb-4 px-4 py-2 bg-primary/20 border border-primary/30 rounded-full text-sm font-semibold text-primary w-fit">
-                  {filteredPosts[0].category}
+        {/* ═══ FEATURED ARTICLE (LEVI'S STYLE) ═══ */}
+        {!loading && featured && !searchTerm && (
+          <section className="container mx-auto px-4" style={{ padding: '48px 16px 40px' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#FFD3AC', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Featured Story</p>
+            <Link to={`/blog/${featured.slug}`} style={{ textDecoration: 'none' }}>
+              <article style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 480px), 1fr))', gap: 0, borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.1)', background: '#1A1410', transition: 'border-color 0.3s' }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(255,211,172,0.3)')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,211,172,0.1)')}>
+                {/* Image */}
+                <div style={{ position: 'relative', height: '100%', minHeight: 320 }}>
+                  <img src={getProductImage(featured, 0) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={featured.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+                  <div style={{ position: 'absolute', top: 16, left: 16, background: '#FFD3AC', color: '#1A1410', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 50, letterSpacing: 0.5 }}>
+                    {featured.category}
+                  </div>
                 </div>
-                <Link to={`/blog/${filteredPosts[0].slug}`}>
-                  <h2 className="text-2xl md:text-3xl font-heading font-bold mb-3 text-foreground hover:text-primary transition-colors">
-                    {filteredPosts[0].title}
+                {/* Content */}
+                <div style={{ padding: 'clamp(24px, 4vw, 48px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 700, color: '#F0E6DA', lineHeight: 1.2, margin: '0 0 16px' }}>
+                    {featured.title}
                   </h2>
-                </Link>
-                <p className="text-foreground/70 mb-4 leading-relaxed text-sm md:text-base">
-                  {filteredPosts[0].excerpt}
-                </p>
-                <div className="flex flex-wrap gap-4 text-xs md:text-sm text-foreground/60 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} />
-                    <span>{formatDate(filteredPosts[0].publishedAt)}</span>
+                  <p style={{ fontSize: 15, color: '#B0A090', lineHeight: 1.7, margin: '0 0 20px' }}>
+                    {featured.excerpt}
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: '#8A7D70', marginBottom: 24, flexWrap: 'wrap' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={13} /> {formatShort(featured.publishedAt)}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={13} /> {featured.readTime} min read</span>
+                    {featured.focusKeyword && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={13} /> {featured.focusKeyword}</span>}
                   </div>
-                  <span>{filteredPosts[0].readTime} min read</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#FFD3AC', fontWeight: 600, fontSize: 14 }}>
+                    Read Full Guide <ArrowRight size={16} />
+                  </span>
                 </div>
-                <Link 
-                  to={`/blog/${filteredPosts[0].slug}`}
-                  className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors text-sm"
-                >
-                  Read More <ArrowRight size={16} />
-                </Link>
-              </div>
-            </motion.article>
+              </article>
+            </Link>
           </section>
         )}
 
-        {/* Blog Grid */}
-        {!loading && (
-          (searchTerm && filteredPosts.length > 0) ||
-          (!searchTerm && filteredPosts.length > 1)
-        ) && (
-          <section className="container mx-auto px-4 py-16">
-            <motion.h2
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              className="text-3xl font-heading font-bold mb-12 text-gradient-gold"
-            >
-              {searchTerm ? `Search Results (${filteredPosts.length})` : 'Latest Articles'}
-            </motion.h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {(searchTerm ? filteredPosts : filteredPosts.slice(1)).map((post, index) => (
-                <motion.article
-                  key={post._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="glass-card overflow-hidden rounded-lg border border-primary/30 hover:border-primary/60 transition-all group flex flex-col"
-                >
-                  <Link to={`/blog/${post.slug}`} className="h-40 overflow-hidden rounded-t-lg flex-shrink-0 block">
-                    <img
-                      src={post.image || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'}
-                      alt={post.title}
-                      className="w-full h-full object-cover object-bottom group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </Link>
-                  <div className="p-4 flex flex-col flex-1">
-                    <div className="inline-block mb-2 px-3 py-1 bg-primary/20 border border-primary/30 rounded-full text-xs font-semibold text-primary w-fit">
-                      {post.category}
+        {/* ═══ SECONDARY FEATURED (2-UP) ═══ */}
+        {!loading && secondary.length > 0 && !searchTerm && (
+          <section className="container mx-auto px-4" style={{ padding: '0 16px 40px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: 20 }}>
+              {secondary.map((post, i) => (
+                <Link key={post._id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
+                  <article style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.1)', background: '#1A1410', transition: 'border-color 0.3s, transform 0.3s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.25)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                    <div style={{ height: 200, overflow: 'hidden' }}>
+                      <img src={getProductImage(post, i + 1) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={post.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', transition: 'transform 0.4s' }} />
                     </div>
-                    <Link to={`/blog/${post.slug}`}>
-                      <h3 className="text-base md:text-lg font-heading font-bold mb-2 text-foreground line-clamp-2 hover:text-primary transition-colors">
-                        {post.title}
-                      </h3>
-                    </Link>
-                    <p className="text-foreground/70 text-xs md:text-sm mb-3 line-clamp-2 flex-1">
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-foreground/60 mb-3 pb-3 border-b border-primary/20">
-                      <span className="flex-shrink-0">{formatDate(post.publishedAt)}</span>
+                    <div style={{ padding: 20 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#FFD3AC', textTransform: 'uppercase', letterSpacing: 1 }}>{post.category}</span>
+                      <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.3, margin: '8px 0 10px' }}>{post.title}</h3>
+                      <p style={{ fontSize: 13, color: '#8A7D70', lineHeight: 1.5, margin: '0 0 14px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.excerpt}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#8A7D70' }}>
+                        <span>{formatShort(post.publishedAt)}</span>
+                        <span>•</span>
+                        <span>{post.readTime} min read</span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-foreground/60">{post.readTime} min read</span>
-                      <Link to={`/blog/${post.slug}`} className="text-primary hover:text-primary/80 transition-colors">
-                        <ArrowRight size={16} />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.article>
+                  </article>
+                </Link>
               ))}
             </div>
           </section>
         )}
 
-        {/* Newsletter Section */}
-        <section className="container mx-auto px-4 py-20 border-y border-primary/20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="glass-card p-8 md:p-12 text-center max-w-2xl mx-auto border border-primary/30 rounded-xl"
-          >
-            <h2 className="text-2xl md:text-3xl font-heading font-bold mb-4 text-foreground">
-              Subscribe to Our Newsletter
-            </h2>
-            <p className="text-foreground/80 mb-6 text-sm md:text-base">
-              Get the latest fashion tips, styling ideas, and exclusive offers
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-background border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-foreground/50 text-sm"
-              />
-              <button className="px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-semibold transition-all duration-300 hover:scale-105 text-sm">
-                Subscribe
-              </button>
+        {/* ═══ ARTICLE GRID (REST / SEARCH RESULTS) ═══ */}
+        {!loading && rest.length > 0 && (
+          <section className="container mx-auto px-4" style={{ padding: '0 16px 60px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: '#F0E6DA', margin: 0 }}>
+                {searchTerm ? `${filteredPosts.length} Results` : 'More Style Guides'}
+              </h2>
+              {!searchTerm && <div style={{ height: 1, flex: 1, background: 'rgba(255,211,172,0.08)', marginLeft: 20 }} />}
             </div>
-          </motion.div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 16 }}>
+              {(searchTerm ? filteredPosts : rest).map((post, i) => (
+                <Link key={post._id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
+                  <article style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.08)', background: '#151010', transition: 'all 0.25s', height: '100%' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                    <div style={{ height: 170, overflow: 'hidden' }}>
+                      <img src={getProductImage(post, i + 3) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={post.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+                    </div>
+                    <div style={{ padding: 16 }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#FFD3AC', textTransform: 'uppercase', letterSpacing: 1 }}>{post.category}</span>
+                      <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.35, margin: '6px 0 8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {post.title}
+                      </h3>
+                      <p style={{ fontSize: 12, color: '#8A7D70', lineHeight: 1.5, margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {post.excerpt}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, color: '#8A7D70' }}>
+                        <span>{formatShort(post.publishedAt)}</span>
+                        <ArrowRight size={14} style={{ color: '#FFD3AC' }} />
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ═══ SEO CONTENT SECTION ═══ */}
+        {!loading && blogPosts.length > 0 && (
+          <section style={{ borderTop: '1px solid rgba(255,211,172,0.08)', padding: '48px 0' }}>
+            <div className="container mx-auto px-4">
+              <div style={{ maxWidth: 720, margin: '0 auto' }}>
+                <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#F0E6DA', marginBottom: 16 }}>
+                  Your Complete Fashion Guide
+                </h2>
+                <p style={{ fontSize: 14, color: '#B0A090', lineHeight: 1.8, marginBottom: 12 }}>
+                  Welcome to Tubhyam's Style Journal — your go-to destination for expert fashion advice, styling guides, and trend reports tailored for Indian women. From how to style <strong style={{ color: '#FFD3AC' }}>wide-leg jeans</strong> and <strong style={{ color: '#FFD3AC' }}>formal pants</strong> to mastering the perfect <strong style={{ color: '#FFD3AC' }}>palazzo pairing</strong> and <strong style={{ color: '#FFD3AC' }}>ethnic fusion looks</strong>, our editors break down every trend with practical tips you can use today.
+                </p>
+                <p style={{ fontSize: 14, color: '#B0A090', lineHeight: 1.8, marginBottom: 12 }}>
+                  Each guide covers everything from choosing the right fit for your body type, styling for different occasions — office wear, festive celebrations, casual brunches — to common fashion mistakes and how to avoid them. Our SEO-optimized articles answer the questions Indian women are actually searching on Google.
+                </p>
+                <p style={{ fontSize: 14, color: '#B0A090', lineHeight: 1.8 }}>
+                  Browse by category above or search for your specific style question. New articles are published weekly by our AI-powered editorial team, <strong style={{ color: '#FFD3AC' }}>AINOS</strong>.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ═══ CTA ═══ */}
+        <section style={{ borderTop: '1px solid rgba(255,211,172,0.08)', padding: '56px 0' }}>
+          <div className="container mx-auto px-4" style={{ textAlign: 'center' }}>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: '#F0E6DA', marginBottom: 8 }}>Ready to Elevate Your Style?</h2>
+            <p style={{ color: '#8A7D70', fontSize: 15, marginBottom: 24 }}>Explore Tubhyam's curated collection of premium women's fashion</p>
+            <Link to="/products" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', borderRadius: 50,
+              background: '#FFD3AC', color: '#1A1410', fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'all 0.2s'
+            }}>
+              Shop the Collection <ArrowRight size={16} />
+            </Link>
+          </div>
         </section>
       </main>
       <Footer />

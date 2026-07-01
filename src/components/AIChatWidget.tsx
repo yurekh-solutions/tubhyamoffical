@@ -122,7 +122,7 @@ const AIChatWidget = () => {
           <CardHeader className="bg-primary text-primary-foreground p-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img src={ainosImg} alt="AINOS" className="w-10 h-10 rounded-full object-cover border-2 border-primary-foreground/30" />
+                <img src={ainosImg} alt="AINOS" className="w-10 h-10 rounded-full object-cover border-2 border-primary-foreground/30" style={{ objectPosition: 'center 70%' }} />
                 <div>
                   <CardTitle className="text-lg">ainos</CardTitle>
                   <p className="text-xs text-primary-foreground/80">AI Blog Assistant</p>
@@ -148,7 +148,7 @@ const AIChatWidget = () => {
                   className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {message.role === 'assistant' && (
-                    <img src={ainosImg} alt="AINOS" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-primary/30" />
+                    <img src={ainosImg} alt="AINOS" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-primary/30" style={{ objectPosition: 'center 70%' }} />
                   )}
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
@@ -174,7 +174,7 @@ const AIChatWidget = () => {
               {isLoading && (
                 <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-primary/30">
-                  <img src={ainosImg} alt="AINOS" className="w-full h-full object-cover" />
+                  <img src={ainosImg} alt="AINOS" className="w-full h-full object-cover" style={{ objectPosition: 'center 70%' }} />
                 </div>
                   <div className="bg-muted rounded-2xl px-4 py-3">
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />

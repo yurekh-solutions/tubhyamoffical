@@ -3,6 +3,11 @@ const router = express.Router();
 const Blog = require('../models/Blog');
 const Groq = require('groq-sdk');
 const crypto = require('crypto');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+
+const INVENTORY_API = process.env.INVENTORY_API_URL || 'http://localhost:3001';
 
 console.log('[blogs.js] Route file loaded successfully');
 
@@ -171,7 +176,11 @@ CRITICAL: Raw JSON only. No markdown blocks.`;
 // GET /campaigns — List all campaigns
 router.get('/campaigns', verifyAdmin, async (req, res) => {
   try {
-    const posts = await Blog.find({ campaignId: { $ne: '' } }).sort({ campaignId: 1, dayIndex: 1 });
+    const INVALID_IDS = ['', 'undefined', 'null', 'NaN'];
+    const posts = await Blog.find({
+      campaignId: { $exists: true, $nin: [...INVALID_IDS, null] },
+      $where: 'this.campaignId && this.campaignId.length > 3'
+    }).sort({ campaignId: 1, dayIndex: 1 });
     const campaignMap = {};
     for (const p of posts) {
       if (!campaignMap[p.campaignId]) {
@@ -238,21 +247,51 @@ router.post('/campaigns/:id/generate', verifyAdmin, async (req, res) => {
         if (!articleData) throw new Error('AI returned empty response');
 
         post.title = articleData.title || post.title;
-        post.content = articleData.content;
         post.excerpt = articleData.excerpt || post.excerpt;
         post.metaTitle = articleData.metaTitle || post.title;
         post.metaDescription = articleData.metaDescription || post.excerpt;
         post.readTime = calcReadTime(articleData.content);
 
-        // Generate faceless image
-        const imagePrompt = buildHighFidelityImagePrompt(post.trendKeyword || post.focusKeyword, null, post.dayIndex);
-        post.image = buildImageUrl(imagePrompt, post.trendKeyword || post.focusKeyword, post.dayIndex);
+        // Generate hero image (first image)
+        const heroPrompt = buildHighFidelityImagePrompt(post.trendKeyword || post.focusKeyword, null, post.dayIndex);
+        post.image = buildImageUrl(heroPrompt, post.trendKeyword || post.focusKeyword, post.dayIndex);
+
+        // Generate inline images from AI prompts
+        const inlineImages = [];
+        let content = articleData.content || '';
+        
+        if (articleData.imagePrompts && articleData.imagePrompts.length > 0) {
+          for (let i = 0; i < Math.min(articleData.imagePrompts.length, 5); i++) {
+            const imgPrompt = articleData.imagePrompts[i];
+            const enhancedPrompt = `STRICTLY FACELESS PHOTOGRAPH, cropped at chin showing only neck downward, NO FACE NO HEAD NO FOREHEAD NO EYES NO HAIR visible in frame, ${imgPrompt}, ${PHOTO_PRESET}, photorealistic, magazine quality, no text overlay, no watermark, sharp focus on garment details and fabric texture`;
+            const imgUrl = buildImageUrl(enhancedPrompt, `${post.trendKeyword}-inline-${i}`, post.dayIndex * 100 + i);
+            
+            inlineImages.push({
+              url: imgUrl,
+              altText: `${post.focusKeyword} style ${i + 1} - Tubhyam fashion guide`,
+              role: i === 0 ? 'hero-inline' : `section-${i}`
+            });
+            
+            // Replace placeholder with actual image
+            const placeholder = `[IMAGE_${i + 1}]`;
+            const imgHtml = `<figure style="margin: 32px 0;"><img src="${imgUrl}" alt="${post.focusKeyword} style ${i + 1}" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" loading="lazy" /><figcaption style="text-align: center; font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">${post.focusKeyword} - Style Inspiration</figcaption></figure>`;
+            content = content.replace(placeholder, imgHtml);
+            
+            // Add delay to avoid rate limiting
+            await new Promise(r => setTimeout(r, 1500));
+          }
+        }
+        
+        // Remove any remaining placeholders
+        content = content.replace(/\[IMAGE_\d+\]/g, '');
+        post.content = content;
+        post.inlineImages = inlineImages;
 
         post.status = post.scheduledPublishDate ? 'scheduled' : 'draft';
         post.generationStatus = 'ready';
         post.errorMessage = '';
         await post.save();
-        results.push({ _id: post._id, title: post.title, dayIndex: post.dayIndex, status: post.status });
+        results.push({ _id: post._id, title: post.title, dayIndex: post.dayIndex, status: post.status, imageCount: inlineImages.length });
         await new Promise(r => setTimeout(r, 3000));
       } catch (err) {
         post.status = 'failed';
@@ -263,7 +302,7 @@ router.post('/campaigns/:id/generate', verifyAdmin, async (req, res) => {
       }
     }
 
-    res.json({ success: true, message: `Generated ${results.length} of ${posts.length} posts`, results, errors: errors.length ? errors : undefined });
+    res.json({ success: true, message: `Generated ${results.length} of ${posts.length} posts with ${results.reduce((sum, r) => sum + (r.imageCount || 0), 0)} inline images`, results, errors: errors.length ? errors : undefined });
   } catch (error) {
     console.error('Campaign generation failed:', error);
     res.status(500).json({ success: false, message: 'Failed to generate campaign', error: error.message });
@@ -286,10 +325,42 @@ router.post('/campaigns/:id/resume', verifyAdmin, async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: 'Failed to resume campaign' }); }
 });
 
+// POST /campaigns/cleanup — Remove orphaned posts with invalid campaignIds
+router.post('/campaigns/cleanup', verifyAdmin, async (req, res) => {
+  try {
+    const result = await Blog.deleteMany({
+      $or: [
+        { campaignId: '' },
+        { campaignId: 'undefined' },
+        { campaignId: 'null' },
+        { campaignId: null },
+        { campaignId: { $exists: false } },
+      ]
+    });
+    res.json({ success: true, message: `Cleaned up ${result.deletedCount} orphaned posts` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Cleanup failed' });
+  }
+});
+
+// DELETE /campaigns/all — Delete ALL campaigns and their posts
+router.delete('/campaigns/all', verifyAdmin, async (req, res) => {
+  try {
+    const result = await Blog.deleteMany({ campaignId: { $ne: '', $exists: true } });
+    res.json({ success: true, message: `All campaigns deleted — ${result.deletedCount} posts removed` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete campaigns' });
+  }
+});
+
 // DELETE /campaigns/:id — Delete entire campaign and all its posts
 router.delete('/campaigns/:id', verifyAdmin, async (req, res) => {
   try {
-    const result = await Blog.deleteMany({ campaignId: req.params.id });
+    const campaignId = req.params.id;
+    if (!campaignId || campaignId === 'undefined' || campaignId === 'null') {
+      return res.status(400).json({ success: false, message: 'Invalid campaign ID' });
+    }
+    const result = await Blog.deleteMany({ campaignId });
     if (result.deletedCount === 0) return res.status(404).json({ success: false, message: 'Campaign not found' });
     res.json({ success: true, message: `Campaign deleted — ${result.deletedCount} posts removed` });
   } catch (error) {
@@ -332,11 +403,39 @@ router.post('/posts/:id/regenerate', verifyAdmin, async (req, res) => {
       const articleData = await generateCampaignArticle(blog.trendKeyword || blog.focusKeyword, blog, instruction);
       if (articleData) {
         blog.title = articleData.title || blog.title;
-        blog.content = articleData.content;
         blog.excerpt = articleData.excerpt || blog.excerpt;
         blog.metaTitle = articleData.metaTitle || blog.title;
         blog.metaDescription = articleData.metaDescription || blog.excerpt;
         blog.readTime = calcReadTime(articleData.content);
+
+        // Generate inline images from AI prompts
+        const inlineImages = [];
+        let content = articleData.content || '';
+        
+        if (articleData.imagePrompts && articleData.imagePrompts.length > 0 && target === 'all') {
+          for (let i = 0; i < Math.min(articleData.imagePrompts.length, 5); i++) {
+            const imgPrompt = articleData.imagePrompts[i];
+            const enhancedPrompt = `STRICTLY FACELESS PHOTOGRAPH, cropped at chin showing only neck downward, NO FACE NO HEAD NO FOREHEAD NO EYES NO HAIR visible in frame, ${imgPrompt}, ${PHOTO_PRESET}, photorealistic, magazine quality, no text overlay, no watermark, sharp focus on garment details and fabric texture`;
+            const imgUrl = buildImageUrl(enhancedPrompt, `${blog.trendKeyword}-inline-${i}`, (blog.dayIndex || 1) * 100 + i);
+            
+            inlineImages.push({
+              url: imgUrl,
+              altText: `${blog.focusKeyword} style ${i + 1} - Tubhyam fashion guide`,
+              role: i === 0 ? 'hero-inline' : `section-${i}`
+            });
+            
+            // Replace placeholder with actual image
+            const placeholder = `[IMAGE_${i + 1}]`;
+            const imgHtml = `<figure style="margin: 32px 0;"><img src="${imgUrl}" alt="${blog.focusKeyword} style ${i + 1}" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" loading="lazy" /><figcaption style="text-align: center; font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">${blog.focusKeyword} - Style Inspiration</figcaption></figure>`;
+            content = content.replace(placeholder, imgHtml);
+            
+            await new Promise(r => setTimeout(r, 1500));
+          }
+        }
+        
+        content = content.replace(/\[IMAGE_\d+\]/g, '');
+        blog.content = content;
+        blog.inlineImages = inlineImages;
       }
     }
     if (target === 'images' || target === 'all') {
@@ -400,6 +499,262 @@ router.delete('/posts/:id', verifyAdmin, async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: 'Failed to delete blog' }); }
 });
 
+// ═══ BATCH IMAGE REFRESH — Replace ALL AI images with real product photos ═══
+
+async function getProductImageMapping() {
+  const CATEGORY_MAP = {
+    'formal pants': ['formals', 'formal', 'formal pant', 'trouser', 'slimfit'],
+    'formal': ['formals', 'formal', 'formal pant', 'trouser', 'slimfit'],
+    'trousers': ['formals', 'formal', 'trouser'],
+    'palazzo': ['palazzo', 'palazos', 'widelook'],
+    'wide leg': ['jeans', 'denim', 'wide leg', 'wide-leg', 'mom'],
+    'baggy jeans': ['jeans', 'denim', 'mom'],
+    'jeans': ['jeans', 'denim'],
+    'denim': ['jeans', 'denim'],
+    'cargo': ['cargo', 'tracks'],
+    'track pants': ['tracks', 'track pant', 'jogger'],
+    'jogger': ['tracks', 'track pant', 'jogger'],
+    'casual': ['casual', 'cotton', 'linen', 'lace'],
+    'cotton': ['cotton', 'casual'],
+    'linen': ['linen', 'casual'],
+    'ethnic': ['ethnic', 'kurta', 'saree'],
+    'kurta': ['ethnic', 'kurta'],
+    'saree': ['ethnic', 'saree'],
+    'western': ['western', 'western wear', 'top'],
+    'western wear': ['western', 'western wear', 'top'],
+    'blazer': ['formals', 'blazer', 'formal'],
+    'office wear': ['formals', 'formal', 'office', 'belt'],
+    'kurti': ['ethnic', 'kurta', 'kurti'],
+    'cordset': ['cordset'],
+    'lace': ['lace'],
+  };
+
+  // Try inventory API first
+  try {
+    const { data } = await axios.get(`${INVENTORY_API}/api/products`, { timeout: 15000 });
+    const products = Array.isArray(data) ? data : [];
+
+    const imagesByCategory = {};
+    for (const p of products) {
+      const cat = (p.category || '').toLowerCase().trim();
+      const imgs = (p.images || []).map(img =>
+        img.startsWith('http') ? img : `${INVENTORY_API}${img}`
+      );
+      if (imgs.length > 0 && cat) {
+        if (!imagesByCategory[cat]) imagesByCategory[cat] = [];
+        imagesByCategory[cat].push(...imgs);
+      }
+    }
+
+    const mapping = {};
+    const allImages = Object.values(imagesByCategory).flat();
+
+    for (const [keyword, categoryFilters] of Object.entries(CATEGORY_MAP)) {
+      const matched = [];
+      for (const [cat, imgs] of Object.entries(imagesByCategory)) {
+        if (categoryFilters.some(f => cat.includes(f) || f.includes(cat))) {
+          matched.push(...imgs);
+        }
+      }
+      mapping[keyword] = matched.length > 0 ? [...new Set(matched)] : allImages;
+    }
+    mapping['all'] = [...new Set(allImages)];
+    if (allImages.length > 0) return mapping;
+  } catch (err) {
+    console.log('[ProductImages] Inventory API unavailable, using local fallback');
+  }
+
+  // Fallback: scan local public/images/products directory
+  try {
+    const localDir = path.join(__dirname, '..', '..', 'public', 'images', 'products');
+    if (fs.existsSync(localDir)) {
+      const files = fs.readdirSync(localDir).filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f));
+      const localImages = files.map(f => `/images/products/${f}`);
+
+      // Categorize by filename keywords
+      const imagesByCategory = {};
+      for (const img of localImages) {
+        const name = path.basename(img, path.extname(img)).toLowerCase();
+        const cats = [];
+        if (name.includes('formal') || name.includes('slimfit') || name.includes('trouser') || name.includes('belt-formal')) cats.push('formals');
+        if (name.includes('jeans') || name.includes('denim') || name.includes('mom')) cats.push('jeans');
+        if (name.includes('cargo')) cats.push('cargo');
+        if (name.includes('track') || name.includes('jogger')) cats.push('tracks');
+        if (name.includes('lace') || name.includes('causal') || name.includes('casual')) cats.push('casual');
+        if (name.includes('palazzo') || name.includes('widelook') || name.includes('beggy')) cats.push('palazzo');
+        if (name.includes('cordset')) cats.push('cordset');
+        if (name.includes('imported') || name.includes('premium') || name.includes('preuim')) cats.push('formals');
+        if (name.includes('olive') || name.includes('green') || name.includes('brown') || name.includes('beige')) cats.push('casual');
+        if (cats.length === 0) cats.push('general');
+        for (const c of cats) {
+          if (!imagesByCategory[c]) imagesByCategory[c] = [];
+          imagesByCategory[c].push(img);
+        }
+      }
+
+      const mapping = {};
+      const allImages = [...new Set(Object.values(imagesByCategory).flat())];
+
+      for (const [keyword, categoryFilters] of Object.entries(CATEGORY_MAP)) {
+        const matched = [];
+        for (const [cat, imgs] of Object.entries(imagesByCategory)) {
+          if (categoryFilters.some(f => cat.includes(f) || f.includes(cat))) {
+            matched.push(...imgs);
+          }
+        }
+        mapping[keyword] = matched.length > 0 ? [...new Set(matched)] : allImages;
+      }
+      mapping['all'] = allImages;
+      return mapping;
+    }
+  } catch (err) {
+    console.error('Local image fallback failed:', err.message);
+  }
+
+  return { all: [] };
+}
+
+function getBestImagesForPost(mapping, post) {
+  const searchTerms = [
+    post.trendKeyword || '',
+    post.focusKeyword || '',
+    ...(post.keywords || []),
+    ...(post.tags || []),
+    post.category || '',
+  ].map(t => (t || '').toLowerCase().trim()).filter(Boolean);
+
+  for (const term of searchTerms) {
+    for (const [key, imgs] of Object.entries(mapping)) {
+      if (key === 'all') continue;
+      if (term.includes(key) || key.includes(term)) {
+        return imgs;
+      }
+    }
+  }
+  return mapping['all'] || [];
+}
+
+// POST /posts/batch-refresh-images — Replace ALL blog images with real product photos
+router.post('/posts/batch-refresh-images', verifyAdmin, async (req, res) => {
+  try {
+    const mapping = await getProductImageMapping();
+    const allImages = mapping['all'] || [];
+
+    if (allImages.length === 0) {
+      return res.json({ success: false, message: 'No product images available in inventory. Add products first.' });
+    }
+
+    const blogs = await Blog.find({ status: 'published' });
+    const results = [];
+
+    for (const blog of blogs) {
+      try {
+        const bestImages = getBestImagesForPost(mapping, blog);
+        if (bestImages.length === 0) continue;
+
+        // 1. Set hero image to real product photo
+        blog.image = bestImages[0];
+
+        // 2. Strip ALL old figure tags (both Pollinations and old product images)
+        let content = blog.content || '';
+        content = content.replace(/<figure[^>]*>[\s\S]*?<\/figure>/gi, '');
+        // Also remove any standalone img tags
+        content = content.replace(/<img[^>]*pollinations[^>]*\/?>/gi, '');
+        content = content.replace(/<img[^>]*image\.pollinations[^>]*\/?>/gi, '');
+
+        // 3. Insert NEW figure tags with real product photos at natural break points
+        const inlineImages = [];
+        const paragraphs = content.split('</p>');
+        let newContent = '';
+        let imgIdx = 0;
+
+        for (let i = 0; i < paragraphs.length; i++) {
+          newContent += paragraphs[i];
+          if (i < paragraphs.length - 1) newContent += '</p>';
+
+          // Insert an image after every 2-3 paragraphs
+          if ((i + 1) % 3 === 0 && imgIdx < Math.min(bestImages.length - 1, 5)) {
+            imgIdx++;
+            const imgUrl = bestImages[imgIdx % bestImages.length];
+            const altText = `${blog.focusKeyword || blog.category} - Tubhyam Collection`;
+            newContent += `<figure style="margin: 32px 0;"><img src="${imgUrl}" alt="${altText}" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" loading="lazy" /><figcaption style="text-align: center; font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">${blog.focusKeyword || blog.category} - Tubhyam Collection</figcaption></figure>`;
+            inlineImages.push({
+              url: imgUrl,
+              altText: altText,
+              role: `section-${imgIdx}`
+            });
+          }
+        }
+
+        blog.content = newContent;
+        blog.inlineImages = inlineImages;
+        await blog.save();
+        results.push({ id: blog._id, title: blog.title, imagesAdded: inlineImages.length + 1 });
+      } catch (err) {
+        results.push({ id: blog._id, title: blog.title, error: err.message });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Refreshed images for ${results.filter(r => !r.error).length} of ${blogs.length} posts`,
+      results
+    });
+  } catch (error) {
+    console.error('Batch refresh failed:', error);
+    res.status(500).json({ success: false, message: 'Failed to refresh images', error: error.message });
+  }
+});
+
+// POST /posts/:id/refresh-images — Refresh images for a single post
+router.post('/posts/:id/refresh-images', verifyAdmin, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ success: false, message: 'Post not found' });
+
+    const mapping = await getProductImageMapping();
+    const bestImages = getBestImagesForPost(mapping, blog);
+
+    if (bestImages.length === 0) {
+      return res.json({ success: false, message: 'No product images available' });
+    }
+
+    // Set hero
+    blog.image = bestImages[0];
+
+    // Strip old images
+    let content = blog.content || '';
+    content = content.replace(/<figure[^>]*>[\s\S]*?<\/figure>/gi, '');
+    content = content.replace(/<img[^>]*pollinations[^>]*\/?>/gi, '');
+
+    // Insert new product images
+    const inlineImages = [];
+    const paragraphs = content.split('</p>');
+    let newContent = '';
+    let imgIdx = 0;
+
+    for (let i = 0; i < paragraphs.length; i++) {
+      newContent += paragraphs[i];
+      if (i < paragraphs.length - 1) newContent += '</p>';
+      if ((i + 1) % 3 === 0 && imgIdx < Math.min(bestImages.length - 1, 5)) {
+        imgIdx++;
+        const imgUrl = bestImages[imgIdx % bestImages.length];
+        const altText = `${blog.focusKeyword || blog.category} - Tubhyam Collection`;
+        newContent += `<figure style="margin: 32px 0;"><img src="${imgUrl}" alt="${altText}" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" loading="lazy" /><figcaption style="text-align: center; font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">${blog.focusKeyword || blog.category} - Tubhyam Collection</figcaption></figure>`;
+        inlineImages.push({ url: imgUrl, altText, role: `section-${imgIdx}` });
+      }
+    }
+
+    blog.content = newContent;
+    blog.inlineImages = inlineImages;
+    await blog.save();
+
+    res.json({ success: true, message: `Refreshed with ${inlineImages.length + 1} product images`, post: blog });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to refresh', error: error.message });
+  }
+});
+
 // GET /admin/search?q=keyword — Search blog posts
 router.get('/admin/search', verifyAdmin, async (req, res) => {
   try {
@@ -431,6 +786,18 @@ router.get('/', async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: 'Failed to fetch blogs' }); }
 });
 
+// GET /product-images — Returns real Tubhyam product images mapped to blog keywords
+router.get('/product-images', async (req, res) => {
+  try {
+    const mapping = await getProductImageMapping();
+    const totalImages = (mapping['all'] || []).length;
+    res.json({ success: true, mapping, totalProducts: 0, totalImages });
+  } catch (error) {
+    console.error('Product images error:', error.message);
+    res.json({ success: true, mapping: { all: [] }, totalProducts: 0, totalImages: 0 });
+  }
+});
+
 router.get('/:slug', async (req, res) => {
   try {
     const blog = await Blog.findOne({ slug: req.params.slug, status: 'published' });
@@ -441,57 +808,55 @@ router.get('/:slug', async (req, res) => {
 
 // ═══ FACELESS IMAGE GENERATION ════════════════════════════════════════════════
 
-// Professional photography style preset - consistent across all images
-const PHOTO_PRESET = 'Canon EOS R5, 85mm f/1.8 lens, editorial fashion photography, Vogue India style, soft natural lighting, shallow depth of field, warm color grading, premium fabric texture detail';
+// Professional photography style preset - GARMENT FOCUSED, NO FACE
+const PHOTO_PRESET = 'garment-focused fashion photography, shot from collar-bone downward, Canon EOS R5, 85mm f/1.8 lens, soft natural lighting, shallow depth of field on fabric texture, warm color grading, premium fabric detail, Vogue India editorial';
 
 const KEYWORD_SCENES = {
-  'western wear': 'Indian woman in trendy western outfit, modern minimalist studio, hands resting on designer bag',
-  'western': 'Indian woman in stylish western wear with leather handbag and heels, urban cafe setting',
-  'top': 'Indian woman in fashionable silk blouse with high-waisted jeans, bright studio with soft shadows',
-  'formal pants': 'Indian woman in tailored charcoal formal pants with white silk blouse, modern glass office, laptop bag visible',
-  'trousers': 'Indian woman in structured high-waisted trousers with elegant cream top, marble studio floor',
-  'palazzo': 'Indian woman in flowing ivory palazzo pants with fitted black top, outdoor terrace with plants',
-  'wide leg': 'Indian woman in high-waisted wide-leg denim jeans with tucked-in white shirt, minimalist white studio, hands in pockets',
-  'cargo': 'Indian woman in olive cargo pants with black crop top and white sneakers, urban street with graffiti',
-  'track pants': 'Indian woman in stylish black track pants with cropped hoodie and sneakers, outdoor park path',
-  'jogger': 'Indian woman in slim beige joggers with oversized cream sweatshirt, park bench setting',
-  'jeans': 'Indian woman in perfect-fit blue jeans with white t-shirt and leather belt, city street with warm sunlight',
-  'denim': 'Indian woman in classic blue denim jeans with denim jacket over white top, street style photography',
-  'casual': 'Indian woman in relaxed casual outfit with light wash jeans and white sneakers, cozy cafe interior',
-  'ootd': 'Indian woman in styled outfit of the day, hands on designer handbag, Instagram-worthy setting',
-  'gen z': 'Indian woman in gen-z trendy outfit with baggy jeans and layered necklaces, neon-lit studio',
-  'genz': 'Indian woman in youthful trendy outfit with oversized blazer and chunky sneakers, urban street',
-  'streetwear': 'Indian woman in oversized streetwear hoodie with baggy pants and chunky sneakers, graffiti wall background',
-  'summer': 'Indian woman in light linen summer outfit with strappy sandals and woven tote, sunny garden setting',
-  'winter': 'Indian woman in cozy winter layers with wool scarf and ankle boots, warm indoor setting with window light',
-  'ethnic': 'Indian woman in fusion ethnic-western outfit with silver jhumkas and contemporary kurta, art gallery',
-  'kurta': 'Indian woman in modern printed kurta with white jeans and embroidered juttis, bright patio with flowers',
-  'saree': 'Indian woman in modern saree drape with statement earrings and heels, elegant marble venue',
-  'wardrobe': 'Indian woman selecting from organized capsule wardrobe, walk-in closet with white shelves',
-  'occasion': 'Indian woman in elegant occasion wear with embellished clutch and heels, luxury hotel lobby',
-  'body type': 'Indian woman in perfectly fitted flattering outfit that accentuates curves, warm studio with soft lighting',
-  'color': 'Indian woman in bold color-blocked outfit with coordinated accessories, vibrant gradient background',
-  'blazer': 'Indian woman in structured navy blazer with matching trousers and pointed heels, corporate office lobby',
-  'dress': 'Indian woman in elegant midi dress with strappy heels and clutch, evening cocktail setting',
-  'party': 'Indian woman in glamorous sequin party outfit with statement earrings, nightlife venue with ambient lighting',
-  'beige': 'Indian woman in beige-toned monochrome outfit with tan accessories, neutral cream studio',
-  'cotton': 'Indian woman in soft organic cotton outfit with natural drape and texture, airy bright room with plants',
-  'linen': 'Indian woman in premium linen outfit with relaxed fit, airy bright room with natural light',
-  'formal': 'Indian woman in tailored formal outfit with structured blazer and pointed-toe pumps, professional setting',
-  'office wear': 'Indian woman in professional outfit with laptop bag and minimal jewelry, modern co-working space',
-  'sustainable': 'Indian woman in eco-friendly organic cotton outfit, green garden setting with natural light',
-  'travel': 'Indian woman in travel-ready comfortable outfit with leather tote and sunglasses, airport lounge interior',
+  'western wear': 'faceless crop from chin down, trendy western outfit, hands resting on designer bag, modern minimalist studio',
+  'western': 'faceless crop from chin down, stylish western wear with leather handbag and heels, urban cafe setting',
+  'top': 'faceless crop from chin down, fashionable silk blouse with high-waisted jeans, bright studio, hands on hip',
+  'formal pants': 'faceless crop from chin down, tailored charcoal formal pants with white silk blouse, modern glass office, laptop bag',
+  'trousers': 'faceless crop from chin down, structured high-waisted trousers with elegant cream top, marble studio, hands in pockets',
+  'palazzo': 'faceless crop from chin down, flowing ivory palazzo pants with fitted black top, outdoor terrace with plants',
+  'wide leg': 'faceless crop from chin down, high-waisted wide-leg denim jeans with tucked-in white shirt, minimalist white studio, hands in pockets',
+  'cargo': 'faceless crop from chin down, olive cargo pants with black crop top and white sneakers, urban street with graffiti',
+  'track pants': 'faceless crop from chin down, stylish black track pants with cropped hoodie and sneakers, outdoor park path',
+  'jogger': 'faceless crop from chin down, slim beige joggers with oversized cream sweatshirt, park bench setting',
+  'jeans': 'faceless crop from chin down, perfect-fit blue jeans with white t-shirt and leather belt, city street with warm sunlight',
+  'denim': 'faceless crop from chin down, classic blue denim jeans with denim jacket over white top, street style',
+  'casual': 'faceless crop from chin down, relaxed casual outfit with light wash jeans and white sneakers, cozy cafe interior',
+  'ootd': 'faceless crop from chin down, styled outfit of the day, hands on designer handbag, Instagram-worthy setting',
+  'gen z': 'faceless crop from chin down, gen-z trendy outfit with baggy jeans and layered necklaces, neon-lit studio',
+  'genz': 'faceless crop from chin down, youthful trendy outfit with oversized blazer and chunky sneakers, urban street',
+  'streetwear': 'faceless crop from chin down, oversized streetwear hoodie with baggy pants and chunky sneakers, graffiti wall background',
+  'summer': 'faceless crop from chin down, light linen summer outfit with strappy sandals and woven tote, sunny garden setting',
+  'winter': 'faceless crop from chin down, cozy winter layers with wool scarf and ankle boots, warm indoor with window light',
+  'ethnic': 'faceless crop from chin down, fusion ethnic-western outfit with silver jhumkas and contemporary kurta, art gallery',
+  'kurta': 'faceless crop from chin down, modern printed kurta with white jeans and embroidered juttis, bright patio with flowers',
+  'saree': 'faceless crop from chin down, modern saree drape with statement earrings and heels, elegant marble venue',
+  'wardrobe': 'faceless crop from chin down, selecting from organized capsule wardrobe, walk-in closet with white shelves',
+  'occasion': 'faceless crop from chin down, elegant occasion wear with embellished clutch and heels, luxury hotel lobby',
+  'body type': 'faceless crop from chin down, perfectly fitted flattering outfit, warm studio with soft lighting',
+  'color': 'faceless crop from chin down, bold color-blocked outfit with coordinated accessories, vibrant gradient background',
+  'blazer': 'faceless crop from chin down, structured navy blazer with matching trousers and pointed heels, corporate office lobby',
+  'dress': 'faceless crop from chin down, elegant midi dress with strappy heels and clutch, evening cocktail setting',
+  'party': 'faceless crop from chin down, glamorous sequin party outfit with statement earrings, nightlife venue with ambient lighting',
+  'beige': 'faceless crop from chin down, beige-toned monochrome outfit with tan accessories, neutral cream studio',
+  'cotton': 'faceless crop from chin down, soft organic cotton outfit with natural drape and texture, airy bright room with plants',
+  'linen': 'faceless crop from chin down, premium linen outfit with relaxed fit, airy bright room with natural light',
+  'formal': 'faceless crop from chin down, tailored formal outfit with structured blazer and pointed-toe pumps, professional setting',
+  'office wear': 'faceless crop from chin down, professional outfit with laptop bag and minimal jewelry, modern co-working space',
+  'sustainable': 'faceless crop from chin down, eco-friendly organic cotton outfit, green garden setting with natural light',
+  'travel': 'faceless crop from chin down, travel-ready comfortable outfit with leather tote and sunglasses, airport lounge interior',
 };
-const DEFAULT_SCENE = 'stylish Indian woman in chic contemporary outfit, hands visible with designer accessories, clean white studio with soft shadows';
+const DEFAULT_SCENE = 'faceless crop from chin down, stylish contemporary outfit, hands visible with designer accessories, clean white studio';
 
 function getSceneForKeyword(keyword) {
   if (!keyword) return DEFAULT_SCENE;
   const lower = keyword.toLowerCase();
-  // Try exact match first, then partial match
   for (const key of Object.keys(KEYWORD_SCENES)) {
     if (lower === key || lower.includes(key)) return KEYWORD_SCENES[key];
   }
-  // Check for common terms
   if (lower.includes('jean') || lower.includes('denim')) return KEYWORD_SCENES['jeans'];
   if (lower.includes('pant') || lower.includes('trouser')) return KEYWORD_SCENES['formal pants'];
   if (lower.includes('formal')) return KEYWORD_SCENES['formal'];
@@ -500,45 +865,68 @@ function getSceneForKeyword(keyword) {
 
 function buildHighFidelityImagePrompt(keyword) {
   const scene = getSceneForKeyword(keyword);
-  return `NECK-DOWN CROP, NO FACE VISIBLE, chin-up framing only, ${scene}, ${PHOTO_PRESET}, photorealistic, magazine quality, no text overlay, no watermark, sharp focus on garment details`;
+  return `STRICTLY FACELESS PHOTOGRAPH, cropped at chin showing only neck downward, NO FACE NO HEAD NO FOREHEAD NO EYES NO HAIR visible in frame, ${scene}, ${PHOTO_PRESET}, photorealistic, magazine quality, no text overlay, no watermark, sharp focus on garment details and fabric texture`;
 }
 
 function buildImageUrl(prompt, keyword, index) {
   const seed = `tubhyam-${(keyword || 'blog').replace(/\s+/g, '-')}-${index}-${Math.floor(Math.random() * 99999)}`;
-  const negative = 'face, head, eyes, nose, mouth, hair, forehead, ears, neck up, distorted, blurry, low quality, text, watermark, cartoon, illustration, painting';
+  const negative = 'face, head, eyes, nose, mouth, lips, hair, forehead, ears, eyebrows, eyelashes, chin visible, neck up, skull, portrait, selfie, upper body portrait, distorted, blurry, low quality, text, watermark, cartoon, illustration, painting, ugly, deformed';
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=720&seed=${seed}&nologo=true&model=flux&negative=${encodeURIComponent(negative)}`;
 }
 
-// ═══ ARTICLE GENERATION ═══════════════════════════════════════════════════════
+// ═══ ARTICLE GENERATION (LEVI'S STYLE - MULTI-IMAGE) ════════════════════════
 
 async function generateCampaignArticle(keyword, post, extraInstruction = '') {
   const tweakLine = extraInstruction ? `\nAdditional instruction: ${extraInstruction}` : '';
-  const prompt = `You are an expert SEO content writer for Tubhyam (tubhyam.in), a premium Indian women's fashion brand. Voice: warm, inclusive, body-positive.
+  const focusKw = post.focusKeyword || keyword;
+  
+  const prompt = `You are a senior fashion editor for Tubhyam (tubhyam.in), a premium Indian women's fashion brand. Voice: warm, inclusive, body-positive, expert-level.
 
-Write a comprehensive blog article:
+Write a magazine-quality blog article like Levi's or Vogue India:
 - Title: "${post.title}"
-- Focus keyword: "${post.focusKeyword || keyword}"
+- Focus keyword: "${focusKw}"
 - Angle: ${post.excerpt || 'Comprehensive fashion guide'}
 - Target audience: Indian women 20-40${tweakLine}
 
-Requirements:
-- Title: SEO-optimized, max 65 chars, include focus keyword naturally.
-- Meta title: max 60 chars. Meta description: 150-160 chars.
-- Content: 800-1200 words in clean HTML. Use <h2>, <h3>, <p>, <ul>, <li>, <strong>.
-- Structure: Hook intro, 4-7 H2 sections, practical tips, FAQ with 3-4 questions, closing CTA.
-- CTA: <a href="/products">Explore Tubhyam's collection</a>
-- SEO: Use "${keyword}" 5-7 times naturally. GEO: Include quotable definitions.
-- Mention Tubhyam 2 times. NO pricing or product IDs.
+ARTICLE STRUCTURE (Levi's Blog Style):
+1. HOOK INTRO (100-150 words): Engaging opening that mentions ${focusKw}, why it's trending, who it's for
+2. WHAT IS IT? (100 words): Define the style/trend clearly with quotable definition
+3. TYPES/VARIATIONS (200 words): 3-4 different styles with H3 subheadings, describe each variation
+4. HOW TO STYLE (250 words): 4-5 practical styling tips with specific outfit combinations
+5. BODY TYPES & FIT GUIDE (100 words): Which styles suit which body types
+6. OCCASIONS (100 words): Where to wear each style
+7. COMMON MISTAKES TO AVOID (80 words): 3-4 bullet points
+8. FAQ (150 words): 3-4 most-searched questions with detailed answers
+9. CLOSING CTA (50 words): Inspiring wrap-up with <a href="/products">Explore Tubhyam's Collection</a>
+
+CONTENT REQUIREMENTS:
+- Total: 1000-1400 words in clean HTML
+- Use: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>
+- SEO: Use "${focusKw}" 6-8 times naturally, include in first 100 words, H2s, and closing
+- Mention Tubhyam 2-3 times naturally
+- Include 5 image placeholders: [IMAGE_1], [IMAGE_2], [IMAGE_3], [IMAGE_4], [IMAGE_5]
+  - Place [IMAGE_1] after intro paragraph
+  - Place [IMAGE_2] after types section
+  - Place [IMAGE_3] after styling tips
+  - Place [IMAGE_4] after body types section
+  - Place [IMAGE_5] before FAQ section
+- NO pricing, product IDs, or specific product names
+- Use fashion terminology: silhouette, drape, fit, rise, wash, styling, ensemble
+- Reference Indian fashion context: festivals, weddings, office wear, casual outings
 
 Return ONLY valid JSON:
-{"title":"...","excerpt":"...","metaTitle":"...","metaDescription":"...","content":"<h2>...</h2><p>...</p>","author":"ainos"}
+{"title":"SEO title max 65 chars","excerpt":"Engaging 2-sentence excerpt","metaTitle":"Max 60 chars","metaDescription":"150-160 chars with keyword","content":"<p>...</p><h2>...</h2>...[IMAGE_1]...","imagePrompts":["Prompt 1 for IMAGE_1","Prompt 2 for IMAGE_2","Prompt 3 for IMAGE_3","Prompt 4 for IMAGE_4","Prompt 5 for IMAGE_5"],"author":"ainos"}
 
-CRITICAL: Raw JSON only. No markdown blocks.`;
+CRITICAL: 
+- Include exactly 5 imagePrompts describing what each image should show
+- Each prompt should be specific: outfit type, setting, pose, lighting
+- Example prompt: "Indian woman in high-waisted wide-leg jeans with tucked white shirt, minimalist studio, hands in pockets, soft natural lighting"
+- Raw JSON only. No markdown blocks.`;
 
   const completion = await groq.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
     model: 'llama-3.3-70b-versatile',
-    temperature: 0.7,
+    temperature: 0.75,
     max_tokens: 4096,
   });
 
@@ -548,10 +936,23 @@ CRITICAL: Raw JSON only. No markdown blocks.`;
   const cb = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (cb) jsonStr = cb[1].trim();
   else { const m = jsonStr.match(/\{[\s\S]*\}/); if (m) jsonStr = m[0]; }
-  try { return JSON.parse(jsonStr); } catch {
+  try { 
+    const parsed = JSON.parse(jsonStr);
+    // Ensure imagePrompts exists
+    if (!parsed.imagePrompts || !Array.isArray(parsed.imagePrompts)) {
+      parsed.imagePrompts = [];
+    }
+    return parsed;
+  } catch {
     jsonStr = jsonStr.replace(/"([^"]*?)\n([^"]*?)"/g, '"$1\\n$2"');
     jsonStr = jsonStr.replace(/,\s*}/g, '}');
-    try { return JSON.parse(jsonStr); } catch { return null; }
+    try { 
+      const parsed = JSON.parse(jsonStr);
+      if (!parsed.imagePrompts || !Array.isArray(parsed.imagePrompts)) {
+        parsed.imagePrompts = [];
+      }
+      return parsed;
+    } catch { return null; }
   }
 }
 
