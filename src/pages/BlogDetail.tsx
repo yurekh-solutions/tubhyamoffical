@@ -93,23 +93,84 @@ const BlogDetail = () => {
     } finally { setLoading(false); }
   };
 
-  // Find best product images for a blog's keywords
+  // Comprehensive theme map: blog content themes → product image category keys
+  const THEME_MAP: Record<string, string[]> = useMemo(() => ({
+    'formal': ['formal pants', 'formal'], 'trouser': ['formal pants', 'formal'],
+    'office': ['formal pants', 'formal'], 'blazer': ['formal pants', 'formal'],
+    'suit': ['formal pants', 'formal'], 'shirt': ['formal pants', 'formal'],
+    'jeans': ['jeans'], 'denim': ['jeans'], 'skinny': ['jeans'],
+    'cargo': ['cargo'], 'track': ['track'], 'jogger': ['track'],
+    'athleisure': ['track'], 'sportswear': ['track'], 'gym': ['track'],
+    'cordset': ['cordset'], 'co-ord': ['cordset'], 'matching set': ['cordset'],
+    'lace': ['lace'], 'palazzo': ['lace'], 'wide-leg': ['lace'],
+    'wedding': ['formal pants', 'formal'], 'party': ['lace', 'formal'],
+    'ethnic': ['lace'], 'kurti': ['lace'], 'saree': ['lace'],
+    'casual': ['track', 'jeans', 'cargo'], 'weekend': ['track', 'cargo'],
+    'summer': ['track', 'cargo', 'jeans'], 'winter': ['formal', 'cordset'],
+    'spring': ['track', 'jeans'], 'monsoon': ['track', 'cargo'],
+    'accessor': ['lace', 'formal'], 'jewelry': ['lace', 'formal'],
+    'bag': ['lace', 'cordset'], 'shoe': ['formal', 'lace'],
+    'wardrobe': ['formal', 'jeans', 'cargo', 'lace', 'cordset'],
+    'essential': ['formal', 'jeans', 'cargo', 'track'],
+    'body type': ['formal', 'jeans', 'lace', 'cargo'],
+    'color': ['formal', 'jeans', 'cordset', 'lace'],
+    'trend': ['formal', 'jeans', 'cargo', 'cordset'],
+    'style': ['formal', 'jeans', 'cargo', 'lace'],
+    'fashion': ['formal', 'jeans', 'cargo', 'track', 'cordset'],
+    'outfit': ['formal', 'jeans', 'cargo', 'lace'],
+    'occasion': ['formal', 'lace', 'cordset'], 'dress code': ['formal', 'lace'],
+    'fusion': ['lace', 'formal', 'jeans'], 'western': ['jeans', 'cargo', 'track'],
+  }), []);
+
+  // Find best product images for a blog's keywords using comprehensive theme matching
   const getBestImages = useMemo(() => {
     return (b: BlogPost | null): string[] => {
       if (!b || !productImages || Object.keys(productImages).length === 0) return [];
+
+      // Build search terms from ALL content fields
       const searchTerms = [
-        b.focusKeyword || '',
-        ...(b.keywords || []),
-        ...(b.tags || []),
-        b.category,
+        b.title || '', b.excerpt || '',
+        b.focusKeyword || '', ...(b.keywords || []),
+        ...(b.tags || []), b.category,
       ].map(t => t.toLowerCase().trim()).filter(Boolean);
+      const combined = searchTerms.join(' ');
+
+      // Collect matched category keys from theme map
+      const matchedKeys = new Set<string>();
+      for (const [theme, keys] of Object.entries(THEME_MAP)) {
+        if (combined.includes(theme)) keys.forEach(k => matchedKeys.add(k));
+      }
+
+      // Also try direct match against product image keys
+      const availableKeys = Object.keys(productImages).filter(k => k !== 'all');
       for (const term of searchTerms) {
-        for (const [key, imgs] of Object.entries(productImages)) {
-          if (key === 'all') continue;
-          if (term.includes(key) || key.includes(term)) return imgs;
+        for (const key of availableKeys) {
+          if (term.includes(key) || key.includes(term)) matchedKeys.add(key);
         }
       }
+
+      // Merge all matched category images into a combined pool (deduplicated)
+      if (matchedKeys.size > 0) {
+        const seen = new Set<string>();
+        const pool: string[] = [];
+        for (const key of matchedKeys) {
+          const imgs = productImages[key];
+          if (imgs) imgs.forEach(img => { if (!seen.has(img)) { seen.add(img); pool.push(img); } });
+        }
+        if (pool.length > 0) return pool;
+      }
       return productImages['all'] || [];
+    };
+  }, [productImages, THEME_MAP]);
+
+  // Get a product image for related posts (uses theme map)
+  const getRelatedImage = useMemo(() => {
+    return (post: RelatedPost, idx: number): string => {
+      const isAI = (url: string) => url.includes('pollinations.ai') || url.includes('image.pollinations');
+      const fallback = (!post.image || isAI(post.image)) ? '' : post.image;
+      if (!productImages || Object.keys(productImages).length === 0) return fallback;
+      const allImgs = productImages['all'];
+      return allImgs && allImgs.length > 0 ? allImgs[(idx * 7 + 5) % allImgs.length] : fallback;
     };
   }, [productImages]);
 
@@ -137,19 +198,19 @@ const BlogDetail = () => {
 
     // Replace remaining Pollinations img tags with product photos or remove them
     const imgElements = doc.querySelectorAll('img');
-    let productIdx = 1;
+    let productIdx = 0;
     imgElements.forEach((img) => {
       const src = img.getAttribute('src') || '';
       if (src.includes('pollinations.ai') || src.includes('image.pollinations')) {
         if (bestImages.length > 0) {
-          const realImg = bestImages[productIdx % bestImages.length];
+          // Use prime-based spread to pick different images for each inline slot
+          const realImg = bestImages[(productIdx * 3 + 1) % bestImages.length];
           if (realImg) {
             img.setAttribute('src', realImg);
             img.setAttribute('alt', `${blog.focusKeyword || blog.category} - Tubhyam Collection`);
           }
           productIdx++;
         } else {
-          // No product images — remove the AI image entirely
           const parentFigure = img.closest('figure');
           if (parentFigure) { parentFigure.remove(); } else { img.remove(); }
         }
@@ -157,8 +218,8 @@ const BlogDetail = () => {
     });
     html = doc.body.innerHTML;
 
-    // Hero image: use product photo if available, otherwise hide AI hero
-    const heroImage = bestImages.length > 0 ? bestImages[0] : '';
+    // Hero image: pick from matched pool, offset from inline images
+    const heroImage = bestImages.length > 0 ? bestImages[Math.min(2, bestImages.length - 1)] : '';
 
     return { content: html, heroImage };
   }, [blog, getBestImages]);
@@ -396,13 +457,13 @@ const BlogDetail = () => {
                 More in {blog.category}
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 16 }}>
-                {related.map(post => (
+                {related.map((post, i) => (
                   <Link key={post._id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
                     <article style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.08)', background: '#151010', transition: 'all 0.25s', height: '100%' }}
                       onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                       <div style={{ height: 160, overflow: 'hidden' }}>
-                        <img src={post.image || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={post.title}
+                        <img src={getRelatedImage(post, i) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={post.title}
                           style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
                       </div>
                       <div style={{ padding: 16 }}>

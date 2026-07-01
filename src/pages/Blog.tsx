@@ -60,31 +60,84 @@ const Blog = () => {
   const formatDate = (d: string) => new Date(d).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
   const formatShort = (d: string) => new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
 
-  // Get real product image for a blog post — uses cardIndex to guarantee different images per card
+  // Smart blog-to-product image matching with comprehensive keyword mapping
   const getProductImage = useMemo(() => {
+    // Maps blog content themes to product image category keys
+    const THEME_MAP: Record<string, string[]> = {
+      'formal': ['formal pants', 'formal'], 'trouser': ['formal pants', 'formal'],
+      'office': ['formal pants', 'formal'], 'blazer': ['formal pants', 'formal'],
+      'suit': ['formal pants', 'formal'], 'shirt': ['formal pants', 'formal'],
+      'jeans': ['jeans'], 'denim': ['jeans'], 'skinny': ['jeans'],
+      'cargo': ['cargo'], 'track': ['track'], 'jogger': ['track'],
+      'athleisure': ['track'], 'sportswear': ['track'], 'gym': ['track'],
+      'cordset': ['cordset'], 'co-ord': ['cordset'], 'matching set': ['cordset'],
+      'lace': ['lace'], 'palazzo': ['lace'], 'wide-leg': ['lace'],
+      'wedding': ['formal pants', 'formal'], 'party': ['lace', 'formal'],
+      'ethnic': ['lace'], 'kurti': ['lace'], 'saree': ['lace'],
+      'casual': ['track', 'jeans', 'cargo'], 'weekend': ['track', 'cargo'],
+      'summer': ['track', 'cargo', 'jeans'], 'winter': ['formal', 'cordset'],
+      'spring': ['track', 'jeans'], 'monsoon': ['track', 'cargo'],
+      'accessor': ['lace', 'formal'], 'jewelry': ['lace', 'formal'],
+      'bag': ['lace', 'cordset'], 'shoe': ['formal', 'lace'],
+      'wardrobe': ['formal', 'jeans', 'cargo', 'lace', 'cordset'],
+      'essential': ['formal', 'jeans', 'cargo', 'track'],
+      'body type': ['formal', 'jeans', 'lace', 'cargo'],
+      'color': ['formal', 'jeans', 'cordset', 'lace'],
+      'trend': ['formal', 'jeans', 'cargo', 'cordset'],
+      'style': ['formal', 'jeans', 'cargo', 'lace'],
+      'fashion': ['formal', 'jeans', 'cargo', 'track', 'cordset'],
+      'outfit': ['formal', 'jeans', 'cargo', 'lace'],
+      'occasion': ['formal', 'lace', 'cordset'], 'dress code': ['formal', 'lace'],
+      'fusion': ['lace', 'formal', 'jeans'], 'western': ['jeans', 'cargo', 'track'],
+    };
+
     return (post: BlogPost, cardIndex: number = 0): string => {
       const isAI = (url: string) => url.includes('pollinations.ai') || url.includes('image.pollinations');
       const fallback = (!post.image || isAI(post.image)) ? '' : post.image;
-
       if (!productImages || Object.keys(productImages).length === 0) return fallback;
 
-      // Try keyword match first
+      // Build search terms from title, excerpt, keywords, focusKeyword, category
       const searchTerms = [
-        post.focusKeyword || '',
-        ...(post.keywords || []),
-        post.category,
+        post.title || '', post.excerpt || '',
+        post.focusKeyword || '', ...(post.keywords || []), post.category,
       ].map(t => t.toLowerCase().trim()).filter(Boolean);
-      for (const term of searchTerms) {
-        for (const [key, imgs] of Object.entries(productImages)) {
-          if (key === 'all') continue;
-          if (term.includes(key) || key.includes(term)) {
-            return imgs.length > 0 ? imgs[cardIndex % imgs.length] : fallback;
-          }
+
+      // Collect matched category keys from theme map
+      const matchedKeys = new Set<string>();
+      const combined = searchTerms.join(' ');
+      for (const [theme, keys] of Object.entries(THEME_MAP)) {
+        if (combined.includes(theme)) {
+          keys.forEach(k => matchedKeys.add(k));
         }
       }
-      // No keyword match — use 'all' pool, spread by cardIndex
+
+      // Also try direct match against product image keys
+      const availableKeys = Object.keys(productImages).filter(k => k !== 'all');
+      for (const term of searchTerms) {
+        for (const key of availableKeys) {
+          if (term.includes(key) || key.includes(term)) matchedKeys.add(key);
+        }
+      }
+
+      // If we matched specific categories, pick image from the best matching pool
+      if (matchedKeys.size > 0) {
+        const categoryKeys = Array.from(matchedKeys);
+        // Round-robin across matched categories so different cards get different product types
+        const catKey = categoryKeys[cardIndex % categoryKeys.length];
+        const imgs = productImages[catKey];
+        if (imgs && imgs.length > 0) {
+          return imgs[cardIndex % imgs.length];
+        }
+      }
+
+      // No match — pick from 'all' pool using spread distribution
       const allImgs = productImages['all'];
-      return allImgs && allImgs.length > 0 ? allImgs[cardIndex % allImgs.length] : fallback;
+      if (allImgs && allImgs.length > 0) {
+        // Use prime multiplier to spread across the pool (avoids clustering at start)
+        const idx = (cardIndex * 7 + 3) % allImgs.length;
+        return allImgs[idx];
+      }
+      return fallback;
     };
   }, [productImages]);
 
