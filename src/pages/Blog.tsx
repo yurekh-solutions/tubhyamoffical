@@ -262,8 +262,8 @@ const Blog = () => {
                 onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,211,172,0.1)')}>
                 {/* Image */}
                 <div style={{ position: 'relative', height: '100%', minHeight: 320 }}>
-                  <img src={getProductImage(featured, 0) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={featured.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+                  <img src={getProductImage(featured, 0) || ''} alt={featured.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', background: '#1A1410', transition: 'opacity 0.4s' }} />
                   <div style={{ position: 'absolute', top: 16, left: 16, background: '#FFD3AC', color: '#1A1410', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 50, letterSpacing: 0.5 }}>
                     {featured.category}
                   </div>
@@ -300,8 +300,8 @@ const Blog = () => {
                     onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.25)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                     <div style={{ height: 200, overflow: 'hidden' }}>
-                      <img src={getProductImage(post, i + 1) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={post.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', transition: 'transform 0.4s' }} />
+                      <img src={getProductImage(post, i + 1) || ''} alt={post.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: '#1A1410', transition: 'transform 0.4s, opacity 0.4s' }} />
                     </div>
                     <div style={{ padding: 20 }}>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#FFD3AC', textTransform: 'uppercase', letterSpacing: 1 }}>{post.category}</span>
@@ -336,8 +336,8 @@ const Blog = () => {
                     onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                     <div style={{ height: 170, overflow: 'hidden' }}>
-                      <img src={getProductImage(post, i + 3) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={post.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+                      <img src={getProductImage(post, i + 3) || ''} alt={post.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: '#1A1410', transition: 'opacity 0.4s' }} />
                     </div>
                     <div style={{ padding: 16 }}>
                       <span style={{ fontSize: 10, fontWeight: 600, color: '#FFD3AC', textTransform: 'uppercase', letterSpacing: 1 }}>{post.category}</span>

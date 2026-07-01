@@ -463,8 +463,8 @@ const BlogDetail = () => {
                       onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                       <div style={{ height: 160, overflow: 'hidden' }}>
-                        <img src={getRelatedImage(post, i) || 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800'} alt={post.title}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+                        <img src={getRelatedImage(post, i) || ''} alt={post.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: '#151010' }} />
                       </div>
                       <div style={{ padding: 16 }}>
                         <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>

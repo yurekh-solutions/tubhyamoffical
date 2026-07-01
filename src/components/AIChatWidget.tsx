@@ -136,8 +136,8 @@ const AIChatWidget = () => {
           const utterance = new SpeechSynthesisUtterance(text);
           const voice = getVoice('en');
           if (voice) utterance.voice = voice;
-          utterance.rate = 0.92;
-          utterance.pitch = 1.5;
+          utterance.rate = 1.0;
+          utterance.pitch = 1.08;
           window.speechSynthesis.speak(utterance);
         }
       });
@@ -150,8 +150,8 @@ const AIChatWidget = () => {
     const voice = getVoice('en');
     if (voice) utterance.voice = voice;
     utterance.lang = 'en-IN';
-    utterance.rate = 0.92;
-    utterance.pitch = 1.5; // Higher pitch for clearly female voice
+    utterance.rate = 1.0;
+    utterance.pitch = 1.08; // Natural professional female voice
     utterance.volume = 1.0;
     speechRef.current = utterance;
     window.speechSynthesis.speak(utterance);

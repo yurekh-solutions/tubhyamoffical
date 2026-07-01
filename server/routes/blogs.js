@@ -169,6 +169,10 @@ CRITICAL: Raw JSON only. No markdown blocks.`;
     });
   } catch (error) {
     console.error('Campaign creation failed:', error);
+    if (error.status === 429 || error.code === 'rate_limit_exceeded') {
+      const retryAfter = error.headers?.get?.('retry-after') || '300';
+      return res.status(429).json({ success: false, message: `Groq rate limit reached. Wait ~${Math.ceil(retryAfter / 60)} minutes and try again.` });
+    }
     res.status(500).json({ success: false, message: 'Failed to create campaign', error: error.message });
   }
 });
@@ -178,8 +182,7 @@ router.get('/campaigns', verifyAdmin, async (req, res) => {
   try {
     const INVALID_IDS = ['', 'undefined', 'null', 'NaN'];
     const posts = await Blog.find({
-      campaignId: { $exists: true, $nin: [...INVALID_IDS, null] },
-      $where: 'this.campaignId && this.campaignId.length > 3'
+      campaignId: { $exists: true, $nin: [...INVALID_IDS, null], $regex: /.{4,}/ }
     }).sort({ campaignId: 1, dayIndex: 1 });
     const campaignMap = {};
     for (const p of posts) {
@@ -305,6 +308,9 @@ router.post('/campaigns/:id/generate', verifyAdmin, async (req, res) => {
     res.json({ success: true, message: `Generated ${results.length} of ${posts.length} posts with ${results.reduce((sum, r) => sum + (r.imageCount || 0), 0)} inline images`, results, errors: errors.length ? errors : undefined });
   } catch (error) {
     console.error('Campaign generation failed:', error);
+    if (error.status === 429 || error.code === 'rate_limit_exceeded') {
+      return res.status(429).json({ success: false, message: 'Groq rate limit reached. Wait a few minutes and try again.' });
+    }
     res.status(500).json({ success: false, message: 'Failed to generate campaign', error: error.message });
   }
 });
