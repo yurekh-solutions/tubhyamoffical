@@ -38,11 +38,19 @@ const QUICK_ACTIONS: Record<Lang, { label: string; message: string }[]> = {
   ]
 };
 
-// Voice config per language — prefers female voices
-const VOICE_CONFIG: Record<Lang, { langCode: string; nameHint: string }> = {
-  en: { langCode: 'en-IN', nameHint: 'female' },
-  hi: { langCode: 'hi-IN', nameHint: 'female' },
-  mr: { langCode: 'mr-IN', nameHint: 'female' }
+// Voice config per language — known female voice names per platform
+const FEMALE_VOICE_NAMES: Record<Lang, string[]> = {
+  en: ['heera', 'zira', 'hazel', 'susan', 'linda', 'samantha', 'victoria', 'karen', 'moira', 'fiona', 'tessa', 'google uk english female', 'google us english', 'microsoft zira', 'microsoft heera', 'microsoft online natural'],
+  hi: ['kalpana', 'google हिन्दी', 'google hindi', 'microsoft kalpana', 'veena'],
+  mr: ['kalpana', 'google हिन्दी', 'google hindi', 'microsoft kalpana', 'veena'],
+};
+
+const MALE_VOICE_NAMES = ['david', 'mark', 'james', 'george', 'daniel', 'alex', 'fred', 'rishi', 'male'];
+
+const VOICE_LANG: Record<Lang, string> = {
+  en: 'en',
+  hi: 'hi',
+  mr: 'mr'
 };
 
 interface Message {
@@ -68,28 +76,83 @@ const AIChatWidget = () => {
   const getVoice = useCallback((language: Lang): SpeechSynthesisVoice | null => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return null;
     const voices = window.speechSynthesis.getVoices();
-    const cfg = VOICE_CONFIG[language];
-    // Prefer female voice in matching language
-    const female = voices.find(v => v.lang === cfg.langCode && v.name.toLowerCase().includes(cfg.nameHint));
-    if (female) return female;
-    // Fallback: any voice in the language
-    const anyLang = voices.find(v => v.lang === cfg.langCode);
-    if (anyLang) return anyLang;
-    // Fallback: partial lang match (e.g., en-US for en-IN)
-    const partial = voices.find(v => v.lang.startsWith(cfg.langCode.substring(0, 2)));
-    return partial || voices[0] || null;
+    if (voices.length === 0) return null;
+    const langPrefix = VOICE_LANG[language];
+    const femaleNames = FEMALE_VOICE_NAMES[language];
+
+    // 1. Exact match: known female name + matching language
+    const exact = voices.find(v =>
+      v.lang.startsWith(langPrefix) &&
+      femaleNames.some(fn => v.name.toLowerCase().includes(fn))
+    );
+    if (exact) return exact;
+
+    // 2. Known female name in any English variant (en-US, en-GB, en-IN)
+    const femaleAny = voices.find(v =>
+      v.lang.startsWith('en') &&
+      femaleNames.some(fn => v.name.toLowerCase().includes(fn))
+    );
+    if (femaleAny && language === 'en') return femaleAny;
+
+    // 3. For Hindi/Marathi: prefer hi-IN voice that is NOT male
+    if (language === 'hi' || language === 'mr') {
+      const hiVoice = voices.find(v =>
+        v.lang.startsWith('hi') &&
+        !MALE_VOICE_NAMES.some(mn => v.name.toLowerCase().includes(mn))
+      );
+      if (hiVoice) return hiVoice;
+      // Fallback: any Hindi voice
+      const anyHi = voices.find(v => v.lang.startsWith('hi'));
+      if (anyHi) return anyHi;
+    }
+
+    // 4. Any voice in the language that's not male
+    const notMale = voices.find(v =>
+      v.lang.startsWith(langPrefix) &&
+      !MALE_VOICE_NAMES.some(mn => v.name.toLowerCase().includes(mn))
+    );
+    if (notMale) return notMale;
+
+    // 5. Last resort: any voice in the language
+    const anyVoice = voices.find(v => v.lang.startsWith(langPrefix));
+    return anyVoice || voices[0] || null;
   }, []);
 
-  // Speak text aloud in selected language
+  // Speak text aloud — uses Google Translate TTS for Hindi/Marathi (no native browser voices)
   const speak = useCallback((text: string, language: Lang) => {
-    if (!voiceOn || typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
+    if (!voiceOn || typeof window === 'undefined') return;
+    window.speechSynthesis?.cancel();
+
+    // For Hindi/Marathi: use Google Translate TTS (free, female voice, no API key)
+    if (language === 'hi' || language === 'mr') {
+      const tl = language === 'hi' ? 'hi' : 'mr';
+      // Google TTS splits text into chunks — use first 200 chars for preview
+      const chunk = text.substring(0, 200);
+      const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&tl=${tl}&client=tw-ob&q=${encodeURIComponent(chunk)}`);
+      audio.volume = 1.0;
+      audio.play().catch(() => {
+        // Fallback: use best available English female voice if Google TTS is blocked
+        if (window.speechSynthesis) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          const voice = getVoice('en');
+          if (voice) utterance.voice = voice;
+          utterance.rate = 0.92;
+          utterance.pitch = 1.5;
+          window.speechSynthesis.speak(utterance);
+        }
+      });
+      return;
+    }
+
+    // English: use SpeechSynthesis with female voice
+    if (!window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(text);
-    const voice = getVoice(language);
+    const voice = getVoice('en');
     if (voice) utterance.voice = voice;
-    utterance.lang = VOICE_CONFIG[language].langCode;
-    utterance.rate = 0.95;
-    utterance.pitch = 1.15; // Slightly higher for female voice
+    utterance.lang = 'en-IN';
+    utterance.rate = 0.92;
+    utterance.pitch = 1.5; // Higher pitch for clearly female voice
+    utterance.volume = 1.0;
     speechRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   }, [voiceOn, getVoice]);
