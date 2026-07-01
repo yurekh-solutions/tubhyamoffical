@@ -1,11 +1,49 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, User, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { MessageCircle, X, Send, User, Loader2, Volume2, VolumeX, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { api } from '@/config/api';
 import ainosImg from '@/assets/ainos.jpeg';
+
+type Lang = 'en' | 'hi' | 'mr';
+
+const LANG_LABELS: Record<Lang, string> = { en: 'English', hi: 'हिंदी', mr: 'मराठी' };
+
+const GREETINGS: Record<Lang, string> = {
+  en: "Hi! I'm ainos, Tubhyam's AI blog assistant. Ask me about fashion trends, styling tips, outfit ideas, or anything you'd like to read about!",
+  hi: "नमस्ते! मैं ainos हूँ, Tubhyam की AI ब्लॉग असिस्टेंट। मुझसे फैशन ट्रेंड्स, स्टाइलिंग टिप्स, आउटफिट आइडियाज़ या कुछ भी पूछें!",
+  mr: "नमस्कार! मी ainos आहे, Tubhyam ची AI ब्लॉग असिस्टंट. मला फॅशन ट्रेंड्स, स्टाइलिंग टिप्स, आउटफिट आयडियाज किंवा काहीही विचारा!"
+};
+
+const QUICK_ACTIONS: Record<Lang, { label: string; message: string }[]> = {
+  en: [
+    { label: 'Track Order', message: 'I want to track my order' },
+    { label: 'Shipping Info', message: 'What are your shipping policies?' },
+    { label: 'Return Policy', message: 'What is your return policy?' },
+    { label: 'Size Guide', message: 'How do I know my size?' }
+  ],
+  hi: [
+    { label: 'ऑर्डर ट्रैक करें', message: 'मुझे अपनी ऑर्डर ट्रैक करनी है' },
+    { label: 'शिपिंग जानकारी', message: 'आपकी शिपिंग पॉलिसी क्या है?' },
+    { label: 'रिटर्न पॉलिसी', message: 'आपकी रिटर्न पॉलिसी क्या है?' },
+    { label: 'साइज़ गाइड', message: 'मुझे कैसे पता चलेगा मेरा साइज़?' }
+  ],
+  mr: [
+    { label: 'ऑर्डर ट्रॅक करा', message: 'मला माझी ऑर्डर ट्रॅक करायची आहे' },
+    { label: 'शिपिंग माहिती', message: 'तुमची शिपिंग पॉलिसी काय आहे?' },
+    { label: 'रिटर्न पॉलिसी', message: 'तुमची रिटर्न पॉलिसी काय आहे?' },
+    { label: 'साइझ गाइड', message: 'मला माझा साइझ कसा कळेल?' }
+  ]
+};
+
+// Voice config per language — prefers female voices
+const VOICE_CONFIG: Record<Lang, { langCode: string; nameHint: string }> = {
+  en: { langCode: 'en-IN', nameHint: 'female' },
+  hi: { langCode: 'hi-IN', nameHint: 'female' },
+  mr: { langCode: 'mr-IN', nameHint: 'female' }
+};
 
 interface Message {
   role: 'user' | 'assistant';
@@ -15,24 +53,70 @@ interface Message {
 
 const AIChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [lang, setLang] = useState<Lang>('en');
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(true);
   const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: "Hi! I'm ainos, Tubhyam's AI blog assistant. Ask me about fashion trends, styling tips, outfit ideas, or anything you'd like to read about!",
-      timestamp: new Date()
-    }
+    { role: 'assistant', content: GREETINGS.en, timestamp: new Date() }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // Find best female voice for a language
+  const getVoice = useCallback((language: Lang): SpeechSynthesisVoice | null => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+    const voices = window.speechSynthesis.getVoices();
+    const cfg = VOICE_CONFIG[language];
+    // Prefer female voice in matching language
+    const female = voices.find(v => v.lang === cfg.langCode && v.name.toLowerCase().includes(cfg.nameHint));
+    if (female) return female;
+    // Fallback: any voice in the language
+    const anyLang = voices.find(v => v.lang === cfg.langCode);
+    if (anyLang) return anyLang;
+    // Fallback: partial lang match (e.g., en-US for en-IN)
+    const partial = voices.find(v => v.lang.startsWith(cfg.langCode.substring(0, 2)));
+    return partial || voices[0] || null;
+  }, []);
+
+  // Speak text aloud in selected language
+  const speak = useCallback((text: string, language: Lang) => {
+    if (!voiceOn || typeof window === 'undefined' || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voice = getVoice(language);
+    if (voice) utterance.voice = voice;
+    utterance.lang = VOICE_CONFIG[language].langCode;
+    utterance.rate = 0.95;
+    utterance.pitch = 1.15; // Slightly higher for female voice
+    speechRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, [voiceOn, getVoice]);
+
+  // Load voices on mount (async in some browsers)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+  }, []);
+
+  // Update greeting when language changes
+  useEffect(() => {
+    setMessages(prev => {
+      if (prev.length === 1 && prev[0].role === 'assistant') {
+        return [{ ...prev[0], content: GREETINGS[lang] }];
+      }
+      return prev;
+    });
+  }, [lang]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(() => { scrollToBottom(); }, [messages]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -66,19 +150,21 @@ const AIChatWidget = () => {
 
       const assistantMessage: Message = {
         role: 'assistant',
-        content: response.reply || "Sorry, I couldn't process that right now. Please try again or contact WhatsApp support: +91 70393 82706",
+        content: response.reply || (lang === 'hi' ? 'माफ़ करें, मैं अभी यह प्रोसेस नहीं कर पाई। कृपया दोबारा कोशिश करें।' : lang === 'mr' ? 'माफ करा, मी आत्ता हे प्रोसेस करू शकत नाही. कृपया पुन्हा प्रयत्न करा.' : "Sorry, I couldn't process that right now. Please try again."),
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      speak(assistantMessage.content, lang);
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: Message = {
         role: 'assistant',
-        content: "Sorry, I'm having trouble connecting right now. Please try again in a moment or contact us on WhatsApp: +91 70393 82706",
+        content: lang === 'hi' ? 'माफ़ करें, कनेक्शन में दिक्कत है। कृपया थोड़ी देर बाद कोशिश करें।' : lang === 'mr' ? 'माफ करा, कनेक्शन मध्ये समस्या आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.' : "Sorry, I'm having trouble connecting. Please try again in a moment.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
+      speak(errorMessage.content, lang);
     } finally {
       setIsLoading(false);
     }
@@ -91,19 +177,23 @@ const AIChatWidget = () => {
     }
   };
 
-  const quickActions = [
-    { label: 'Track Order', message: 'I want to track my order' },
-    { label: 'Shipping Info', message: 'What are your shipping policies?' },
-    { label: 'Return Policy', message: 'What is your return policy?' },
-    { label: 'Size Guide', message: 'How do I know my size?' }
-  ];
+  const quickActions = QUICK_ACTIONS[lang];
+
+  const stopSpeaking = () => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
+  };
+
+  const toggleVoice = () => {
+    if (voiceOn) stopSpeaking();
+    setVoiceOn(!voiceOn);
+  };
 
   return (
     <>
       {/* Chat Toggle Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => { setIsOpen(true); speak(GREETINGS[lang], lang); }}
           className="fixed bottom-6 right-6 z-50 bg-primary text-primary-foreground rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
           aria-label="Open chat"
         >
@@ -128,14 +218,31 @@ const AIChatWidget = () => {
                   <p className="text-xs text-primary-foreground/80">AI Blog Assistant</p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                className="text-primary-foreground hover:bg-primary-foreground/20"
-              >
-                <X className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-1">
+                {/* Language Selector */}
+                <div className="relative">
+                  <button onClick={() => setShowLangMenu(!showLangMenu)} className="p-2 rounded-full hover:bg-primary-foreground/20 transition-colors text-primary-foreground" title="Language">
+                    <Globe className="w-4 h-4" />
+                  </button>
+                  {showLangMenu && (
+                    <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-xl z-50 min-w-[120px] overflow-hidden">
+                      {(['en', 'hi', 'mr'] as Lang[]).map(l => (
+                        <button key={l} onClick={() => { setLang(l); setShowLangMenu(false); }} className={`w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors ${lang === l ? 'font-bold text-primary' : 'text-card-foreground'}`}>
+                          {LANG_LABELS[l]}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Voice Toggle */}
+                <button onClick={toggleVoice} className="p-2 rounded-full hover:bg-primary-foreground/20 transition-colors text-primary-foreground" title={voiceOn ? 'Mute voice' : 'Enable voice'}>
+                  {voiceOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                </button>
+                {/* Close */}
+                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-primary-foreground hover:bg-primary-foreground/20">
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
 
@@ -158,11 +265,18 @@ const AIChatWidget = () => {
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    <p className={`text-xs mt-1 ${
-                      message.role === 'user' ? 'text-primary-foreground/60' : 'text-muted-foreground/60'
-                    }`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+                    <div className={`flex items-center gap-2 mt-1`}>
+                      <p className={`text-xs ${
+                        message.role === 'user' ? 'text-primary-foreground/60' : 'text-muted-foreground/60'
+                      }`}>
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                      {message.role === 'assistant' && voiceOn && (
+                        <button onClick={() => speak(message.content, lang)} className="p-0.5 rounded hover:bg-muted-foreground/10 transition-colors" title="Listen">
+                          <Volume2 className="w-3 h-3 text-muted-foreground/50" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {message.role === 'user' && (
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -188,7 +302,9 @@ const AIChatWidget = () => {
           {/* Quick Actions */}
           {messages.length <= 1 && (
             <div className="px-4 pb-2 flex-shrink-0">
-              <p className="text-xs text-muted-foreground mb-2">Quick actions:</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                {lang === 'hi' ? 'त्वरित क्रियाएं:' : lang === 'mr' ? 'जलद क्रिया:' : 'Quick actions:'}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {quickActions.map((action) => (
                   <button
@@ -227,7 +343,7 @@ const AIChatWidget = () => {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Powered by ainos • <a href="https://wa.me/917039382706" className="underline">WhatsApp Support</a>
+              Powered by ainos • <a href="https://wa.me/917039382706" className="underline">WhatsApp Support</a> • {LANG_LABELS[lang]}
             </p>
           </div>
         </Card>
