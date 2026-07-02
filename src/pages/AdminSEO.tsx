@@ -3,7 +3,7 @@ import {
   FileText, Loader2, AlertCircle, Calendar, Sparkles, Play, Pause,
   ChevronRight, Zap, Hash, Tag, Send, RefreshCw, Hand, Trash2,
   Clock, CheckCircle, Settings, LayoutGrid, Plus, Search, X, Eye,
-  Edit3, Image, ArrowLeft, RotateCcw, Globe, Save, BookOpen
+  Edit3, Image, ArrowLeft, RotateCcw, Globe, Save, BookOpen, Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ainosImg from '@/assets/ainos.jpeg';
@@ -262,6 +262,9 @@ const AdminSEO = () => {
           </button>
         </nav>
         <div className="absolute bottom-4 left-0 right-0 px-5">
+          <a href="/inventory" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm mb-3 px-3 py-2 rounded-lg" style={{ color: '#FFD3AC', background: 'rgba(255,211,172,0.08)' }}>
+            <Package size={14} /> Inventory App
+          </a>
           <a href="/" className="flex items-center gap-2 text-sm" style={{ color: C.sidebarTextDim }}>
             <ArrowLeft size={14} /> Back to Site
           </a>
