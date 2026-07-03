@@ -593,22 +593,30 @@ async function getProductImageMapping() {
       const files = fs.readdirSync(localDir).filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f));
       const localImages = files.map(f => `/images/products/${f}`);
 
-      // Categorize by filename keywords
+      // Categorize by filename keywords — must match CATEGORY_MAP keys
       const imagesByCategory = {};
       for (const img of localImages) {
         const name = path.basename(img, path.extname(img)).toLowerCase();
         const cats = [];
-        if (name.includes('formal') || name.includes('slimfit') || name.includes('trouser') || name.includes('belt-formal')) cats.push('formals');
-        if (name.includes('jeans') || name.includes('denim') || name.includes('mom')) cats.push('jeans');
+        // Belt images
+        if (name.includes('belt')) cats.push('office wear');
+        // Formal pants
+        if (name.includes('formal') || name.includes('slimfit') || name.includes('trouser') || name.includes('beggyplated') || name.includes('plated') || name.includes('imported-beggy') || name.includes('preuim') || name.includes('premium')) cats.push('formal pants');
+        // Palazzo / wide-leg
+        if (name.includes('palazzo') || name.includes('widelook') || name.includes('beggy') && !name.includes('plated')) cats.push('palazzo');
+        // Jeans
+        if (name.includes('jeans') || name.includes('denim') || name.includes('mom') && !name.includes('track')) cats.push('jeans');
+        // Cargo
         if (name.includes('cargo')) cats.push('cargo');
-        if (name.includes('track') || name.includes('jogger')) cats.push('tracks');
-        if (name.includes('lace') || name.includes('causal') || name.includes('casual')) cats.push('casual');
-        if (name.includes('palazzo') || name.includes('widelook') || name.includes('beggy')) cats.push('palazzo');
+        // Track pants
+        if (name.includes('track') || name.includes('jogger')) cats.push('track pants');
+        // Lace
+        if (name.includes('lace') && !name.includes('belt')) cats.push('lace');
+        // Cordset
         if (name.includes('cordset')) cats.push('cordset');
-        if (name.includes('imported') || name.includes('premium') || name.includes('preuim')) cats.push('formals');
-        if (name.includes('olive') || name.includes('green') || name.includes('brown') || name.includes('beige')) cats.push('casual');
-        if (cats.length === 0) cats.push('general');
-        // Use filename (without extension) as pseudo-productId for local fallback
+        // Casual (catch-all for colored casual pants)
+        if (name.includes('causal') || name.includes('casual')) cats.push('casual');
+        if (cats.length === 0) cats.push('formal pants'); // default fallback
         const pseudoId = name;
         for (const c of cats) {
           if (!imagesByCategory[c]) imagesByCategory[c] = [];

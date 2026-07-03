@@ -142,32 +142,44 @@ const Blog = () => {
 
   const getProductImage = useMemo(() => {
     const THEME_MAP: Record<string, string[]> = {
-      'formal': ['formal pants', 'formal'], 'trouser': ['formal pants', 'formal'],
-      'office': ['formal pants', 'formal'], 'blazer': ['formal pants', 'formal'],
+      // Formal pants content
+      'formal': ['formal pants', 'formal', 'trousers'], 'trouser': ['formal pants', 'trousers'],
+      'office': ['formal pants', 'office wear', 'formal'], 'blazer': ['formal pants', 'blazer', 'formal'],
       'suit': ['formal pants', 'formal'], 'shirt': ['formal pants', 'formal'],
-      'jeans': ['jeans'], 'denim': ['jeans'], 'skinny': ['jeans'], 'baggy': ['jeans'],
-      'cargo': ['cargo'], 'track': ['track'], 'jogger': ['track'],
-      'athleisure': ['track'], 'sportswear': ['track'], 'gym': ['track'],
-      'cordset': ['cordset'], 'co-ord': ['cordset'], 'matching set': ['cordset'],
-      'lace': ['lace'], 'palazzo': ['lace'], 'wide-leg': ['lace'], 'wide leg': ['lace'],
-      'wedding': ['formal pants', 'formal'], 'party': ['lace', 'formal'],
-      'ethnic': ['lace'], 'kurti': ['lace'], 'saree': ['lace'],
-      'casual': ['track', 'jeans', 'cargo'], 'weekend': ['track', 'cargo'],
-      'summer': ['track', 'cargo', 'jeans'], 'winter': ['formal', 'cordset'],
-      'spring': ['track', 'jeans'], 'monsoon': ['track', 'cargo'],
-      'accessor': ['lace', 'formal'], 'jewelry': ['lace', 'formal'],
-      'bag': ['lace', 'cordset'], 'shoe': ['formal', 'lace'],
-      'wardrobe': ['formal', 'jeans', 'cargo', 'lace', 'cordset'],
-      'essential': ['formal', 'jeans', 'cargo', 'track'],
-      'body type': ['formal', 'jeans', 'lace', 'cargo'],
-      'color': ['formal', 'jeans', 'cordset', 'lace'],
-      'trend': ['formal', 'jeans', 'cargo', 'cordset'],
-      'style': ['formal', 'jeans', 'cargo', 'lace'],
-      'fashion': ['formal', 'jeans', 'cargo', 'track', 'cordset'],
-      'outfit': ['formal', 'jeans', 'cargo', 'lace'],
-      'occasion': ['formal', 'lace', 'cordset'], 'dress code': ['formal', 'lace'],
-      'fusion': ['lace', 'formal', 'jeans'], 'western': ['jeans', 'cargo', 'track'],
       'korean': ['formal pants', 'formal'], 'plated': ['formal pants', 'formal'],
+      'baggy': ['formal pants', 'palazzo'], 'wide-leg': ['palazzo', 'wide leg'], 'wide leg': ['palazzo', 'wide leg'],
+      'palazzo': ['palazzo'],
+      // Jeans content
+      'jeans': ['jeans', 'baggy jeans', 'denim'], 'denim': ['jeans', 'denim'],
+      'skinny': ['jeans'], 'mom': ['jeans'],
+      // Cargo content
+      'cargo': ['cargo'], 'utilitarian': ['cargo'],
+      // Track pants content
+      'track': ['track pants', 'jogger'], 'jogger': ['track pants', 'jogger'],
+      'athleisure': ['track pants', 'jogger'], 'sportswear': ['track pants'], 'gym': ['track pants'],
+      // Lace content
+      'lace': ['lace'], 'ethnic': ['lace', 'ethnic'], 'kurti': ['lace', 'kurti'], 'saree': ['lace', 'saree'],
+      'fusion': ['lace', 'formal pants', 'jeans'], 'western': ['jeans', 'cargo', 'track pants'],
+      // Cordset content
+      'cordset': ['cordset'], 'co-ord': ['cordset'], 'matching set': ['cordset'],
+      // Belt / accessories content
+      'belt': ['office wear', 'formal pants'], 'accessor': ['lace', 'formal pants'],
+      'jewelry': ['lace', 'formal pants'], 'bag': ['lace', 'cordset'], 'shoe': ['formal pants', 'lace'],
+      // Seasonal / occasion
+      'wedding': ['formal pants', 'lace'], 'party': ['lace', 'formal pants'],
+      'casual': ['track pants', 'jeans', 'cargo'], 'weekend': ['track pants', 'cargo'],
+      'summer': ['track pants', 'cargo', 'jeans'], 'winter': ['formal pants', 'cordset'],
+      'spring': ['track pants', 'jeans'], 'monsoon': ['track pants', 'cargo'],
+      // Generic fashion terms — broad match
+      'wardrobe': ['formal pants', 'jeans', 'cargo', 'lace', 'cordset'],
+      'essential': ['formal pants', 'jeans', 'cargo', 'track pants'],
+      'body type': ['formal pants', 'jeans', 'lace', 'cargo'],
+      'color': ['formal pants', 'jeans', 'cordset', 'lace'],
+      'trend': ['formal pants', 'jeans', 'cargo', 'cordset'],
+      'style': ['formal pants', 'jeans', 'cargo', 'lace'],
+      'fashion': ['formal pants', 'jeans', 'cargo', 'track pants', 'cordset'],
+      'outfit': ['formal pants', 'jeans', 'cargo', 'lace'],
+      'occasion': ['formal pants', 'lace', 'cordset'], 'dress code': ['formal pants', 'lace'],
     };
 
     return (post: BlogPost, cardIndex: number = 0): string => {
