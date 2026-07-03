@@ -22,6 +22,7 @@ interface BlogPost {
   readTime: number;
   keywords?: string[];
   focusKeyword?: string;
+  trendKeyword?: string;
 }
 
 function normalizeTitle(title: string): string {
@@ -141,36 +142,40 @@ const Blog = () => {
   };
 
   const getProductImage = useMemo(() => {
+    // THEME_MAP: theme keyword → backend CATEGORY_MAP keys (must match exactly)
     const THEME_MAP: Record<string, string[]> = {
-      // Formal pants content
-      'formal': ['formal pants', 'formal', 'trousers'], 'trouser': ['formal pants', 'trousers'],
-      'office': ['formal pants', 'office wear', 'formal'], 'blazer': ['formal pants', 'blazer', 'formal'],
-      'suit': ['formal pants', 'formal'], 'shirt': ['formal pants', 'formal'],
-      'korean': ['formal pants', 'formal'], 'plated': ['formal pants', 'formal'],
-      'baggy': ['formal pants', 'palazzo'], 'wide-leg': ['palazzo', 'wide leg'], 'wide leg': ['palazzo', 'wide leg'],
-      'palazzo': ['palazzo'],
-      // Jeans content
+      // Formal pants
+      'formal': ['formal pants', 'formal', 'trousers'], 'trouser': ['trousers', 'formal pants'],
+      'office': ['office wear', 'formal pants'], 'blazer': ['blazer', 'formal pants'],
+      'suit': ['formal pants'], 'shirt': ['formal pants'],
+      'korean': ['formal pants'], 'plated': ['formal pants'],
+      'slimfit': ['formal pants'], 'imported': ['formal pants'],
+      // Palazzo / wide-leg
+      'palazzo': ['palazzo'], 'widelook': ['palazzo'],
+      'wide-leg': ['wide leg', 'palazzo'], 'wide leg': ['wide leg', 'palazzo'],
+      // Jeans
       'jeans': ['jeans', 'baggy jeans', 'denim'], 'denim': ['jeans', 'denim'],
+      'baggy jeans': ['baggy jeans', 'jeans'], 'mom jeans': ['jeans'],
       'skinny': ['jeans'], 'mom': ['jeans'],
-      // Cargo content
+      // Cargo
       'cargo': ['cargo'], 'utilitarian': ['cargo'],
-      // Track pants content
+      // Track pants
       'track': ['track pants', 'jogger'], 'jogger': ['track pants', 'jogger'],
-      'athleisure': ['track pants', 'jogger'], 'sportswear': ['track pants'], 'gym': ['track pants'],
-      // Lace content
-      'lace': ['lace'], 'ethnic': ['lace', 'ethnic'], 'kurti': ['lace', 'kurti'], 'saree': ['lace', 'saree'],
+      'athleisure': ['track pants'], 'sportswear': ['track pants'], 'gym': ['track pants'],
+      // Lace
+      'lace': ['lace'], 'ethnic': ['ethnic', 'lace'], 'kurti': ['kurti', 'lace'], 'saree': ['saree', 'lace'],
       'fusion': ['lace', 'formal pants', 'jeans'], 'western': ['jeans', 'cargo', 'track pants'],
-      // Cordset content
+      // Cordset
       'cordset': ['cordset'], 'co-ord': ['cordset'], 'matching set': ['cordset'],
-      // Belt / accessories content
+      // Belt / accessories
       'belt': ['office wear', 'formal pants'], 'accessor': ['lace', 'formal pants'],
       'jewelry': ['lace', 'formal pants'], 'bag': ['lace', 'cordset'], 'shoe': ['formal pants', 'lace'],
       // Seasonal / occasion
       'wedding': ['formal pants', 'lace'], 'party': ['lace', 'formal pants'],
-      'casual': ['track pants', 'jeans', 'cargo'], 'weekend': ['track pants', 'cargo'],
+      'casual': ['casual', 'track pants', 'jeans'], 'weekend': ['track pants', 'cargo'],
       'summer': ['track pants', 'cargo', 'jeans'], 'winter': ['formal pants', 'cordset'],
       'spring': ['track pants', 'jeans'], 'monsoon': ['track pants', 'cargo'],
-      // Generic fashion terms — broad match
+      // Generic fashion terms
       'wardrobe': ['formal pants', 'jeans', 'cargo', 'lace', 'cordset'],
       'essential': ['formal pants', 'jeans', 'cargo', 'track pants'],
       'body type': ['formal pants', 'jeans', 'lace', 'cargo'],
@@ -187,16 +192,47 @@ const Blog = () => {
       const fallback = (!post.image || isAI(post.image)) ? '' : post.image;
       if (!productImages || Object.keys(productImages).length === 0) return fallback;
 
-      const searchTerms = [post.title || '', post.excerpt || '', post.focusKeyword || '', ...(post.keywords || []), post.category]
+      const availableKeys = Object.keys(productImages).filter(k => k !== 'all');
+
+      // PRIORITY 1: Use post.category directly if it matches an available key
+      if (post.category) {
+        const catLower = post.category.toLowerCase().trim();
+        // Direct match
+        if (productImages[catLower] && productImages[catLower].length > 0) {
+          return productImages[catLower][cardIndex % productImages[catLower].length];
+        }
+        // Partial match with available keys
+        for (const key of availableKeys) {
+          if (key.includes(catLower) || catLower.includes(key)) {
+            if (productImages[key] && productImages[key].length > 0) {
+              return productImages[key][cardIndex % productImages[key].length];
+            }
+          }
+        }
+      }
+
+      // PRIORITY 2: Use focusKeyword / trendKeyword for direct matching
+      const directKeywords = [post.focusKeyword, post.trendKeyword].filter(Boolean).map(k => k.toLowerCase().trim());
+      for (const kw of directKeywords) {
+        for (const key of availableKeys) {
+          if (kw.includes(key) || key.includes(kw)) {
+            if (productImages[key] && productImages[key].length > 0) {
+              return productImages[key][cardIndex % productImages[key].length];
+            }
+          }
+        }
+      }
+
+      // PRIORITY 3: THEME_MAP matching from title/excerpt/keywords
+      const searchTerms = [post.title || '', post.excerpt || '', ...(post.keywords || [])]
         .map(t => t.toLowerCase().trim()).filter(Boolean);
+      const combined = searchTerms.join(' ');
 
       const matchedKeys = new Set<string>();
-      const combined = searchTerms.join(' ');
       for (const [theme, keys] of Object.entries(THEME_MAP)) {
         if (combined.includes(theme)) keys.forEach(k => matchedKeys.add(k));
       }
-
-      const availableKeys = Object.keys(productImages).filter(k => k !== 'all');
+      // Also match search terms directly against available keys
       for (const term of searchTerms) {
         for (const key of availableKeys) {
           if (term.includes(key) || key.includes(term)) matchedKeys.add(key);
@@ -210,6 +246,7 @@ const Blog = () => {
         if (imgs && imgs.length > 0) return imgs[cardIndex % imgs.length];
       }
 
+      // PRIORITY 4: Fallback to 'all' images
       const allImgs = productImages['all'];
       if (allImgs && allImgs.length > 0) {
         const idx = (cardIndex * 7 + 3) % allImgs.length;
@@ -294,15 +331,17 @@ const Blog = () => {
 
         {/* LOADING SKELETON */}
         {loading && (
-          <section className="container mx-auto px-4" style={{ padding: '28px 16px 50px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 290px), 1fr))', gap: 18 }}>
+          <section className="container mx-auto px-4" style={{ padding: '32px 16px 60px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: 28 }}>
               {[0, 1, 2, 3, 4, 5].map(i => (
-                <div key={i} style={{ borderRadius: 12, overflow: 'hidden', background: '#1A1410', border: '1px solid rgba(255,211,172,0.06)' }}>
-                  <div className="shimmer-bg" style={{ height: 200 }} />
-                  <div style={{ padding: 14 }}>
-                    <div style={{ height: 13, width: '55%', background: '#241e18', borderRadius: 4, marginBottom: 8 }} />
-                    <div style={{ height: 9, width: '85%', background: '#1e1a16', borderRadius: 4, marginBottom: 5 }} />
-                    <div style={{ height: 9, width: '70%', background: '#1e1a16', borderRadius: 4 }} />
+                <div key={i} style={{ overflow: 'hidden' }}>
+                  <div className="shimmer-bg" style={{ width: '100%', paddingTop: '66.67%', background: '#151010' }} />
+                  <div style={{ padding: '16px 2px 8px' }}>
+                    <div style={{ height: 10, width: '30%', background: '#241e18', borderRadius: 2, marginBottom: 10 }} />
+                    <div style={{ height: 16, width: '90%', background: '#241e18', borderRadius: 2, marginBottom: 8 }} />
+                    <div style={{ height: 16, width: '60%', background: '#241e18', borderRadius: 2, marginBottom: 12 }} />
+                    <div style={{ height: 10, width: '100%', background: '#1e1a16', borderRadius: 2, marginBottom: 5 }} />
+                    <div style={{ height: 10, width: '75%', background: '#1e1a16', borderRadius: 2 }} />
                   </div>
                 </div>
               ))}
@@ -359,19 +398,20 @@ const Blog = () => {
           </div>
         )}
 
-        {/* CARD GRID */}
+        {/* CARD GRID — AEO-style editorial layout */}
         {!loading && filteredPosts.length > 0 && (
-          <section className="container mx-auto px-4" style={{ padding: '28px 16px 50px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 290px), 1fr))', gap: 18 }}>
+          <section className="container mx-auto px-4" style={{ padding: '32px 16px 60px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: 28 }}>
               {filteredPosts.map((post, i) => {
                 const imgSrc = getProductImage(post, i);
                 const isLoaded = loadedImages.has(imgSrc);
                 return (
                   <Link key={post._id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
-                    <article style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.06)', background: '#1A1410', transition: 'all 0.3s ease', height: '100%', display: 'flex', flexDirection: 'column' }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.25)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                      <div style={{ position: 'relative', height: 210, overflow: 'hidden', background: '#151010' }}>
+                    <article style={{ borderRadius: 0, overflow: 'hidden', background: 'transparent', transition: 'all 0.35s ease', height: '100%', display: 'flex', flexDirection: 'column' }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}>
+                      {/* Image */}
+                      <div style={{ position: 'relative', width: '100%', paddingTop: '66.67%', overflow: 'hidden', background: '#151010' }}>
                         {!isLoaded && <div className="shimmer-bg" style={{ position: 'absolute', inset: 0 }} />}
                         <img
                           src={imgSrc || ''}
@@ -379,32 +419,33 @@ const Blog = () => {
                           loading="lazy"
                           onLoad={() => handleImageLoad(imgSrc)}
                           style={{
-                            width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block',
-                            transition: 'transform 0.5s ease, opacity 0.3s ease',
+                            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block',
+                            transition: 'transform 0.6s ease, opacity 0.4s ease',
                             opacity: isLoaded || !imgSrc ? 1 : 0,
                           }}
-                          onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.04)')}
+                          onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
                           onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
                         />
-                        {post.category && (
-                          <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(26,20,16,0.8)', backdropFilter: 'blur(6px)', color: '#FFD3AC', fontSize: 9, fontWeight: 700, padding: '3px 9px', borderRadius: 50, letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                            {post.category}
-                          </div>
-                        )}
                       </div>
-                      <div style={{ padding: '14px 14px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.35, margin: '0 0 6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {/* Content */}
+                      <div style={{ padding: '16px 2px 8px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                        {post.category && (
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#FFD3AC', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8 }}>
+                            {post.category}
+                          </span>
+                        )}
+                        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px' }}>
                           {post.title}
                         </h3>
-                        <p style={{ fontSize: 12, color: '#8A7D70', lineHeight: 1.5, margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
+                        <p style={{ fontSize: 13, color: '#8A7D70', lineHeight: 1.6, margin: '0 0 14px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
                           {post.excerpt}
                         </p>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,211,172,0.05)', paddingTop: 10 }}>
-                          <span style={{ fontSize: 10, color: '#8A7D70', display: 'flex', alignItems: 'center', gap: 3 }}>
-                            <Calendar size={10} /> {formatShort(post.publishedAt)}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,211,172,0.08)', paddingTop: 12 }}>
+                          <span style={{ fontSize: 11, color: '#6A6058', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <Calendar size={11} /> {formatShort(post.publishedAt)}
                           </span>
-                          <span style={{ fontSize: 11, color: '#FFD3AC', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
-                            Read <ArrowRight size={11} />
+                          <span style={{ fontSize: 11, color: '#FFD3AC', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, letterSpacing: 0.5 }}>
+                            READ MORE <ArrowRight size={12} />
                           </span>
                         </div>
                       </div>

@@ -602,10 +602,10 @@ async function getProductImageMapping() {
         if (name.includes('belt')) cats.push('office wear');
         // Formal pants
         if (name.includes('formal') || name.includes('slimfit') || name.includes('trouser') || name.includes('beggyplated') || name.includes('plated') || name.includes('imported-beggy') || name.includes('preuim') || name.includes('premium')) cats.push('formal pants');
-        // Palazzo / wide-leg
-        if (name.includes('palazzo') || name.includes('widelook') || name.includes('beggy') && !name.includes('plated')) cats.push('palazzo');
+        // Palazzo / wide-leg (but NOT plated/beggyplated which are formal)
+        if ((name.includes('widelook') || name.includes('palazzo')) && !name.includes('formal')) cats.push('palazzo');
         // Jeans
-        if (name.includes('jeans') || name.includes('denim') || name.includes('mom') && !name.includes('track')) cats.push('jeans');
+        if ((name.includes('jeans') || name.includes('denim') || (name.includes('mom') && !name.includes('track'))) && !name.includes('formal')) cats.push('jeans');
         // Cargo
         if (name.includes('cargo')) cats.push('cargo');
         // Track pants

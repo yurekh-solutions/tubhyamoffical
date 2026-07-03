@@ -1,1 +1,1 @@
-fix: align blog image THEME_MAP with backend CATEGORY_MAP keys + fix local fallback image categorization
+fix: correct blog image matching - category-first priority, fix THEME_MAP, AEO-style card grid redesign
