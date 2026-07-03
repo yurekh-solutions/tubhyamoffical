@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, ArrowRight, Loader2, Clock, Tag } from 'lucide-react';
+import { Calendar, ArrowRight, Loader2, Clock } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -142,8 +142,6 @@ const Blog = () => {
   }, [productImages]);
 
   const featured = filteredPosts[0];
-  const secondary = filteredPosts.slice(1, 3);
-  const rest = searchTerm ? filteredPosts : filteredPosts.slice(3);
 
   return (
     <>
@@ -252,104 +250,47 @@ const Blog = () => {
           </div>
         )}
 
-        {/* ═══ FEATURED ARTICLE (LEVI'S STYLE) ═══ */}
-        {!loading && featured && !searchTerm && (
-          <section className="container mx-auto px-4" style={{ padding: '48px 16px 40px' }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#FFD3AC', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Featured Story</p>
-            <Link to={`/blog/${featured.slug}`} style={{ textDecoration: 'none' }}>
-              <article style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 480px), 1fr))', gap: 0, borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.1)', background: '#1A1410', transition: 'border-color 0.3s' }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(255,211,172,0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,211,172,0.1)')}>
-                {/* Image */}
-                <div style={{ position: 'relative', height: '100%', minHeight: 320 }}>
-                  <img src={getProductImage(featured, 0) || ''} alt={featured.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', background: '#1A1410', transition: 'opacity 0.4s' }} />
-                  <div style={{ position: 'absolute', top: 16, left: 16, background: '#FFD3AC', color: '#1A1410', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 50, letterSpacing: 0.5 }}>
-                    {featured.category}
-                  </div>
-                </div>
-                {/* Content */}
-                <div style={{ padding: 'clamp(24px, 4vw, 48px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 700, color: '#F0E6DA', lineHeight: 1.2, margin: '0 0 16px' }}>
-                    {featured.title}
-                  </h2>
-                  <p style={{ fontSize: 15, color: '#B0A090', lineHeight: 1.7, margin: '0 0 20px' }}>
-                    {featured.excerpt}
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: '#8A7D70', marginBottom: 24, flexWrap: 'wrap' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={13} /> {formatShort(featured.publishedAt)}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={13} /> {featured.readTime} min read</span>
-                    {featured.focusKeyword && <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={13} /> {featured.focusKeyword}</span>}
-                  </div>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#FFD3AC', fontWeight: 600, fontSize: 14 }}>
-                    Read Full Guide <ArrowRight size={16} />
-                  </span>
-                </div>
-              </article>
-            </Link>
-          </section>
-        )}
-
-        {/* ═══ SECONDARY FEATURED (2-UP) ═══ */}
-        {!loading && secondary.length > 0 && !searchTerm && (
-          <section className="container mx-auto px-4" style={{ padding: '0 16px 40px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: 20 }}>
-              {secondary.map((post, i) => (
+        {/* ═══ UNIFORM CARD GRID ═══ */}
+        {!loading && filteredPosts.length > 0 && (
+          <section className="container mx-auto px-4" style={{ padding: '40px 16px 60px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: 24 }}>
+              {filteredPosts.map((post, i) => (
                 <Link key={post._id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
-                  <article style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.1)', background: '#1A1410', transition: 'border-color 0.3s, transform 0.3s' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.25)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                    <div style={{ height: 200, overflow: 'hidden' }}>
-                      <img src={getProductImage(post, i + 1) || ''} alt={post.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: '#1A1410', transition: 'transform 0.4s, opacity 0.4s' }} />
-                    </div>
-                    <div style={{ padding: 20 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#FFD3AC', textTransform: 'uppercase', letterSpacing: 1 }}>{post.category}</span>
-                      <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.3, margin: '8px 0 10px' }}>{post.title}</h3>
-                      <p style={{ fontSize: 13, color: '#8A7D70', lineHeight: 1.5, margin: '0 0 14px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.excerpt}</p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#8A7D70' }}>
-                        <span>{formatShort(post.publishedAt)}</span>
-                        <span>•</span>
-                        <span>{post.readTime} min read</span>
+                  <article style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.08)', background: '#1A1410', transition: 'all 0.3s ease', height: '100%', display: 'flex', flexDirection: 'column' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.25)'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.3)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                    {/* Image */}
+                    <div style={{ position: 'relative', height: 240, overflow: 'hidden', background: '#151010' }}>
+                      <img src={getProductImage(post, i) || ''} alt={post.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', transition: 'transform 0.5s ease' }}
+                        onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+                        onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+                      />
+                      {/* Category badge */}
+                      <div style={{ position: 'absolute', top: 14, left: 14, background: 'rgba(26,20,16,0.85)', backdropFilter: 'blur(8px)', color: '#FFD3AC', fontSize: 10, fontWeight: 700, padding: '5px 12px', borderRadius: 50, letterSpacing: 1, textTransform: 'uppercase' }}>
+                        {post.category}
+                      </div>
+                      {/* Read time badge */}
+                      <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(26,20,16,0.85)', backdropFilter: 'blur(8px)', color: '#B0A090', fontSize: 10, fontWeight: 600, padding: '5px 10px', borderRadius: 50, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Clock size={11} /> {post.readTime} min
                       </div>
                     </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ═══ ARTICLE GRID (REST / SEARCH RESULTS) ═══ */}
-        {!loading && rest.length > 0 && (
-          <section className="container mx-auto px-4" style={{ padding: '0 16px 60px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: '#F0E6DA', margin: 0 }}>
-                {searchTerm ? `${filteredPosts.length} Results` : 'More Style Guides'}
-              </h2>
-              {!searchTerm && <div style={{ height: 1, flex: 1, background: 'rgba(255,211,172,0.08)', marginLeft: 20 }} />}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: 16 }}>
-              {(searchTerm ? filteredPosts : rest).map((post, i) => (
-                <Link key={post._id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
-                  <article style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.08)', background: '#151010', transition: 'all 0.25s', height: '100%' }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                    <div style={{ height: 170, overflow: 'hidden' }}>
-                      <img src={getProductImage(post, i + 3) || ''} alt={post.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: '#1A1410', transition: 'opacity 0.4s' }} />
-                    </div>
-                    <div style={{ padding: 16 }}>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: '#FFD3AC', textTransform: 'uppercase', letterSpacing: 1 }}>{post.category}</span>
-                      <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.35, margin: '6px 0 8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {/* Content */}
+                    <div style={{ padding: '20px 20px 24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.35, margin: '0 0 10px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {post.title}
                       </h3>
-                      <p style={{ fontSize: 12, color: '#8A7D70', lineHeight: 1.5, margin: '0 0 12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      <p style={{ fontSize: 13, color: '#8A7D70', lineHeight: 1.6, margin: '0 0 16px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
                         {post.excerpt}
                       </p>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, color: '#8A7D70' }}>
-                        <span>{formatShort(post.publishedAt)}</span>
-                        <ArrowRight size={14} style={{ color: '#FFD3AC' }} />
+                      {/* Footer */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255,211,172,0.06)', paddingTop: 14 }}>
+                        <span style={{ fontSize: 11, color: '#8A7D70', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <Calendar size={11} /> {formatShort(post.publishedAt)}
+                        </span>
+                        <span style={{ fontSize: 12, color: '#FFD3AC', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          Read <ArrowRight size={13} />
+                        </span>
                       </div>
                     </div>
                   </article>
