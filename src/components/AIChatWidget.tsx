@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageCircle, X, Send, User, Loader2, Volume2, VolumeX, Globe } from 'lucide-react';
+import { MessageCircle, X, Send, User, Loader2, Volume2, VolumeX, Globe, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { api } from '@/config/api';
+import { toast } from 'sonner';
 import ainosImg from '@/assets/ainos.jpeg';
 
 type Lang = 'en' | 'hi' | 'mr';
@@ -59,6 +60,30 @@ interface Message {
   timestamp: Date;
 }
 
+interface SpeechRecognitionEvent {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+      isFinal: boolean;
+    };
+    length: number;
+  };
+}
+
+interface SpeechRecognitionInstance {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+}
+
 const AIChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [lang, setLang] = useState<Lang>('en');
@@ -69,8 +94,10 @@ const AIChatWidget = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance>(null);
 
   // Find best female voice for a language
   const getVoice = useCallback((language: Lang): SpeechSynthesisVoice | null => {
@@ -156,6 +183,59 @@ const AIChatWidget = () => {
     speechRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   }, [voiceOn, getVoice]);
+
+  // Voice input (speech-to-text)
+  const initRecognition = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognitionAPI = (window as unknown as { SpeechRecognition?: new () => SpeechRecognitionInstance; webkitSpeechRecognition?: new () => SpeechRecognitionInstance }).SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognitionInstance }).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) return;
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = VOICE_LANG[lang] === 'mr' ? 'mr-IN' : VOICE_LANG[lang] === 'hi' ? 'hi-IN' : 'en-IN';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInputValue(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      if (event.error !== 'aborted') console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+  }, [lang]);
+
+  const startListening = useCallback(() => {
+    stopSpeaking();
+    initRecognition();
+    if (!recognitionRef.current) {
+      toast('Voice input not supported in this browser.');
+      return;
+    }
+    setInputValue('');
+    setIsListening(true);
+    try { recognitionRef.current.start(); } catch { setIsListening(false); }
+  }, [initRecognition]);
+
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  }, []);
+
+  const toggleListening = useCallback(() => {
+    if (isListening) stopListening();
+    else startListening();
+  }, [isListening, startListening, stopListening]);
 
   // Load voices on mount (async in some browsers)
   useEffect(() => {
@@ -392,13 +472,23 @@ const AIChatWidget = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                disabled={isLoading}
+                placeholder={isListening ? 'Listening... speak now' : 'Type your message...'}
+                disabled={isLoading || isListening}
                 className="flex-1"
               />
               <Button
+                onClick={toggleListening}
+                disabled={isLoading}
+                size="icon"
+                variant={isListening ? 'destructive' : 'outline'}
+                className={`shrink-0 ${isListening ? 'animate-pulse' : ''}`}
+                title={isListening ? 'Stop listening' : 'Speak'}
+              >
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </Button>
+              <Button
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
+                disabled={!inputValue.trim() || isLoading || isListening}
                 size="icon"
                 className="shrink-0"
               >
