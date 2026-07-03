@@ -1,1 +1,1 @@
-feat: redesign blog page with uniform card grid layout and content-matched imagesfix: deduplicate blog images by product - show different products not same product angles
+fix: blog page - dedup products, skeleton loading, retry on API error, lazy images, localStorage cachefeat: redesign blog page with uniform card grid layout and content-matched imagesfix: deduplicate blog images by product - show different products not same product angles
