@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -48,10 +48,15 @@ const Blog = () => {
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
   const [apiError, setApiError] = useState(false);
+  const [pollCount, setPollCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [productImages, setProductImages] = useState<ProductImageMap>({});
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+  const POLL_INTERVAL = 3000;
+  const MAX_POLLS = 40; // 40 × 3s = 120s = 2 minutes
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchBlogs = useCallback(async (isRetry = false) => {
     if (isRetry) setRetrying(true);
@@ -61,6 +66,7 @@ const Blog = () => {
         const unique = deduplicatePosts(response.blogs);
         setBlogPosts(unique);
         setApiError(false);
+        setPollCount(0);
       }
     } catch (error) {
       console.error('Failed to fetch blogs:', error);
@@ -69,6 +75,28 @@ const Blog = () => {
       setLoading(false);
       setRetrying(false);
     }
+  }, []);
+
+  // Auto-poll when API fails (Render free tier sleep)
+  useEffect(() => {
+    if (!apiError || blogPosts.length > 0) return;
+
+    pollTimerRef.current = setTimeout(() => {
+      if (pollCount >= MAX_POLLS) return;
+      setPollCount(prev => prev + 1);
+      fetchBlogs(true);
+    }, POLL_INTERVAL);
+
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
+  }, [apiError, pollCount, blogPosts.length, fetchBlogs]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
   }, []);
 
   useEffect(() => { fetchBlogs(); }, [fetchBlogs]);
@@ -270,13 +298,28 @@ const Blog = () => {
           </section>
         )}
 
-        {/* API ERROR + RETRY */}
-        {!loading && apiError && blogPosts.length === 0 && (
+        {/* AUTO-POLLING: Server waking up */}
+        {!loading && apiError && blogPosts.length === 0 && pollCount < MAX_POLLS && (
+          <div style={{ padding: '50px 24px', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,211,172,0.1)', marginBottom: 16 }}>
+              <Loader2 size={22} className="animate-spin" style={{ color: '#FFD3AC' }} />
+            </div>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#F0E6DA', marginBottom: 6 }}>Server is waking up</h2>
+            <p style={{ color: '#8A7D70', fontSize: 13, marginBottom: 4, maxWidth: 380, margin: '0 auto' }}>Our backend is starting from sleep. Automatically retrying...</p>
+            <p style={{ color: '#5A5048', fontSize: 11, marginBottom: 18 }}>Attempt {pollCount + 1} of {MAX_POLLS} · ~{Math.max(0, (MAX_POLLS - pollCount) * 3)}s remaining</p>
+            <div style={{ width: 200, height: 4, background: '#1A1410', borderRadius: 2, margin: '0 auto', overflow: 'hidden' }}>
+              <div style={{ width: `${((pollCount + 1) / MAX_POLLS) * 100}%`, height: '100%', background: '#FFD3AC', borderRadius: 2, transition: 'width 0.3s ease' }} />
+            </div>
+          </div>
+        )}
+
+        {/* GAVE UP after 2 minutes */}
+        {!loading && apiError && blogPosts.length === 0 && pollCount >= MAX_POLLS && (
           <div style={{ padding: '50px 24px', textAlign: 'center' }}>
             <p style={{ fontSize: 36, marginBottom: 10 }}></p>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#F0E6DA', marginBottom: 6 }}>Server is waking up</h2>
-            <p style={{ color: '#8A7D70', fontSize: 13, marginBottom: 18, maxWidth: 380, margin: '0 auto 18px' }}>Our backend takes ~30s to start from sleep. Please wait or retry.</p>
-            <button onClick={() => fetchBlogs(true)} disabled={retrying}
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#F0E6DA', marginBottom: 6 }}>Still can't reach server</h2>
+            <p style={{ color: '#8A7D70', fontSize: 13, marginBottom: 18, maxWidth: 380, margin: '0 auto 18px' }}>We tried for 2 minutes but the server hasn't responded. You can retry manually.</p>
+            <button onClick={() => { setPollCount(0); fetchBlogs(true); }} disabled={retrying}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 50,
                 background: '#FFD3AC', color: '#1A1410', fontWeight: 700, fontSize: 13, border: 'none', cursor: retrying ? 'wait' : 'pointer',
