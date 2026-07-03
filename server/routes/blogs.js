@@ -548,7 +548,8 @@ async function getProductImageMapping() {
       );
       if (imgs.length > 0 && cat) {
         if (!imagesByCategory[cat]) imagesByCategory[cat] = [];
-        imagesByCategory[cat].push(...imgs);
+        // Pick only the FIRST image per product to avoid showing same product multiple times
+        imagesByCategory[cat].push({ url: imgs[0], productId: p._id || p.id || imgs[0] });
       }
     }
 
@@ -557,14 +558,29 @@ async function getProductImageMapping() {
 
     for (const [keyword, categoryFilters] of Object.entries(CATEGORY_MAP)) {
       const matched = [];
+      const seenProducts = new Set();
       for (const [cat, imgs] of Object.entries(imagesByCategory)) {
         if (categoryFilters.some(f => cat.includes(f) || f.includes(cat))) {
-          matched.push(...imgs);
+          for (const entry of imgs) {
+            if (!seenProducts.has(entry.productId)) {
+              seenProducts.add(entry.productId);
+              matched.push(entry);
+            }
+          }
         }
       }
-      mapping[keyword] = matched.length > 0 ? [...new Set(matched)] : allImages;
+      mapping[keyword] = matched.length > 0 ? matched : allImages;
     }
-    mapping['all'] = [...new Set(allImages)];
+    // Deduplicate all images by product
+    const allDeduped = [];
+    const allSeen = new Set();
+    for (const entry of allImages) {
+      if (!allSeen.has(entry.productId)) {
+        allSeen.add(entry.productId);
+        allDeduped.push(entry);
+      }
+    }
+    mapping['all'] = allDeduped;
     if (allImages.length > 0) return mapping;
   } catch (err) {
     console.log('[ProductImages] Inventory API unavailable, using local fallback');
@@ -592,23 +608,38 @@ async function getProductImageMapping() {
         if (name.includes('imported') || name.includes('premium') || name.includes('preuim')) cats.push('formals');
         if (name.includes('olive') || name.includes('green') || name.includes('brown') || name.includes('beige')) cats.push('casual');
         if (cats.length === 0) cats.push('general');
+        // Use filename (without extension) as pseudo-productId for local fallback
+        const pseudoId = name;
         for (const c of cats) {
           if (!imagesByCategory[c]) imagesByCategory[c] = [];
-          imagesByCategory[c].push(img);
+          imagesByCategory[c].push({ url: img, productId: pseudoId });
         }
       }
 
       const mapping = {};
-      const allImages = [...new Set(Object.values(imagesByCategory).flat())];
+      const allImages = [];
+      const allSeen = new Set();
+      for (const entry of Object.values(imagesByCategory).flat()) {
+        if (!allSeen.has(entry.productId)) {
+          allSeen.add(entry.productId);
+          allImages.push(entry);
+        }
+      }
 
       for (const [keyword, categoryFilters] of Object.entries(CATEGORY_MAP)) {
         const matched = [];
+        const seenProducts = new Set();
         for (const [cat, imgs] of Object.entries(imagesByCategory)) {
           if (categoryFilters.some(f => cat.includes(f) || f.includes(cat))) {
-            matched.push(...imgs);
+            for (const entry of imgs) {
+              if (!seenProducts.has(entry.productId)) {
+                seenProducts.add(entry.productId);
+                matched.push(entry);
+              }
+            }
           }
         }
-        mapping[keyword] = matched.length > 0 ? [...new Set(matched)] : allImages;
+        mapping[keyword] = matched.length > 0 ? matched : allImages;
       }
       mapping['all'] = allImages;
       return mapping;
@@ -659,7 +690,7 @@ router.post('/posts/batch-refresh-images', verifyAdmin, async (req, res) => {
         if (bestImages.length === 0) continue;
 
         // 1. Set hero image to real product photo
-        blog.image = bestImages[0];
+        blog.image = bestImages[0].url;
 
         // 2. Strip ALL old figure tags (both Pollinations and old product images)
         let content = blog.content || '';
@@ -681,7 +712,7 @@ router.post('/posts/batch-refresh-images', verifyAdmin, async (req, res) => {
           // Insert an image after every 2-3 paragraphs
           if ((i + 1) % 3 === 0 && imgIdx < Math.min(bestImages.length - 1, 5)) {
             imgIdx++;
-            const imgUrl = bestImages[imgIdx % bestImages.length];
+            const imgUrl = bestImages[imgIdx % bestImages.length].url;
             const altText = `${blog.focusKeyword || blog.category} - Tubhyam Collection`;
             newContent += `<figure style="margin: 32px 0;"><img src="${imgUrl}" alt="${altText}" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" loading="lazy" /><figcaption style="text-align: center; font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">${blog.focusKeyword || blog.category} - Tubhyam Collection</figcaption></figure>`;
             inlineImages.push({
@@ -726,7 +757,7 @@ router.post('/posts/:id/refresh-images', verifyAdmin, async (req, res) => {
     }
 
     // Set hero
-    blog.image = bestImages[0];
+    blog.image = bestImages[0].url;
 
     // Strip old images
     let content = blog.content || '';
@@ -744,7 +775,7 @@ router.post('/posts/:id/refresh-images', verifyAdmin, async (req, res) => {
       if (i < paragraphs.length - 1) newContent += '</p>';
       if ((i + 1) % 3 === 0 && imgIdx < Math.min(bestImages.length - 1, 5)) {
         imgIdx++;
-        const imgUrl = bestImages[imgIdx % bestImages.length];
+        const imgUrl = bestImages[imgIdx % bestImages.length].url;
         const altText = `${blog.focusKeyword || blog.category} - Tubhyam Collection`;
         newContent += `<figure style="margin: 32px 0;"><img src="${imgUrl}" alt="${altText}" style="width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);" loading="lazy" /><figcaption style="text-align: center; font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">${blog.focusKeyword || blog.category} - Tubhyam Collection</figcaption></figure>`;
         inlineImages.push({ url: imgUrl, altText, role: `section-${imgIdx}` });
@@ -796,8 +827,14 @@ router.get('/', async (req, res) => {
 router.get('/product-images', async (req, res) => {
   try {
     const mapping = await getProductImageMapping();
-    const totalImages = (mapping['all'] || []).length;
-    res.json({ success: true, mapping, totalProducts: 0, totalImages });
+    // Convert {url, productId} objects back to plain URL strings for frontend
+    const urlMapping = {};
+    let totalImages = 0;
+    for (const [key, entries] of Object.entries(mapping)) {
+      urlMapping[key] = entries.map(e => e.url);
+      if (key === 'all') totalImages = entries.length;
+    }
+    res.json({ success: true, mapping: urlMapping, totalProducts: 0, totalImages });
   } catch (error) {
     console.error('Product images error:', error.message);
     res.json({ success: true, mapping: { all: [] }, totalProducts: 0, totalImages: 0 });
