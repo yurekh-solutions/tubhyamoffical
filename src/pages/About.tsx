@@ -34,24 +34,6 @@ const About = () => {
     }
   ];
 
-  const teamMembers = [
-    {
-      name: "Priya Sharma",
-      role: "Founder & Designer",
-      description: "Visionary designer with 10+ years of fashion expertise"
-    },
-    {
-      name: "Ananya Patel",
-      role: "Creative Director",
-      description: "Bringing contemporary aesthetics to traditional wear"
-    },
-    {
-      name: "Rahul Verma",
-      role: "Quality Manager",
-      description: "Ensuring excellence in every product we create"
-    }
-  ];
-
   return (
     <>
       <Navbar />
@@ -180,35 +162,6 @@ const About = () => {
           </div>
         </section>
 
-        {/* Team Section */}
-        <section className="container mx-auto px-4 py-20 border-y border-primary/20">
-          <motion.h2
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            className="text-4xl font-heading font-bold text-center mb-16 text-gradient-gold"
-          >
-            Meet Our Team
-          </motion.h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {teamMembers.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="glass-card p-8 border border-primary/30 rounded-xl hover:border-primary/50 transition-colors text-center"
-              >
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-primary/30">
-                  <Users size={32} className="text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-foreground">{member.name}</h3>
-                <p className="text-primary font-medium mb-3">{member.role}</p>
-                <p className="text-foreground/70 text-sm leading-relaxed">{member.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
         {/* Journey Section */}
         <section className="container mx-auto px-4 py-20">
           <motion.h2
@@ -220,10 +173,9 @@ const About = () => {
           </motion.h2>
           <div className="max-w-4xl mx-auto space-y-6">
             {[
-              { year: "2020", title: "The Beginning", description: "Tubhyam was founded with a vision to revolutionize women's fashion." },
-              { year: "2021", title: "First Collection", description: "Launched our inaugural collection with 12 premium pants styles." },
-              { year: "2022", title: "Expansion", description: "Expanded product range to 30+ styles and reached 5000+ customers." },
-              { year: "2024", title: "Today", description: "Proudly serving thousands of happy customers across India with excellence." }
+              { year: "2026", title: "The Beginning", description: "Tubhyam was founded with a vision to bring premium women's fashion to every Indian wardrobe." },
+              { year: "2026", title: "First Collection", description: "Launched our inaugural collection of premium pants — formal, jeans, and track pants." },
+              { year: "2026", title: "Growing Community", description: "Building a loyal customer base across India with quality, trust, and style." }
             ].map((milestone, index) => (
               <motion.div
                 key={index}

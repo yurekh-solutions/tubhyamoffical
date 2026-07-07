@@ -9,7 +9,9 @@ import FeaturedProducts from '@/components/FeaturedProducts';
 import TestimonialsSlider from '@/components/TestimonialsSlider';
 import InstagramFeed from '@/components/InstagramFeed';
 import NewsletterSection from '@/components/NewsletterSection';
-// import StyleQuiz from '@/components/StyleQuiz';
+import TrustBadges from '@/components/TrustBadges';
+import SaleBanner from '@/components/SaleBanner';
+import EmailPopup from '@/components/EmailPopup';
 import ShopTheLook from '@/components/ShopTheLook';
 
 const Index = () => {
@@ -23,36 +25,16 @@ const Index = () => {
       />
       <Navbar />
       <Hero />
+      <TrustBadges />
       <Categories />
       
+      {/* Sale Banner */}
+      <SaleBanner />
+
       {/* Shop The Look */}
       <ShopTheLook />
 
         <FeaturedProducts type="bestsellers" />
-
-      {/* Features Bar */}
-      <section className="py-12 border-y border-border bg-secondary/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: Truck, title: 'Fast Delivery', description: 'Quick & reliable shipping' },
-              { icon: Shield, title: 'Secure Payment', description: '100% secure checkout' },
-              { icon: RefreshCw, title: 'Easy Returns', description: '7 days return policy' },
-              { icon: Phone, title: 'WhatsApp Support', description: '24/7 customer service' },
-            ].map((feature, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <div className="p-3 glass-card rounded-xl">
-                  <feature.icon size={24} className="text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm">{feature.title}</h4>
-                  <p className="text-xs text-muted-foreground">{feature.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Video Call CTA */}
       <section className="py-20">
@@ -127,6 +109,9 @@ const Index = () => {
 
       {/* Newsletter */}
       <NewsletterSection />
+
+      {/* Email Capture */}
+      <EmailPopup />
 
       <Footer />
     

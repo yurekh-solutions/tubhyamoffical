@@ -16,7 +16,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       const stored = localStorage.getItem('tubhyam-theme') as Theme | null;
       if (stored === 'light' || stored === 'dark') return stored;
     }
-    return 'light'; // default to light
+    return 'dark'; // default to dark unless user toggles
   });
 
   useEffect(() => {

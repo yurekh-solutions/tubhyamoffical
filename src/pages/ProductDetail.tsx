@@ -27,6 +27,7 @@ import {
   RefreshCw,
   Star,
   MessageCircle,
+  X,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -114,6 +115,15 @@ const mockReviews = [
   },
 ];
 
+function getStoredReviews(productId: string) {
+  try {
+    const stored = localStorage.getItem(`reviews-${productId}`);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
@@ -134,6 +144,18 @@ const ProductDetail = () => {
   const [pincodeStatus, setPincodeStatus] = useState<
     'idle' | 'checking' | 'available' | 'invalid'
   >('idle');
+
+  // Review state — must be declared before any early returns
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewName, setReviewName] = useState('');
+  const [reviewLocation, setReviewLocation] = useState('');
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [userReviews, setUserReviews] = useState<{name:string;location:string;rating:number;date:string;comment:string}[]>(() =>
+    id ? getStoredReviews(id) : []
+  );
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -266,7 +288,30 @@ const ProductDetail = () => {
   }
 
   const rating = product.rating ?? 4.2;
-  const reviewCount = product.reviewCount ?? 200;
+  const allReviews = [...userReviews, ...mockReviews];
+  const reviewCount = allReviews.length;
+
+  const handleSubmitReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewName.trim() || !reviewComment.trim() || reviewRating === 0 || !product) return;
+    const newReview = {
+      name: reviewName.trim(),
+      location: reviewLocation.trim() || 'India',
+      rating: reviewRating,
+      date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+      comment: reviewComment.trim(),
+    };
+    const updated = [newReview, ...userReviews];
+    setUserReviews(updated);
+    localStorage.setItem(`reviews-${product.id}`, JSON.stringify(updated));
+    setShowReviewForm(false);
+    setReviewName('');
+    setReviewLocation('');
+    setReviewRating(0);
+    setReviewComment('');
+    setReviewSubmitted(true);
+    setTimeout(() => setReviewSubmitted(false), 3000);
+  };
 
   return (
     <div className={`min-h-screen ${isLight ? 'bg-[#F5F0E8]' : ''}`}>
@@ -415,7 +460,7 @@ const ProductDetail = () => {
                   {rating}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  ({reviewCount} reviews)
+                  ({reviewCount} customer reviews)
                 </span>
               </div>
 
@@ -758,13 +803,13 @@ const ProductDetail = () => {
               ))}
             </div>
             <span className="text-sm text-muted-foreground">
-              {rating} out of 5 · {reviewCount} reviews
+              {rating} out of 5 · {reviewCount} customer reviews
             </span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {mockReviews.map((review, i) => (
+          {allReviews.map((review, i) => (
             <div
               key={i}
               className={`p-6 rounded-xl ${
@@ -802,6 +847,156 @@ const ProductDetail = () => {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Write a Review */}
+        <div className="max-w-4xl mx-auto mt-10">
+          {reviewSubmitted && (
+            <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm text-center">
+              Thank you! Your review has been submitted.
+            </div>
+          )}
+
+          {!showReviewForm ? (
+            <div className="text-center">
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+                  isLight
+                    ? 'bg-[#2E241F] text-white hover:bg-[#3D2F29]'
+                    : 'bg-primary text-primary-foreground hover:shadow-elegant'
+                }`}
+              >
+                <Star size={18} />
+                Write a Review
+              </button>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmitReview}
+              className={`p-6 sm:p-8 rounded-2xl ${
+                isLight
+                  ? 'bg-white shadow-md border border-gray-100'
+                  : 'glass-card border border-border'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-heading text-xl font-semibold text-foreground">
+                  Write Your Review
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowReviewForm(false)}
+                  className="p-1 hover:bg-secondary/50 rounded-full transition-colors"
+                >
+                  <X size={20} className="text-muted-foreground" />
+                </button>
+              </div>
+
+              {/* Star Rating */}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Your Rating *
+                </label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      onMouseEnter={() => setReviewHover(star)}
+                      onMouseLeave={() => setReviewHover(0)}
+                      className="p-0.5 transition-transform hover:scale-110"
+                    >
+                      <Star
+                        size={28}
+                        className={
+                          star <= (reviewHover || reviewRating)
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-gray-300'
+                        }
+                      />
+                    </button>
+                  ))}
+                  {(reviewHover || reviewRating) > 0 && (
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {(reviewHover || reviewRating)} / 5
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Name + Location */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={reviewName}
+                    onChange={(e) => setReviewName(e.target.value)}
+                    placeholder="e.g. Priya Sharma"
+                    required
+                    className={`w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                      isLight
+                        ? 'bg-gray-50 border-gray-200 text-foreground'
+                        : 'bg-secondary/50 border-border text-foreground'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={reviewLocation}
+                    onChange={(e) => setReviewLocation(e.target.value)}
+                    placeholder="e.g. Mumbai"
+                    className={`w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                      isLight
+                        ? 'bg-gray-50 border-gray-200 text-foreground'
+                        : 'bg-secondary/50 border-border text-foreground'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Comment */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Your Review *
+                </label>
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Share your experience with this product..."
+                  required
+                  rows={4}
+                  className={`w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
+                    isLight
+                      ? 'bg-gray-50 border-gray-200 text-foreground'
+                      : 'bg-secondary/50 border-border text-foreground'
+                  }`}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={reviewRating === 0}
+                className={`w-full sm:w-auto px-8 py-3 rounded-full font-medium transition-all duration-300 ${
+                  reviewRating === 0
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : isLight
+                      ? 'bg-[#2E241F] text-white hover:bg-[#3D2F29]'
+                      : 'bg-primary text-primary-foreground hover:shadow-elegant'
+                }`}
+              >
+                Submit Review
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
