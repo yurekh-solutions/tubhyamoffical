@@ -25,7 +25,6 @@ const Index = () => {
       />
       <Navbar />
       <Hero />
-      <TrustBadges />
       <Categories />
       
       {/* Sale Banner */}
