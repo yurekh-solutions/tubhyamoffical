@@ -35,7 +35,7 @@ const WorldOfTubhyam = () => {
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 pt-4">
               <Link 
-                to="/products"
+                to="/shop"
                 className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 sm:px-8 py-3 sm:py-4 rounded-full text-sm sm:text-base font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
               >
                 <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
@@ -474,7 +474,7 @@ const WorldOfTubhyam = () => {
               </p>
             </div>
             <Link 
-              to="/products"
+              to="/shop"
               className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-4 sm:px-10 sm:py-5 rounded-full text-base sm:text-lg font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
             >
               <ShoppingBag size={20} className="sm:w-6 sm:h-6" />

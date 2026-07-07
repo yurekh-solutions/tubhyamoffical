@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Menu, X, Instagram, Phone, MapPin } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, Instagram, Phone, MapPin, Sun, Moon, MessageCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useTheme } from '@/context/ThemeContext';
 import logo from '@/assets/looo.png';
 
 const Navbar = () => {
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const { totalItems } = useCart();
+  const { theme, toggleTheme, isLight } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,7 +27,7 @@ const Navbar = () => {
   }, [location]);
 
   const navLinks = [
-    { name: 'Shop', path: '/products' },
+    { name: 'Shop', path: '/shop' },
     { name: 'Collections', path: '/collections' },
     { name: 'Lookbook', path: '/lookbook' },
     { name: 'World of Tubhyam', path: '/world-of-tubhyam' },
@@ -35,38 +37,49 @@ const Navbar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`;
+      window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`;
     }
   };
 
   return (
     <>
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled 
-            ? 'bg-background/95 backdrop-blur-xl border-b border-border shadow-glass' 
-            : 'bg-transparent'
-        }`}
-      >
-        {/* Top bar */}
-        <div className="hidden md:block border-b border-border/50 bg-secondary/30">
-          <div className="container mx-auto px-4 py-2 flex justify-between items-center text-xs">
-           
-          <div></div>
-             <div className="flex  gap-4">
-              <a 
-                href="https://www.instagram.com/tubhyamofficial/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Instagram size={14} />
-                <span>@tubhyamofficial</span>
-              </a>
-              
-            </div>
-          </div>
+      {/* Announcement Banner */}
+      <div className={`fixed top-0 left-0 right-0 z-[60] text-white text-[11px] sm:text-xs tracking-wider ${
+        isLight ? 'bg-[#2E241F]' : 'bg-[#1A1410]'
+      }`}>
+        <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-3 sm:gap-6 flex-wrap text-center">
+          <span className="hidden sm:inline">CASH ON DELIVERY AVAILABLE</span>
+          <span className="hidden md:inline text-white/30">|</span>
+          <span>NEW ARRIVALS EVERY WEEK</span>
+          <span className="hidden md:inline text-white/30">|</span>
+          <a href="https://wa.me/917039382706" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-green-300 transition-colors">
+            <MessageCircle size={12} />
+            <span>WHATSAPP +91 70393 82706</span>
+          </a>
+          <span className="hidden md:inline text-white/30">|</span>
+          <span className="hidden sm:inline">FREE SHIPPING ON ALL ORDERS</span>
+          <span className="hidden sm:inline text-white/30">|</span>
+          <a 
+            href="https://www.instagram.com/tubhyamofficial/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1 hover:text-pink-300 transition-colors"
+          >
+            <Instagram size={12} />
+            <span>@tubhyamofficial</span>
+          </a>
         </div>
+      </div>
+
+      <nav 
+        className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
+          isScrolled 
+            ? `${isLight ? 'bg-white/95' : 'bg-background/95'} border-b border-border shadow-glass` 
+            : isLight ? 'bg-white backdrop-blur-sm' : 'bg-background/90 backdrop-blur-sm'
+        }`}
+        style={{ top: '32px' }}
+      >
+
 
         {/* Main nav */}
         <div className="container mx-auto px-4 py-4">
@@ -84,15 +97,25 @@ const Navbar = () => {
               to="/" 
               className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
             >
-              <img src={logo} alt="Tubhyam" className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md" />
+              <img 
+                src={logo} 
+                alt="Tubhyam" 
+                className={`h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md ${
+                  isLight ? 'brightness-90' : ''
+                }`} 
+              />
               <div>
-                <h1 className="font-heading text-base sm:text-2xl font-semibold text-gradient-gold whitespace-nowrap">Tubhyam</h1>
-                <p className="text-[8px] sm:text-[10px] text-muted-foreground tracking-widest whitespace-nowrap">तुम्हारे लिए</p>
+                <h1 className={`font-heading text-base sm:text-2xl font-semibold whitespace-nowrap ${
+                  isLight ? 'text-[#2E241F]' : 'text-gradient-gold'
+                }`}>Tubhyam</h1>
+                <p className={`text-[8px] sm:text-[10px] tracking-widest whitespace-nowrap ${
+                  isLight ? 'text-[#7E6F67]' : 'text-muted-foreground'
+                }`}>तुम्हारे लिए</p>
               </div>
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className="hidden lg:flex items-center gap-8 ml-40">
+            <div className="hidden lg:flex items-center gap-8 mx-auto">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -144,6 +167,19 @@ const Navbar = () => {
                 className="md:hidden p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
               >
                 <Search size={20} />
+              </button>
+
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 hover:bg-secondary/50 rounded-full transition-all duration-300 flex-shrink-0"
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? (
+                  <Moon size={20} className="transition-transform duration-300" />
+                ) : (
+                  <Sun size={20} className="transition-transform duration-300" />
+                )}
               </button>
 
               {/* Cart */}
@@ -243,8 +279,8 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Spacer */}
-      <div className="h-24 md:h-32" />
+      {/* Spacer for announcement banner + navbar */}
+      <div className="h-[72px] md:h-[80px]" />
     </>
   );
 };

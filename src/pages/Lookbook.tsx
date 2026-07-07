@@ -223,7 +223,7 @@ const Lookbook = () => {
             Explore our complete collection and find your perfect pair
           </p>
           <Link
-            to="/products"
+            to="/shop"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
           >
             Shop Collection

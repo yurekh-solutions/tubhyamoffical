@@ -78,14 +78,14 @@ const Categories = () => {
 
                 {/* Glass Card Effect on Hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:from-black/95 backdrop-blur-[2px]" />
                 </div>
 
                 {/* Content */}
                 <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-end">
                   <div className="transform translate-y-2 group-hover:translate-y-0 transition-all duration-500">
                     {/* Category Badge */}
-                    <div className="inline-flex items-center gap-2 glass-card px-3 py-1.5 rounded-full mb-4 border border-white/20">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4 border border-white/20" style={{ background: 'linear-gradient(135deg, hsl(25 15% 12% / 0.8) 0%, hsl(25 15% 12% / 0.4) 100%)', backdropFilter: 'blur(20px)' }}>
                       <span className="text-xs font-bold uppercase tracking-wider text-white/90">
                         {category.description}
                       </span>
@@ -129,7 +129,7 @@ const Categories = () => {
           className="text-center mt-12 sm:mt-16"
         >
           <Link
-            to="/products"
+            to="/shop"
             className="inline-flex items-center gap-3 px-8 py-4 glass-card border-2 border-primary/30 hover:border-primary rounded-2xl font-bold hover:bg-primary/5 transition-all duration-300 hover:scale-105 group"
           >
             <span>View All Products</span>

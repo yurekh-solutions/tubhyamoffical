@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Instagram, Phone, Mail, MapPin } from 'lucide-react';
 import logo from '@/assets/logo.png';
+import { useTheme } from '@/context/ThemeContext';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { isLight } = useTheme();
 
   return (
-    <footer className="bg-card/50 border-t border-border mt-8 md:mt-20">
+    <footer className={`border-t mt-8 md:mt-20 ${isLight ? 'bg-[hsl(35,25%,94%)] border-gray-200' : 'bg-card/50 border-border'}`}>
       {/* Main Footer */}
       <div className="container mx-auto px-2 md:px-4 py-8 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
@@ -27,17 +29,21 @@ const Footer = () => {
                 href="https://www.instagram.com/tubhyamofficial/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-2 glass-card hover:border-primary/30 transition-all duration-300"
+                className={`p-2 rounded-xl hover:border-primary/30 transition-all duration-300 ${
+                  isLight ? 'bg-white border border-gray-200 text-primary' : 'glass-card text-primary'
+                }`}
               >
-                <Instagram size={20} className="text-primary" />
+                <Instagram size={20} />
               </a>
               <a 
                 href="https://wa.me/917039382706"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 glass-card hover:border-primary/30 transition-all duration-300"
+                className={`p-2 rounded-xl hover:border-primary/30 transition-all duration-300 ${
+                  isLight ? 'bg-white border border-gray-200 text-primary' : 'glass-card text-primary'
+                }`}
               >
-                <Phone size={20} className="text-primary" />
+                <Phone size={20} />
               </a>
             </div>
           </div>
@@ -48,7 +54,7 @@ const Footer = () => {
             <ul className="space-y-2 md:space-y-3">
               {[
                 { name: 'Home', path: '/' },
-                { name: 'All Products', path: '/products' },
+                { name: 'All Products', path: '/shop' },
                 { name: 'Size Guide', path: '/size-guide' },
                 { name: 'Instagram', path: '/instagram' },
                 { name: 'About Us', path: '/about' },
@@ -130,7 +136,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-border">
+      <div className={`border-t ${isLight ? 'border-gray-200' : 'border-border'}`}>
         <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} Tubhyam. All rights reserved.</p>

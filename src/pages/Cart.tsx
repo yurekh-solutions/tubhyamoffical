@@ -40,7 +40,7 @@ const Cart = () => {
           {/* Header */}
           <div className="mb-6 md:mb-8">
             <Link 
-              to="/products" 
+              to="/shop" 
               className="inline-flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-primary transition-colors mb-4"
             >
               <ArrowLeft size={18} className="md:w-5 md:h-5" />
@@ -65,7 +65,7 @@ const Cart = () => {
                 Looks like you haven't added any items to your cart yet. Start shopping to fill it up!
               </p>
               <Link 
-                to="/products"
+                to="/shop"
                 className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all hover:scale-105"
               >
                 Start Shopping
@@ -166,7 +166,7 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium text-xs md:text-sm">Calculated at checkout</span>
+                      <span className="font-medium text-green-600 text-xs md:text-sm">FREE</span>
                     </div>
                     <div className="border-t border-border pt-3 md:pt-4">
                       <div className="flex justify-between items-center">

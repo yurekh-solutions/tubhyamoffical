@@ -220,7 +220,7 @@ const Checkout = () => {
           <h1 className="font-heading text-3xl mb-4">Your cart is empty</h1>
           <p className="text-muted-foreground mb-8">Add some items to your cart to checkout</p>
           <button
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/shop')}
             className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
           >
             Continue Shopping
@@ -413,9 +413,7 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="text-green-500 font-medium">
-                    {totalPrice >= 0 ? 'FREE' : formatPrice(99)}
-                  </span>
+                  <span className="text-green-500 font-medium">FREE</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-border/50">
                   <span>Total</span>
@@ -443,7 +441,7 @@ const Checkout = () => {
                 ) : (
                   <>
                     <CreditCard size={20} />
-                    Pay {formatPrice(totalPrice >= 2000 ? totalPrice : totalPrice + 99)}
+                    Pay {formatPrice(totalPrice)}
                   </>
                 )}
               </button>

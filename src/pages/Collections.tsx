@@ -21,7 +21,7 @@ const collections = [
     subtitle: 'Power Dressing Redefined',
     description: 'Sophisticated silhouettes for the modern professional. Command any boardroom with our premium formal collection featuring high-quality fabrics and impeccable tailoring.',
     images: [formal1, formal2, formal3],
-    link: '/products?category=formal',
+    link: '/shop?category=formal',
     badge: 'Best Seller'
   },
   {
@@ -30,7 +30,7 @@ const collections = [
     subtitle: 'Timeless Comfort',
     description: 'Premium denim crafted for the perfect fit. From classic cuts to contemporary styles, each piece is designed to complement your unique style.',
     images: [jeans1, jeans2],
-    link: '/products?category=jeans',
+    link: '/shop?category=jeans',
     badge: 'New Arrivals'
   },
   {
@@ -39,7 +39,7 @@ const collections = [
     subtitle: 'Comfort Meets Style',
     description: 'Elevate your casual wardrobe with our premium track pants. Perfect for work-from-home, weekend outings, or athleisure styling with modern details.',
     images: [track1, track2],
-    link: '/products?category=track',
+    link: '/shop?category=track',
     badge: 'Trending'
   },
   {
@@ -48,7 +48,7 @@ const collections = [
     subtitle: 'Season 2026',
     description: 'Luxurious fabrics meet contemporary design. Our premium collection features exclusive styles crafted for the discerning modern woman.',
     images: [formal4, formal1],
-    link: '/products',
+    link: '/shop',
     badge: 'Limited Edition'
   }
 ];

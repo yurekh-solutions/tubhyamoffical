@@ -16,6 +16,12 @@ export interface Product {
   inStock: boolean;
   isNew?: boolean;
   isBestSeller?: boolean;
+
+  // Optional fields populated by API
+  fabric?: string;
+  rating?: number;
+  reviewCount?: number;
+  careInstructions?: string[];
 }
 
 export const products: Product[] = [

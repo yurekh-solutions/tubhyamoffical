@@ -123,7 +123,7 @@ const OrderConfirmation = () => {
             Track Order
           </Link>
           <Link
-            to="/products"
+            to="/shop"
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
           >
             Continue Shopping

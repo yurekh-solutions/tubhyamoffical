@@ -1,10 +1,12 @@
-import { Link } from 'react-router-dom';
+  import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import heroVideo from '@/assets/video.mp4';
+import { useTheme } from '@/context/ThemeContext';
 
 const Hero = () => {
+  const { isLight } = useTheme();
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[75vh] flex items-center justify-center overflow-hidden">
       {/* Background Video */}
       <div className="absolute inset-0">
         <video 
@@ -18,8 +20,16 @@ const Hero = () => {
           {/* Fallback for browsers that don't support video */}
           Your browser does not support the video tag.
         </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
+        <div className={`absolute inset-0 ${
+          isLight
+            ? 'bg-gradient-to-r from-background/90 via-background/70 to-background/40'
+            : 'bg-gradient-to-r from-background via-background/80 to-background/40'
+        }`} />
+        <div className={`absolute inset-0 ${
+          isLight
+            ? 'bg-gradient-to-t from-background via-transparent to-background/20'
+            : 'bg-gradient-to-t from-background via-transparent to-background/30'
+        }`} />
       </div>
 
       {/* Animated Particles */}
@@ -42,7 +52,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10 flex justify-center">
         <div className="max-w-4xl space-y-8 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 glass-card px-4 py-2 animate-fade-in-up mx-auto">
+          <div className="inline-flex  mt-20 items-center gap-2 glass-card px-4 py-2 animate-fade-in-up mx-auto">
             <Sparkles size={16} className="text-primary" />
             <span className="text-sm font-medium">New Collection 2026</span>
           </div>
@@ -63,7 +73,7 @@ const Hero = () => {
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Link 
-              to="/products"
+              to="/shop"
               className="group inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium transition-all duration-300 hover:shadow-elegant hover:shadow-primary/30 btn-glow"
             >
               Shop Collection

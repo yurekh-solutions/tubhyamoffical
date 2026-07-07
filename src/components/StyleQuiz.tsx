@@ -28,17 +28,17 @@ const StyleQuiz = () => {
     "Formal & Professional-Office & Formal Events-Want a Flattering Fit": {
       title: "Executive Professional",
       recommendation: "Our formal trousers and palazzo pants are perfect for you. Try our Elegance Wide-Leg collection.",
-      link: "/products?category=formal"
+      link: "/shop?category=formal"
     },
     "Casual & Comfortable-Daily Wear & Casual-Comfortable in Most Styles": {
       title: "Casual Comfort Lover",
       recommendation: "Our track pants and comfort joggers offer the perfect blend of style and ease. Explore our athleisure collection.",
-      link: "/products?category=track"
+      link: "/shop?category=track"
     },
     "Trendy & Bold-Weekend Outings-Looking for Trendy Cuts": {
       title: "Style Trendsetter",
       recommendation: "Our premium jeans collection with modern cuts and washes is perfect for you. Check out our latest arrivals.",
-      link: "/products?category=jeans"
+      link: "/shop?category=jeans"
     }
   };
 
@@ -58,7 +58,7 @@ const StyleQuiz = () => {
     return styleResults[key as keyof typeof styleResults] || {
       title: "Style Explorer",
       recommendation: "Discover our full collection and find your perfect style match.",
-      link: "/products"
+      link: "/shop"
     };
   };
 

@@ -42,33 +42,17 @@ const Shipping = () => {
           <div className="glass-card p-8 md:p-12 space-y-8">
             <div className="space-y-4">
               <h2 className="font-heading text-2xl font-semibold">Shipping Rates</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="py-3 pr-4 font-medium">Order Value</th>
-                      <th className="py-3 font-medium">Shipping Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-muted-foreground">
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 pr-4">Below ₹500</td>
-                      <td className="py-3">₹99</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 pr-4">₹500 - ₹999</td>
-                      <td className="py-3">₹79</td>
-                    </tr>
-                    <tr className="border-b border-border/50">
-                      <td className="py-3 pr-4">₹1000 - ₹1999</td>
-                      <td className="py-3">₹49</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3 pr-4">₹2000 and above</td>
-                      <td className="py-3 text-primary font-medium">FREE</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="p-6 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
+                    <Truck size={20} className="text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="font-heading text-xl font-semibold text-green-700 dark:text-green-400">FREE Shipping on All Orders</h3>
+                </div>
+                <p className="text-muted-foreground">
+                  We offer complimentary shipping on every order — no minimum purchase required.
+                  Your order will be delivered right to your doorstep at no extra cost.
+                </p>
               </div>
             </div>
 

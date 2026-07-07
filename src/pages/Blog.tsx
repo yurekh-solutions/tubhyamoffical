@@ -479,7 +479,7 @@ const Blog = () => {
           <div className="container mx-auto px-4" style={{ textAlign: 'center' }}>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#F0E6DA', marginBottom: 6 }}>Ready to Elevate Your Style?</h2>
             <p style={{ color: '#8A7D70', fontSize: 13, marginBottom: 18 }}>Explore Tubhyam's curated collection of premium women's fashion</p>
-            <Link to="/products" style={{
+            <Link to="/shop" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 26px', borderRadius: 50,
               background: '#FFD3AC', color: '#1A1410', fontWeight: 700, fontSize: 13, textDecoration: 'none',
             }}>

@@ -19,34 +19,21 @@ export const useProducts = (options: UseProductsOptions = {}) => {
     priceRange = [0, 10000]
   } = options;
 
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [allProducts, setAllProducts] = useState<Product[]>(staticProducts);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch products on mount
+  // Static-first: products appear instantly, then refresh from API in background
   useEffect(() => {
     let cancelled = false;
     const fetchProducts = async () => {
-      setIsLoading(true);
-      setError(null);
       try {
         const data = await api.get<{ success: boolean; products: Product[] }>('/products');
-        if (!cancelled) {
-          // Use API data if available, otherwise fall back to static products
-          if (data.products && data.products.length > 0) {
-            setAllProducts(data.products);
-          } else {
-            setAllProducts(staticProducts);
-          }
+        if (!cancelled && data.products && data.products.length > 0) {
+          setAllProducts(data.products);
         }
       } catch {
-        if (!cancelled) {
-          setAllProducts(staticProducts);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        // Static products already displayed — no action needed
       }
     };
     fetchProducts();

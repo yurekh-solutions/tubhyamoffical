@@ -105,6 +105,18 @@
 
   <body>
     <div id="root"></div>
+    <!-- Flash prevention: set theme before React hydrates -->
+    <script>
+      (function(){
+        try {
+          var t = localStorage.getItem('tubhyam-theme');
+          if (t !== 'light' && t !== 'dark') t = 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch(e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>

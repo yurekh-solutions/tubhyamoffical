@@ -491,7 +491,7 @@ const BlogDetail = () => {
             <p style={{ color: '#8A7D70', fontSize: 15, marginBottom: 24 }}>
               Discover the perfect pieces to bring these styling tips to life
             </p>
-            <Link to="/products" style={{
+            <Link to="/shop" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', borderRadius: 50,
               background: '#FFD3AC', color: '#1A1410', fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'all 0.2s'
             }}>

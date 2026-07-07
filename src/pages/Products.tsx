@@ -8,11 +8,13 @@ import PageLoader from '@/components/PageLoader';
 import { useProducts, SortOption } from '@/hooks/useProducts';
 import { usePagination } from '@/hooks/usePagination';
 import { categories } from '@/data/products';
+import { useTheme } from '@/context/ThemeContext';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { isLight } = useTheme();
   
   const categoryParam = searchParams.get('category') as 'formal' | 'jeans' | 'track' | null;
   const searchQuery = searchParams.get('search') || '';
@@ -69,25 +71,22 @@ const Products = () => {
       <Navbar />
 
       {/* Page Header */}
-      <section className="py-8 md:py-12 border-b border-border">
-        <div className="container mx-auto px-2 md:px-4">
-          <div className="max-w-2xl">
-            <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-semibold mb-3 md:mb-4">
-              {selectedCategory === 'all' ? (
-                <>Our <span className="text-gradient-gold">Collection</span></>
-              ) : (
-                <><span className="text-gradient-gold capitalize">{selectedCategory}</span> Pants</>
-              )}
-            </h1>
-            {searchQuery && (
-              <p className="text-muted-foreground">
-                Search results for "{searchQuery}"
-              </p>
+      <section className="py-10 md:py-16">
+        <div className="container mx-auto px-2 md:px-4 text-center">
+          <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-muted-foreground mb-3 font-medium">The Collection</p>
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold mb-3">
+            {selectedCategory === 'all' ? 'Shop All Pants' : (
+              <>{selectedCategory === 'formal' ? 'Formal Pants' : selectedCategory === 'jeans' ? 'Jeans Collection' : 'Track Pants'}</>
             )}
-            <p className="text-muted-foreground mt-2">
-              Showing {(currentPage - 1) * 15 + 1} to {Math.min(currentPage * 15, totalCount)} of {totalCount} {totalCount === 1 ? 'product' : 'products'}
-            </p>
-          </div>
+          </h1>
+          {/* Accent underline */}
+          <div className={`w-16 h-0.5 mx-auto mb-4 ${isLight ? 'bg-[#BA7336]' : 'bg-primary'}`} />
+          <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto">
+            {searchQuery
+              ? `Search results for "${searchQuery}"`
+              : 'Premium women\'s pants for every moment — crafted for comfort, designed for elegance.'
+            }
+          </p>
         </div>
       </section>
 
@@ -95,7 +94,9 @@ const Products = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters - Desktop */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="glass-card p-6 sticky top-32 space-y-6">
+            <div className={`p-6 sticky top-32 space-y-6 rounded-xl border ${
+              isLight ? 'bg-white border-gray-200 shadow-sm' : 'glass-card'
+            }`}>
               <div className="flex items-center justify-between">
                 <h3 className="font-heading text-lg font-semibold">Filters</h3>
                 <button 
@@ -160,31 +161,65 @@ const Products = () => {
 
           {/* Main Content */}
           <main className="flex-1">
-            {/* Toolbar */}
+            {/* Toolbar: Filter Pills + Sort */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-              {/* Mobile Filter Button */}
-              <button
-                onClick={() => setIsFilterOpen(true)}
-                className="lg:hidden flex items-center gap-2 glass-card px-4 py-2 rounded-lg text-sm font-medium"
-              >
-                <SlidersHorizontal size={18} />
-                Filters
-              </button>
-
-              {/* Sort Dropdown */}
-              <div className="relative ml-auto">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="appearance-none bg-secondary/50 border border-border rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              {/* Filter Pills */}
+              <div className="flex flex-wrap gap-2">
+                {/* Mobile Filter Button */}
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  className={`lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
+                    isLight ? 'bg-white border border-gray-200' : 'glass-card'
+                  }`}
                 >
-                  <option value="featured">Featured</option>
-                  <option value="newest">Newest</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="name-asc">Name: A-Z</option>
-                </select>
-                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+                  <SlidersHorizontal size={18} />
+                  Filters
+                </button>
+
+                <button
+                  onClick={() => handleCategoryChange('all')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    selectedCategory === 'all'
+                      ? isLight ? 'bg-[#2E241F] text-white' : 'bg-primary text-primary-foreground'
+                      : isLight ? 'bg-white text-[#2E241F] border border-gray-200 hover:border-gray-400' : 'bg-secondary hover:bg-secondary/80'
+                  }`}
+                >
+                  All
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategoryChange(cat.id)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedCategory === cat.id
+                        ? isLight ? 'bg-[#2E241F] text-white' : 'bg-primary text-primary-foreground'
+                        : isLight ? 'bg-white text-[#2E241F] border border-gray-200 hover:border-gray-400' : 'bg-secondary hover:bg-secondary/80'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Items Count + Sort Dropdown */}
+              <div className="flex items-center gap-3 ml-auto">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">{totalCount} items</span>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortOption)}
+                    className={`appearance-none rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                      isLight ? 'bg-white border border-gray-200 text-[#2E241F]' : 'bg-secondary/50 border border-border'
+                    }`}
+                  >
+                    <option value="featured">Featured</option>
+                    <option value="newest">Newest</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A-Z</option>
+                  </select>
+                  <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+                </div>
               </div>
             </div>
 
@@ -203,12 +238,12 @@ const Products = () => {
               </div>
             ) : paginatedItems.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5">
                   {paginatedItems.map((product, index) => (
                     <div
                       key={product.id}
                       className="animate-fade-in-up"
-                      style={{ animationDelay: `${index * 0.05}s` }}
+                      style={{ animationDelay: `${index * 0.03}s` }}
                     >
                       <ProductCard product={product} priority={index < 4} />
                     </div>

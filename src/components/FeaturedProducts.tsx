@@ -59,7 +59,7 @@ const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
             <p className="text-muted-foreground">{subtitle}</p>
           </div>
           <Link 
-            to="/products"
+            to="/shop"
             className="group inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all duration-300"
           >
             View All

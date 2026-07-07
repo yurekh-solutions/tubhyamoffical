@@ -215,7 +215,7 @@ const WhyChooseTubhyam = () => {
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <a
-                href="/products"
+                href="/shop"
                 className="group px-12 py-4 bg-gradient-to-r from-primary via-primary to-primary/80 text-primary-foreground rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-primary/50 transition-all duration-300 hover:scale-105 inline-block"
               >
                 Explore Now

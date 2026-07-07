@@ -97,7 +97,7 @@ const Index = () => {
             </p>
             <div className="flex flex-wrap justify-center gap-4 pt-4">
               <Link 
-                to="/products"
+                to="/shop"
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-elegant transition-all duration-300"
               >
                 Explore Collection

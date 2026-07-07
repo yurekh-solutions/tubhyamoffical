@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import { useTheme } from '@/context/ThemeContext';
 import OptimizedImage from './OptimizedImage';
 
 interface ProductCardProps {
@@ -12,6 +13,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, priority = false }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const { isLight } = useTheme();
   const [showSecondImage, setShowSecondImage] = useState(false);
   const hasMultipleImages = product.images && product.images.length > 1;
   const currentImage = showSecondImage && hasMultipleImages ? product.images[1] : product.image;
@@ -32,7 +34,11 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
 
   return (
     <Link to={`/product/${product.id}`} className="group block h-full" onMouseEnter={() => hasMultipleImages && setShowSecondImage(true)} onMouseLeave={() => hasMultipleImages && setShowSecondImage(false)}>
-      <div className="glass-card h-full rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
+      <div className={`h-full rounded-2xl md:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 ${
+        isLight
+          ? 'bg-white border border-gray-200 hover:border-primary/30'
+          : 'glass-card border border-white/10 hover:border-primary/30'
+      }`}>
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden">
           <div className="product-image-zoom absolute inset-0 w-full h-full">
@@ -52,18 +58,22 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
           {/* Badges */}
           <div className="absolute top-4 left-4 flex flex-col gap-2">
             {product.isNew && (
-              <span className="glass-card bg-primary/90 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
+              <span className={`text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-sm ${
+                isLight ? 'bg-amber-600' : 'glass-card bg-primary/90 backdrop-blur-md border border-white/20'
+              }`}>
                 New
               </span>
             )}
             {product.isBestSeller && (
-              <span className="glass-card bg-accent/90 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
+              <span className={`text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-sm ${
+                isLight ? 'bg-amber-600' : 'glass-card bg-accent/90 backdrop-blur-md border border-white/20'
+              }`}>
                 Bestseller
               </span>
             )}
             {product.originalPrice && (
-              <span className="glass-card bg-destructive/90 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
-                Sale
+              <span className="text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-sm bg-[#E8652B]">
+                {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
               </span>
             )}
           </div>
@@ -82,7 +92,11 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
           <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
             <button
               onClick={handleQuickAdd}
-              className="w-full flex items-center justify-center gap-2 glass-card backdrop-blur-xl bg-white/90 text-foreground py-3.5 rounded-2xl font-semibold text-sm border border-white/30 hover:bg-white hover:scale-105 transition-all duration-300 shadow-xl"
+              className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-semibold text-sm border transition-all duration-300 hover:scale-105 shadow-xl ${
+                isLight
+                  ? 'bg-white text-foreground border-gray-200 hover:bg-gray-50'
+                  : 'glass-card backdrop-blur-xl bg-white/90 text-foreground border-white/30 hover:bg-white'
+              }`}
             >
               <ShoppingBag size={18} />
               Quick Add
@@ -91,11 +105,13 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
         </div>
 
         {/* Product Info */}
-        <div className="p-3 md:p-5 space-y-2 md:space-y-2.5 bg-gradient-to-b from-background/50 to-background backdrop-blur-sm">
+        <div className={`space-y-2 md:space-y-2.5 ${
+          isLight ? 'p-2.5 sm:p-4' : 'p-3 md:p-5 bg-gradient-to-b from-background/50 to-background backdrop-blur-sm'
+        }`}>
           <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest font-semibold">
             {product.category}
           </p>
-          <h3 className="font-heading text-sm md:text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">
+          <h3 className="font-heading text-xs sm:text-sm md:text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">
             {product.name}
           </h3>
           <div className="flex items-center gap-2.5">

@@ -73,7 +73,7 @@ const CartSidebar = () => {
                 <p className="text-lg font-medium text-foreground mb-2">Your cart is empty</p>
                 <p className="text-sm text-muted-foreground mb-6">Start adding items to your cart</p>
                 <Link 
-                  to="/products"
+                  to="/shop"
                   onClick={() => setIsCartOpen(false)}
                   className="px-6 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-full font-medium transition-all hover:scale-105"
                 >
@@ -162,7 +162,7 @@ const CartSidebar = () => {
               </button>
               
               <Link 
-                to="/products"
+                to="/shop"
                 onClick={() => setIsCartOpen(false)}
                 className="block text-center text-sm text-muted-foreground hover:text-primary transition-colors link-underline"
               >
