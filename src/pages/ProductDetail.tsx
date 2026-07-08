@@ -162,6 +162,18 @@ const ProductDetail = () => {
     if (!id) return;
     let cancelled = false;
 
+    // Fisher-Yates shuffle so "You May Also Like" shows a different
+    // random 4 on every load instead of the same first-4 from the
+    // category. We spread first to keep the source array immutable.
+    const pickRandom = <T,>(arr: T[], n: number): T[] => {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a.slice(0, n);
+    };
+
     // ── STEP 1: sync-first render ──────────────────────────────────
     // Try to show the curated product instantly (<2s target).
     // Case-insensitive lookup means both 'FP-005' and 'fp-005' hit.
@@ -170,7 +182,7 @@ const ProductDetail = () => {
       setProduct(syncProduct);
       setLoading(false);
       const syncRelated = getProductsByCategorySync(syncProduct.category);
-      setRelatedProducts(syncRelated.filter((p) => p.id !== id).slice(0, 4));
+      setRelatedProducts(pickRandom(syncRelated.filter((p) => p.id !== id), 4));
     }
 
     // ── STEP 2: background resolution (non-blocking) ────────────────
@@ -185,7 +197,7 @@ const ProductDetail = () => {
           setProduct(resolved);
           const related = await getProductsByCategory(resolved.category);
           if (cancelled) return;
-          setRelatedProducts(related.filter((p) => p.id !== resolved.id).slice(0, 4));
+          setRelatedProducts(pickRandom(related.filter((p) => p.id !== resolved.id), 4));
         }
       } catch (err) {
         // Timeout / 5xx / network error — the sync product (if any) is

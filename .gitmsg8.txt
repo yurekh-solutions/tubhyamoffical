@@ -1,0 +1,6 @@
+feat(ProductDetail): randomize You May Also Like section on every load
+
+Use Fisher-Yates shuffle to pick 4 random recommendations from the
+product's category instead of always showing the same first-4. Both
+the sync-first path and the background API path use pickRandom(arr, n)
+so each page load surfaces a fresh set of related items.
