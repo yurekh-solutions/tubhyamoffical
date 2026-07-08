@@ -987,10 +987,10 @@ export const getProductByIdSync = (id: string) =>
   products.find(p => p.id === id);
 
 export const getBestSellersSync = () =>
-  products.filter(p => p.isBestSeller);
+  products.filter(p => p.isBestSeller && p.price > 1);
 
 export const getNewArrivalsSync = () =>
-  products.filter(p => p.isNew);
+  products.filter(p => p.isNew && p.price > 1);
 
 // Async API functions with static fallback
 export const getProductsByCategory = async (category: Product['category']) => {

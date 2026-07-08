@@ -71,20 +71,19 @@ const Products = () => {
       <Navbar />
 
       {/* Page Header */}
-      <section className="py-10 md:py-16">
-        <div className="container mx-auto px-2 md:px-4 text-center">
-          <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-muted-foreground mb-3 font-medium">The Collection</p>
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold mb-3">
+      <section className="py-6 md:py-12">
+        <div className="container mx-auto px-4 mt-6 text-center">
+          <p className="text-[10px] md:text-sm uppercase tracking-[0.2em] text-muted-foreground mb-2 font-medium">The Collection</p>
+          <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-semibold mb-2">
             {selectedCategory === 'all' ? 'Shop All Pants' : (
               <>{selectedCategory === 'formal' ? 'Formal Pants' : selectedCategory === 'jeans' ? 'Jeans Collection' : 'Track Pants'}</>
             )}
           </h1>
-          {/* Accent underline */}
-          <div className={`w-16 h-0.5 mx-auto mb-4 ${isLight ? 'bg-[#BA7336]' : 'bg-primary'}`} />
-          <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto">
+          <div className={`w-12 h-0.5 mx-auto mb-3 ${isLight ? 'bg-[#BA7336]' : 'bg-primary'}`} />
+          <p className="text-muted-foreground text-xs md:text-base max-w-lg mx-auto">
             {searchQuery
               ? `Search results for "${searchQuery}"`
-              : 'Premium women\'s pants for every moment — crafted for comfort, designed for elegance.'
+              : 'Premium women\'s pants — crafted for comfort, designed for elegance.'
             }
           </p>
         </div>
@@ -162,63 +161,60 @@ const Products = () => {
           {/* Main Content */}
           <main className="flex-1">
             {/* Toolbar: Filter Pills + Sort */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-              {/* Filter Pills */}
-              <div className="flex flex-wrap gap-2">
-                {/* Mobile Filter Button */}
-                <button
-                  onClick={() => setIsFilterOpen(true)}
-                  className={`lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
-                    isLight ? 'bg-white border border-gray-200' : 'glass-card'
-                  }`}
-                >
-                  <SlidersHorizontal size={18} />
-                  Filters
-                </button>
+            <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1 scrollbar-hide">
+              {/* Mobile Filter Button */}
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className={`lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium flex-shrink-0 ${
+                  isLight ? 'bg-white border border-gray-200' : 'glass-card'
+                }`}
+              >
+                <SlidersHorizontal size={14} />
+                Filters
+              </button>
 
+              <button
+                onClick={() => handleCategoryChange('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex-shrink-0 ${
+                  selectedCategory === 'all'
+                    ? isLight ? 'bg-[#2E241F] text-white' : 'bg-primary text-primary-foreground'
+                    : isLight ? 'bg-white text-[#2E241F] border border-gray-200' : 'bg-secondary hover:bg-secondary/80'
+                }`}
+              >
+                All
+              </button>
+              {categories.map((cat) => (
                 <button
-                  onClick={() => handleCategoryChange('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedCategory === 'all'
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex-shrink-0 whitespace-nowrap ${
+                    selectedCategory === cat.id
                       ? isLight ? 'bg-[#2E241F] text-white' : 'bg-primary text-primary-foreground'
-                      : isLight ? 'bg-white text-[#2E241F] border border-gray-200 hover:border-gray-400' : 'bg-secondary hover:bg-secondary/80'
+                      : isLight ? 'bg-white text-[#2E241F] border border-gray-200' : 'bg-secondary hover:bg-secondary/80'
                   }`}
                 >
-                  All
+                  {cat.name}
                 </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleCategoryChange(cat.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedCategory === cat.id
-                        ? isLight ? 'bg-[#2E241F] text-white' : 'bg-primary text-primary-foreground'
-                        : isLight ? 'bg-white text-[#2E241F] border border-gray-200 hover:border-gray-400' : 'bg-secondary hover:bg-secondary/80'
-                    }`}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
+              ))}
 
-              {/* Items Count + Sort Dropdown */}
-              <div className="flex items-center gap-3 ml-auto">
-                <span className="text-sm text-muted-foreground whitespace-nowrap">{totalCount} items</span>
+              {/* Spacer + Sort */}
+              <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+                <span className="text-xs text-muted-foreground whitespace-nowrap hidden sm:inline">{totalCount} items</span>
                 <div className="relative">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
-                    className={`appearance-none rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+                    className={`appearance-none rounded-full px-3 py-1.5 pr-8 text-xs focus:outline-none focus:ring-2 focus:ring-primary/50 ${
                       isLight ? 'bg-white border border-gray-200 text-[#2E241F]' : 'bg-secondary/50 border border-border'
                     }`}
                   >
                     <option value="featured">Featured</option>
                     <option value="newest">Newest</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
+                    <option value="price-asc">Price: Low-High</option>
+                    <option value="price-desc">Price: High-Low</option>
                     <option value="name-asc">Name: A-Z</option>
                   </select>
-                  <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+                  <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
                 </div>
               </div>
             </div>

@@ -76,16 +76,16 @@ const Index = () => {
               with meticulous attention to detail, using only the finest fabrics and craftsmanship. 
               From the boardroom to weekend brunches, we've got the perfect pair for every moment of your life.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
               <Link 
                 to="/shop"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-elegant transition-all duration-300"
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-elegant transition-all duration-300"
               >
                 Explore Collection
               </Link>
               <Link 
                 to="/contact"
-                className="inline-flex items-center gap-2 glass-card px-8 py-4 rounded-full font-medium hover:border-primary/30 transition-all duration-300"
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto glass-card px-8 py-4 rounded-full font-medium hover:border-primary/30 transition-all duration-300"
               >
                 Contact Us
               </Link>

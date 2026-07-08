@@ -55,29 +55,29 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
-          {/* Badges */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2">
-            {product.isNew && (
-              <span className={`text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-sm ${
-                isLight ? 'bg-amber-600' : 'glass-card bg-primary/90 backdrop-blur-md border border-white/20'
+          {/* Badges — compact single row */}
+          <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 max-w-[75%]">
+            {product.originalPrice && (
+              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-full font-bold leading-tight ${
+                isLight
+                  ? 'text-white bg-[#E8652B]'
+                  : 'bg-[#8B5E3C] text-white'
               }`}>
-                New
+                {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
               </span>
             )}
             {product.isBestSeller && (
-              <span className={`text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-sm ${
-                isLight ? 'bg-amber-600' : 'glass-card bg-accent/90 backdrop-blur-md border border-white/20'
+              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-full font-semibold leading-tight ${
+                isLight ? 'bg-[#8b5e3c] text-white' : 'bg-[#5C3D2E] text-[#FFD3AC]'
               }`}>
                 Bestseller
               </span>
             )}
-            {product.originalPrice && (
-              <span className={`text-xs px-3 py-1.5 rounded-full font-bold shadow-sm ${
-                isLight
-                  ? 'text-white bg-[#E8652B]'
-                  : 'glass-card bg-[#3B2A1A]/70 backdrop-blur-md border border-white/10 text-[#FFD3AC]'
+            {product.isNew && (
+              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-full font-semibold leading-tight ${
+                isLight ? 'bg-[#2E1A0E] text-white' : 'bg-[#3B2A1A] text-white/90'
               }`}>
-                {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                New
               </span>
             )}
           </div>

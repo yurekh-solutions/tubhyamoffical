@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import { api } from '@/config/api';
 import ainosImg from '@/assets/ainos.jpeg';
+import { useTheme } from '@/context/ThemeContext';
 
 interface BlogPost {
   _id: string;
@@ -41,6 +42,7 @@ interface RelatedPost {
 type ProductImageMap = Record<string, string[]>;
 
 const BlogDetail = () => {
+  const { isLight } = useTheme();
   const { slug } = useParams<{ slug: string }>();
   const [blog, setBlog] = useState<BlogPost | null>(null);
   const [related, setRelated] = useState<RelatedPost[]>([]);
@@ -250,7 +252,7 @@ const BlogDetail = () => {
     return (
       <>
         <Navbar />
-        <div style={{ minHeight: '100vh', background: '#0F0B09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ minHeight: '100vh', background: isLight ? '#F5F0E8' : '#0F0B09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
             <img src={ainosImg} alt="AINOS" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 70%', margin: '0 auto 12px', border: '2px solid rgba(255,211,172,0.2)' }} />
             <Loader2 size={28} className="animate-spin" style={{ color: '#8A7D70' }} />
@@ -265,11 +267,11 @@ const BlogDetail = () => {
     return (
       <>
         <Navbar />
-        <div style={{ minHeight: '100vh', background: '#0F0B09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ minHeight: '100vh', background: isLight ? '#F5F0E8' : '#0F0B09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontSize: 48, marginBottom: 16 }}>📄</p>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: '#F0E6DA', marginBottom: 12 }}>{error || 'Article Not Found'}</h2>
-            <Link to="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#FFD3AC', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 12 }}>{error || 'Article Not Found'}</h2>
+            <Link to="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: isLight ? '#E8652B' : '#FFD3AC', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
               <ArrowLeft size={16} /> Back to Style Journal
             </Link>
           </div>
@@ -341,19 +343,19 @@ const BlogDetail = () => {
 
       {/* ═══ READING PROGRESS BAR ═══ */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 3, zIndex: 999, background: 'transparent' }}>
-        <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #FFD3AC, #F5C49C)', transition: 'width 0.1s' }} />
+        <div style={{ height: '100%', width: `${progress}%`, background: isLight ? 'linear-gradient(90deg, #E8652B, #D45A24)' : 'linear-gradient(90deg, #FFD3AC, #F5C49C)', transition: 'width 0.1s' }} />
       </div>
 
-      <main style={{ minHeight: '100vh', background: '#0F0B09' }}>
+      <main style={{ minHeight: '100vh', background: isLight ? '#F5F0E8' : '#0F0B09' }}>
 
         {/* ═══ BREADCRUMB ═══ */}
-        <div className="container mx-auto px-4" style={{ padding: '20px 16px 0' }}>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#8A7D70', flexWrap: 'wrap' }}>
-            <Link to="/" style={{ color: '#8A7D70', textDecoration: 'none' }}>Home</Link>
+        <div className="container mx-auto px-4" style={{ padding: '80px 16px 0' }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: isLight ? '#8A7D70' : '#8A7D70', flexWrap: 'wrap' }}>
+            <Link to="/" style={{ color: isLight ? '#8A7D70' : '#8A7D70', textDecoration: 'none' }}>Home</Link>
             <span>/</span>
-            <Link to="/blog" style={{ color: '#8A7D70', textDecoration: 'none' }}>Style Journal</Link>
+            <Link to="/blog" style={{ color: isLight ? '#8A7D70' : '#8A7D70', textDecoration: 'none' }}>Style Journal</Link>
             <span>/</span>
-            <span style={{ color: '#B0A090', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{blog.title}</span>
+            <span style={{ color: isLight ? '#6B5B4E' : '#B0A090', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>{blog.title}</span>
           </nav>
         </div>
 
@@ -362,56 +364,56 @@ const BlogDetail = () => {
 
           {/* Category + Meta */}
           <div style={{ marginBottom: 20 }}>
-            <span style={{ display: 'inline-block', background: '#FFD3AC', color: '#1A1410', fontSize: 11, fontWeight: 700, padding: '4px 16px', borderRadius: 50, letterSpacing: 0.5, marginBottom: 16 }}>
+            <span style={{ display: 'inline-block', background: isLight ? '#E8652B' : '#FFD3AC', color: '#FFFFFF', fontSize: 11, fontWeight: 700, padding: '4px 16px', borderRadius: 50, letterSpacing: 0.5, marginBottom: 16 }}>
               {blog.category}
             </span>
           </div>
 
           {/* Title */}
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: '#F0E6DA', lineHeight: 1.2, margin: '0 0 16px' }}>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.2, margin: '0 0 16px' }}>
             {blog.title}
           </h1>
 
           {/* Excerpt / Subtitle */}
-          <p style={{ fontSize: 17, color: '#B0A090', lineHeight: 1.7, margin: '0 0 24px', fontWeight: 400 }}>
+          <p style={{ fontSize: 17, color: isLight ? '#6B5B4E' : '#B0A090', lineHeight: 1.7, margin: '0 0 24px', fontWeight: 400 }}>
             {blog.excerpt}
           </p>
 
           {/* Meta bar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: '#8A7D70', marginBottom: 32, flexWrap: 'wrap', paddingBottom: 24, borderBottom: '1px solid rgba(255,211,172,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: isLight ? '#8A7D70' : '#8A7D70', marginBottom: 32, flexWrap: 'wrap', paddingBottom: 24, borderBottom: isLight ? '1px solid rgba(46,26,14,0.1)' : '1px solid rgba(255,211,172,0.1)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <img src={ainosImg} alt="AINOS" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 70%', border: '1.5px solid rgba(255,211,172,0.2)' }} />
-              <span style={{ fontWeight: 600, color: '#B0A090' }}>AINOS</span>
+              <span style={{ fontWeight: 600, color: isLight ? '#6B5B4E' : '#B0A090' }}>AINOS</span>
             </div>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={14} /> {formatDate(blog.publishedAt)}</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> {blog.readTime} min read</span>
-            <button onClick={handleShare} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: '1px solid rgba(255,211,172,0.15)', borderRadius: 50, padding: '6px 14px', color: '#8A7D70', cursor: 'pointer', fontSize: 12, transition: 'border-color 0.2s' }}>
+            <button onClick={handleShare} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: isLight ? '1px solid rgba(46,26,14,0.15)' : '1px solid rgba(255,211,172,0.15)', borderRadius: 50, padding: '6px 14px', color: isLight ? '#8A7D70' : '#8A7D70', cursor: 'pointer', fontSize: 12, transition: 'border-color 0.2s' }}>
               <Share2 size={13} /> Share
             </button>
           </div>
 
           {/* ═══ HERO IMAGE (FULL WIDTH) ═══ */}
           {displayImage && (
-            <div style={{ borderRadius: 12, overflow: 'hidden', marginBottom: 48, border: '1px solid rgba(255,211,172,0.06)', boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
+            <div style={{ borderRadius: 12, overflow: 'hidden', marginBottom: 48, border: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.06)', boxShadow: isLight ? '0 12px 40px rgba(0,0,0,0.08)' : '0 12px 40px rgba(0,0,0,0.3)' }}>
               <img src={displayImage} alt={blog.title} style={{ width: '100%', height: 'auto', maxHeight: 520, objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
             </div>
           )}
 
           {/* ═══ TABLE OF CONTENTS ═══ */}
           {toc.length >= 3 && (
-            <div style={{ background: '#1A1410', border: '1px solid rgba(255,211,172,0.1)', borderRadius: 10, padding: '20px 24px', marginBottom: 40 }}>
+            <div style={{ background: isLight ? '#FFFFFF' : '#1A1410', border: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.1)', borderRadius: 10, padding: '20px 24px', marginBottom: 40 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                <BookOpen size={15} style={{ color: '#FFD3AC' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFD3AC', letterSpacing: 1, textTransform: 'uppercase' }}>In This Guide</span>
+                <BookOpen size={15} style={{ color: isLight ? '#E8652B' : '#FFD3AC' }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: isLight ? '#E8652B' : '#FFD3AC', letterSpacing: 1, textTransform: 'uppercase' }}>In This Guide</span>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {toc.map((item) => (
                   <li key={item.id} style={{ marginBottom: 8 }}>
                     <a href={`#${item.id}`} onClick={e => { e.preventDefault(); document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-                      style={{ color: '#B0A090', fontSize: 14, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, transition: 'color 0.2s' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#FFD3AC')}
-                      onMouseLeave={e => (e.currentTarget.style.color = '#B0A090')}>
-                      <ArrowRight size={12} style={{ color: '#FFD3AC', flexShrink: 0 }} />
+                      style={{ color: isLight ? '#6B5B4E' : '#B0A090', fontSize: 14, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, transition: 'color 0.2s' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = isLight ? '#E8652B' : '#FFD3AC')}
+                      onMouseLeave={e => (e.currentTarget.style.color = isLight ? '#6B5B4E' : '#B0A090')}>
+                      <ArrowRight size={12} style={{ color: isLight ? '#E8652B' : '#FFD3AC', flexShrink: 0 }} />
                       {item.text}
                     </a>
                   </li>
@@ -422,18 +424,18 @@ const BlogDetail = () => {
 
           {/* ═══ ARTICLE CONTENT ═══ */}
           <div
-            className="tubhyam-article"
-            style={{ fontSize: 16, lineHeight: 1.85, color: '#C4B5A6' }}
+            className={`tubhyam-article ${isLight ? 'tubhyam-article-light' : ''}`}
+            style={{ fontSize: 16, lineHeight: 1.85, color: isLight ? '#4A3A2E' : '#C4B5A6' }}
             dangerouslySetInnerHTML={{ __html: contentWithIds }}
           />
 
           {/* ═══ TAGS / KEYWORDS ═══ */}
           {((blog.tags && blog.tags.length > 0) || (blog.keywords && blog.keywords.length > 0)) && (
-            <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid rgba(255,211,172,0.1)' }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#8A7D70', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Related Topics</p>
+            <div style={{ marginTop: 48, paddingTop: 24, borderTop: isLight ? '1px solid rgba(46,26,14,0.1)' : '1px solid rgba(255,211,172,0.1)' }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: isLight ? '#8A7D70' : '#8A7D70', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Related Topics</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {[...(blog.tags || []), ...(blog.keywords || [])].filter((v, i, a) => a.indexOf(v) === i).map((tag, idx) => (
-                  <span key={idx} style={{ fontSize: 12, color: '#B0A090', background: '#1A1410', border: '1px solid rgba(255,211,172,0.1)', borderRadius: 50, padding: '5px 14px' }}>
+                  <span key={idx} style={{ fontSize: 12, color: isLight ? '#6B5B4E' : '#B0A090', background: isLight ? '#FFFFFF' : '#1A1410', border: isLight ? '1px solid rgba(46,26,14,0.1)' : '1px solid rgba(255,211,172,0.1)', borderRadius: 50, padding: '5px 14px' }}>
                     {tag}
                   </span>
                 ))}
@@ -443,7 +445,7 @@ const BlogDetail = () => {
 
           {/* ═══ BACK TO BLOG ═══ */}
           <div style={{ marginTop: 32 }}>
-            <Link to="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#FFD3AC', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
+            <Link to="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: isLight ? '#E8652B' : '#FFD3AC', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
               <ArrowLeft size={16} /> Back to Style Journal
             </Link>
           </div>
@@ -451,26 +453,26 @@ const BlogDetail = () => {
 
         {/* ═══ RELATED ARTICLES ═══ */}
         {related.length > 0 && (
-          <section style={{ borderTop: '1px solid rgba(255,211,172,0.08)', padding: '48px 0' }}>
+          <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.08)', padding: '48px 0' }}>
             <div className="container mx-auto px-4">
-              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: '#F0E6DA', marginBottom: 24 }}>
+              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 24 }}>
                 More in {blog.category}
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 16 }}>
                 {related.map((post, i) => (
                   <Link key={post._id} to={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
-                    <article style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,211,172,0.08)', background: '#151010', transition: 'all 0.25s', height: '100%' }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                    <article style={{ borderRadius: 10, overflow: 'hidden', border: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.08)', background: isLight ? '#FFFFFF' : '#151010', transition: 'all 0.25s', height: '100%' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = isLight ? 'rgba(232,101,43,0.2)' : 'rgba(255,211,172,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = isLight ? 'rgba(46,26,14,0.08)' : 'rgba(255,211,172,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                       <div style={{ height: 160, overflow: 'hidden' }}>
                         <img src={getRelatedImage(post, i) || ''} alt={post.title}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: '#151010' }} />
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: isLight ? '#EDE5D8' : '#151010' }} />
                       </div>
                       <div style={{ padding: 16 }}>
-                        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                           {post.title}
                         </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#8A7D70' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: isLight ? '#8A7D70' : '#8A7D70' }}>
                           <span>{post.readTime} min read</span>
                         </div>
                       </div>
@@ -483,17 +485,17 @@ const BlogDetail = () => {
         )}
 
         {/* ═══ CTA ═══ */}
-        <section style={{ borderTop: '1px solid rgba(255,211,172,0.08)', padding: '56px 0' }}>
+        <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.08)', padding: '56px 0' }}>
           <div className="container mx-auto px-4" style={{ textAlign: 'center' }}>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: '#F0E6DA', marginBottom: 8 }}>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 8 }}>
               Love This Guide?
             </h2>
-            <p style={{ color: '#8A7D70', fontSize: 15, marginBottom: 24 }}>
+            <p style={{ color: isLight ? '#6B5B4E' : '#8A7D70', fontSize: 15, marginBottom: 24 }}>
               Discover the perfect pieces to bring these styling tips to life
             </p>
             <Link to="/shop" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', borderRadius: 50,
-              background: '#FFD3AC', color: '#1A1410', fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'all 0.2s'
+              background: isLight ? '#E8652B' : '#FFD3AC', color: '#FFFFFF', fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'all 0.2s'
             }}>
               Shop the Collection <ArrowRight size={16} />
             </Link>
@@ -584,6 +586,25 @@ const BlogDetail = () => {
           border-radius: 0 8px 8px 0;
           font-style: italic;
           color: #B0A090;
+        }
+
+        /* ═══ LIGHT THEME OVERRIDES ═══ */
+        .tubhyam-article-light h2 { color: #2E1A0E; }
+        .tubhyam-article-light h3 { color: #3B2A1A; }
+        .tubhyam-article-light p { color: #4A3A2E; }
+        .tubhyam-article-light a { color: #E8652B; }
+        .tubhyam-article-light li { color: #4A3A2E; }
+        .tubhyam-article-light strong { color: #2E1A0E; }
+        .tubhyam-article-light em { color: #5C3D2E; }
+        .tubhyam-article-light figure img {
+          border: 1px solid rgba(46,26,14,0.08);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+        .tubhyam-article-light figcaption { color: #8A7D70; }
+        .tubhyam-article-light blockquote {
+          border-left: 3px solid #E8652B;
+          background: rgba(232,101,43,0.05);
+          color: #6B5B4E;
         }
       `}</style>
     </>

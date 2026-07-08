@@ -19,6 +19,9 @@ interface CartContextType {
   totalPrice: number;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
+  lastAddedItem: CartItem | null;
+  isAddToBagSheetOpen: boolean;
+  setIsAddToBagSheetOpen: (open: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -26,8 +29,16 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
+  const [isAddToBagSheetOpen, setIsAddToBagSheetOpen] = useState(false);
 
   const addToCart = useCallback((product: Product, size: string, color: string) => {
+    // Skip test products with price <= 1
+    if (product.price <= 1) {
+      toast.error('This product is not available for purchase');
+      return;
+    }
+
     setItems(prev => {
       const existingIndex = prev.findIndex(
         item => item.product.id === product.id && item.size === size && item.color === color
@@ -36,14 +47,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (existingIndex >= 0) {
         const updated = [...prev];
         updated[existingIndex].quantity += 1;
-        toast.success(`Updated ${product.name} quantity`);
+        setLastAddedItem({ ...updated[existingIndex] });
         return updated;
       }
 
-      toast.success(`Added ${product.name} to cart`);
-      return [...prev, { product, quantity: 1, size, color }];
+      const newItem: CartItem = { product, quantity: 1, size, color };
+      setLastAddedItem(newItem);
+      return [...prev, newItem];
     });
-    setIsCartOpen(true);
+
+    // Show bottom sheet instead of opening cart directly
+    setIsAddToBagSheetOpen(true);
   }, []);
 
   const removeFromCart = useCallback((productId: string, size: string, color: string) => {
@@ -85,6 +99,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       totalPrice,
       isCartOpen,
       setIsCartOpen,
+      lastAddedItem,
+      isAddToBagSheetOpen,
+      setIsAddToBagSheetOpen,
     }}>
       {children}
     </CartContext.Provider>

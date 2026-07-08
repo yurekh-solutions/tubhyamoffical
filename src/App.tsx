@@ -32,6 +32,8 @@ import BlogDetail from "./pages/BlogDetail";
 import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import AIChatWidget from "./components/AIChatWidget";
+import CartSidebar from "./components/CartSidebar";
+import AddToBagSheet from "./components/AddToBagSheet";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +80,8 @@ const App = () => (
               <Route path="/track-order" element={<TrackOrder />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <CartSidebar />
+            <AddToBagSheet />
           </BrowserRouter>
           <AIChatWidget />
         </CartProvider>

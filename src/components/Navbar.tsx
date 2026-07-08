@@ -43,31 +43,35 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Announcement Banner */}
-      <div className={`fixed top-0 left-0 right-0 z-[60] text-white text-[11px] sm:text-xs tracking-wider ${
+      {/* Announcement Banner — Marquee Ticker */}
+      <div className={`fixed top-0 left-0 right-0 z-[60] overflow-hidden text-white text-[10px] sm:text-xs tracking-wide ${
         isLight ? 'bg-[#2E241F]' : 'bg-[#1A1410]'
       }`}>
-        <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-3 sm:gap-6 flex-wrap text-center">
-          <span className="hidden sm:inline">CASH ON DELIVERY AVAILABLE</span>
-          <span className="hidden md:inline text-white/30">|</span>
-          <span>NEW ARRIVALS EVERY WEEK</span>
-          <span className="hidden md:inline text-white/30">|</span>
-          <a href="https://wa.me/917039382706" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-green-300 transition-colors">
-            <MessageCircle size={12} />
-            <span>WHATSAPP +91 70393 82706</span>
-          </a>
-          <span className="hidden md:inline text-white/30">|</span>
-          <span className="hidden sm:inline">FREE SHIPPING ON ALL ORDERS</span>
-          <span className="hidden sm:inline text-white/30">|</span>
-          <a 
-            href="https://www.instagram.com/tubhyamofficial/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-1 hover:text-pink-300 transition-colors"
-          >
-            <Instagram size={12} />
-            <span>@tubhyamofficial</span>
-          </a>
+        <div className="flex items-center py-1.5 sm:py-2 animate-marquee whitespace-nowrap" style={{ width: 'max-content' }}>
+          {/* Content repeated twice for seamless loop */}
+          {[1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-4 sm:gap-8 px-4">
+              <span>CASH ON DELIVERY AVAILABLE</span>
+              <span className="text-white/30">•</span>
+              <span className="font-semibold text-[#FFD3AC]">NEW ARRIVALS EVERY WEEK</span>
+              <span className="text-white/30">•</span>
+              <a href="https://wa.me/917039382706" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-green-300 transition-colors">
+                <MessageCircle size={11} className="sm:w-3 sm:h-3" />
+                <span>WHATSAPP +91 70393 82706</span>
+              </a>
+              <span className="text-white/30">•</span>
+              <span>FREE SHIPPING ON ALL ORDERS</span>
+              <span className="text-white/30">•</span>
+              <a href="https://www.instagram.com/tubhyamofficial/" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1 hover:text-pink-300 transition-colors">
+                <Instagram size={12} />
+                <span>@tubhyamofficial</span>
+              </a>
+              <span className="text-white/30">•</span>
+              <span>FLAT 20% OFF — CODE: TUBHYAM20</span>
+              <span className="text-white/30">•</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -77,13 +81,13 @@ const Navbar = () => {
             ? `${isLight ? 'bg-white/95' : 'bg-background/95'} border-b border-border shadow-glass` 
             : isLight ? 'bg-white backdrop-blur-sm' : 'bg-background/90 backdrop-blur-sm'
         }`}
-        style={{ top: '32px' }}
+        style={{ top: '28px' }}
       >
 
 
         {/* Main nav */}
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-3 sm:gap-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Mobile menu button - Left */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -95,21 +99,21 @@ const Navbar = () => {
             {/* Logo - Left side next to hamburger */}
             <Link 
               to="/" 
-              className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
+              className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0"
             >
               <img 
                 src={logo} 
                 alt="Tubhyam" 
-                className={`h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-md ${
-                  isLight ? 'brightness-90' : ''
+                className={`h-8 w-8 sm:h-12 sm:w-12 object-cover rounded-md ${
+                  isLight ? 'brightness-[0.3] sepia' : ''
                 }`} 
               />
               <div>
-                <h1 className={`font-heading text-base sm:text-2xl font-semibold whitespace-nowrap ${
-                  isLight ? 'text-[#2E241F]' : 'text-gradient-gold'
+                <h1 className={`font-heading text-sm sm:text-2xl font-semibold whitespace-nowrap leading-tight ${
+                  isLight ? 'text-[#2E1A0E]' : 'text-gradient-gold'
                 }`}>Tubhyam</h1>
-                <p className={`text-[8px] sm:text-[10px] tracking-widest whitespace-nowrap ${
-                  isLight ? 'text-[#7E6F67]' : 'text-muted-foreground'
+                <p className={`text-[7px] sm:text-[10px] tracking-widest whitespace-nowrap ${
+                  isLight ? 'text-[#4A3228]' : 'text-muted-foreground'
                 }`}>तुम्हारे लिए</p>
               </div>
             </Link>
@@ -132,7 +136,7 @@ const Navbar = () => {
             </div>
 
             {/* Actions - Right side with margin-left auto to push to right */}
-            <div className="flex items-center gap-2 sm:gap-3 ml-auto flex-shrink-0">
+            <div className="flex items-center gap-1 sm:gap-3 ml-auto flex-shrink-0">
               {/* Search - Hidden on mobile, shown on desktop */}
               <div className="hidden md:flex items-center gap-2">
                 <form
@@ -164,30 +168,30 @@ const Navbar = () => {
               {/* Mobile Search Icon */}
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="md:hidden p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
+                className="md:hidden p-1.5 sm:p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
               >
-                <Search size={20} />
+                <Search size={18} className="sm:w-5 sm:h-5" />
               </button>
 
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 hover:bg-secondary/50 rounded-full transition-all duration-300 flex-shrink-0"
+                className="p-1.5 sm:p-2 hover:bg-secondary/50 rounded-full transition-all duration-300 flex-shrink-0"
                 aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               >
                 {theme === 'light' ? (
-                  <Moon size={20} className="transition-transform duration-300" />
+                  <Moon size={18} className="sm:w-5 sm:h-5 transition-transform duration-300" />
                 ) : (
-                  <Sun size={20} className="transition-transform duration-300" />
+                  <Sun size={18} className="sm:w-5 sm:h-5 transition-transform duration-300" />
                 )}
               </button>
 
               {/* Cart */}
               <Link
                 to="/cart"
-                className="relative p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
+                className="relative p-1.5 sm:p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
               >
-                <ShoppingBag size={20} />
+                <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
                 {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
                     {totalItems}
@@ -280,7 +284,7 @@ const Navbar = () => {
       </div>
 
       {/* Spacer for announcement banner + navbar */}
-      <div className="h-[72px] md:h-[80px]" />
+      <div className="h-[64px] sm:h-[72px] md:h-[80px]" />
     </>
   );
 };

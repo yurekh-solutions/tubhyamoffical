@@ -109,11 +109,13 @@ const Hero = () => {
 
           <div className="relative w-full px-6 sm:px-12 lg:px-16 xl:px-24">
             <div className="max-w-lg mx-auto mt-10 lg:mx-0 space-y-6 lg:space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8b5e3c] animate-fade-in-up">
-                <Sparkles size={13} className="text-[#ffd3ac]" />
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#ffd3ac]">
-                  New Collection 2026
-                </span>
+              <div className="flex justify-center lg:justify-start">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8b5e3c] animate-fade-in-up">
+                  <Sparkles size={13} className="text-[#ffd3ac]" />
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#ffd3ac]">
+                    New Collection 2026
+                  </span>
+                </div>
               </div>
 
               <h1 className="font-heading text-3xl sm:text-4xl lg:text-[3.5rem] xl:text-6xl font-bold leading-[1.08] text-[#2A1A0E] animate-fade-in-up text-center lg:text-left" style={{ animationDelay: '0.1s' }}>
@@ -127,17 +129,17 @@ const Hero = () => {
                 From formal office wear to casual weekend comfort — crafted for the modern woman.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="flex flex-col gap-3 sm:flex-row justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <Link
                   to="/shop"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#E8652B]/20 backdrop-blur-xl border border-[#E8652B]/30 text-[#3B2A1A] rounded-full font-semibold transition-all duration-300 hover:bg-[#E8652B]/30 hover:border-[#E8652B]/50 hover:scale-105 shadow-lg shadow-[#E8652B]/10"
+                  className="group inline-flex items-center justify-center gap-2 w-full sm:flex-1 px-8 py-4 bg-[#E8652B]/20 backdrop-blur-xl border border-[#E8652B]/30 text-[#3B2A1A] rounded-full font-semibold transition-all duration-300 hover:bg-[#E8652B]/30 hover:border-[#E8652B]/50 hover:scale-105 shadow-lg shadow-[#E8652B]/10"
                 >
                   Shop Collection
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#3B2A1A]/15 backdrop-blur-xl border border-[#3B2A1A]/25 text-[#3B2A1A] rounded-full font-medium transition-all duration-300 hover:bg-[#3B2A1A]/25 hover:border-[#3B2A1A]/40 hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:flex-1 glass-card px-8 py-4 rounded-full font-medium hover:border-primary/30 transition-all duration-300"
                 >
                   Contact Us
                 </Link>

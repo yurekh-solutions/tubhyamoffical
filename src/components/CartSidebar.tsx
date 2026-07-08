@@ -75,7 +75,7 @@ const CartSidebar = () => {
                 <Link 
                   to="/shop"
                   onClick={() => setIsCartOpen(false)}
-                  className="px-6 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-full font-medium transition-all hover:scale-105"
+                  className="px-6 py-2.5 glass-card bg-primary/10 hover:bg-primary/20 text-primary rounded-full font-medium transition-all hover:scale-105"
                 >
                   Continue Shopping
                 </Link>

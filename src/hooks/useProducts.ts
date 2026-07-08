@@ -43,6 +43,9 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   const filteredProducts = useMemo(() => {
     let filtered = [...allProducts];
 
+    // Exclude test/placeholder products (price <= 1)
+    filtered = filtered.filter(p => p.price > 1);
+
     // Debug: log category values
     if (category !== 'all' && allProducts.length > 0) {
       const uniqueCats = [...new Set(allProducts.map(p => p.category))];

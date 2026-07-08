@@ -153,6 +153,7 @@ const ProductDetail = () => {
   const [reviewHover, setReviewHover] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
   const [userReviews, setUserReviews] = useState<{name:string;location:string;rating:number;date:string;comment:string}[]>(() =>
     id ? getStoredReviews(id) : []
   );
@@ -272,7 +273,7 @@ const ProductDetail = () => {
     );
   }
 
-  if (!product) {
+  if (!product || product.price <= 1) {
     return (
       <div className="min-h-screen">
         <Navbar />
@@ -318,7 +319,7 @@ const ProductDetail = () => {
       <Navbar />
 
       {/* Back to Shop */}
-      <div className="container mx-auto px-4 pt-4 pb-2">
+      <div className="container  mx-auto px-4 pt-20 pb-2">
         <Link
           to="/shop"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group"
@@ -593,26 +594,40 @@ const ProductDetail = () => {
             </div>
 
             {/* Action buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <button
-                onClick={handleAddToCart}
-                disabled={!selectedSize}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg font-semibold transition-all text-sm ${
-                  selectedSize
-                    ? isLight
-                      ? 'bg-[#2E241F] text-white hover:bg-[#1A1410] hover:shadow-lg active:scale-[0.98]'
-                      : 'glass-card bg-white/90 text-[#1A1410] hover:bg-white hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]'
-                    : isLight
-                      ? 'bg-[#D4C5B5] text-[#8A7D70] cursor-not-allowed'
-                      : 'glass-card bg-white/10 text-[#6B5E52] cursor-not-allowed'
-                }`}
-              >
-                <ShoppingBag size={18} />
-                Add to Bag
-              </button>
+            <div className="space-y-3 pt-2">
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!selectedSize}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl font-semibold transition-all text-sm ${
+                    selectedSize
+                      ? isLight
+                        ? 'bg-[#2E241F] text-white hover:bg-[#1A1410] hover:shadow-lg active:scale-[0.98]'
+                        : 'glass-card bg-white/90 text-[#1A1410] hover:bg-white hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]'
+                      : isLight
+                        ? 'bg-[#D4C5B5] text-[#8A7D70] cursor-not-allowed'
+                        : 'glass-card bg-white/10 text-[#6B5E52] cursor-not-allowed'
+                  }`}
+                >
+                  <ShoppingBag size={18} />
+                  Add to Bag
+                </button>
+                <button
+                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  className={`p-4 rounded-xl transition-all active:scale-95 ${
+                    isWishlisted
+                      ? 'bg-red-50 border-2 border-red-400 text-red-500'
+                      : isLight
+                        ? 'border-2 border-[#D4C5B5] text-[#8A7D70] hover:border-[#2E241F] hover:text-[#2E241F]'
+                        : 'glass-card text-[#8A7D70] hover:text-[#FFD3AC] active:scale-[0.98]'
+                  }`}
+                >
+                  <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
+                </button>
+              </div>
               <button
                 onClick={handleWhatsApp}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg font-semibold transition-all text-sm ${
+                className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold transition-all text-sm ${
                   isLight
                     ? 'border-2 border-green-600 text-green-700 hover:bg-green-50 active:scale-[0.98]'
                     : 'glass-card bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 active:scale-[0.98] shadow-lg shadow-green-500/10'
@@ -620,15 +635,6 @@ const ProductDetail = () => {
               >
                 <Phone size={18} />
                 Buy on WhatsApp
-              </button>
-              <button
-                className={`p-3.5 rounded-lg transition-colors ${
-                  isLight
-                    ? 'border-2 border-[#D4C5B5] text-[#8A7D70] hover:border-[#2E241F] hover:text-[#2E241F]'
-                    : 'glass-card text-[#8A7D70] hover:text-[#FFD3AC] active:scale-[0.98]'
-                }`}
-              >
-                <Heart size={20} />
               </button>
             </div>
 
