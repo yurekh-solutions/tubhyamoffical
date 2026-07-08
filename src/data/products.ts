@@ -2,6 +2,8 @@ import { api } from '@/config/api';
 
 export interface Product {
   id: string;
+  mongoId?: string; // MongoDB _id for backward-compatible URL resolution
+  sku?: string;     // Inventory SKU (often matches id; present on API responses)
   name: string;
   price: number;
   originalPrice?: number;
@@ -16,6 +18,12 @@ export interface Product {
   inStock: boolean;
   isNew?: boolean;
   isBestSeller?: boolean;
+
+  // Color-to-image mapping for multi-color products
+  colorImages?: Record<string, string[]>;
+
+  // Per-image caption shown beneath the main image on the detail page
+  imageCaptions?: Record<string, string>;
 
   // Optional fields populated by API
   fabric?: string;
@@ -48,6 +56,12 @@ export const products: Product[] = [
     price: 1899,
     image: '/images/products/olivecomfort.jpg',
     images: ['/images/products/olivecomfort.jpg', '/images/products/olivecomfort1.jpg', '/images/products/olivecomfort2.jpg', '/images/products/olivecomfort3.jpg'],
+    imageCaptions: {
+      '/images/products/olivecomfort.jpg': 'Front view in Olive Green, comfort-fit.',
+      '/images/products/olivecomfort1.jpg': 'Side angle in Olive Green, comfort-fit.',
+      '/images/products/olivecomfort2.jpg': 'Back view in Olive Green, comfort-fit.',
+      '/images/products/olivecomfort3.jpg': 'Waistband detail in Olive Green.',
+    },
     description:
       "Minimalist relaxed-fit trousers featuring an elastic waistband for all-day comfort. Designed with a straight wide-leg silhouette, these trousers offer a clean, effortless look suitable for casual and semi-formal wear. Premium olive tone with versatile styling options shown in multiple views.",
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -214,21 +228,6 @@ export const products: Product[] = [
   },
   
   {
-    id: "fp-004",
-    name: "Black Premium Trousers",
-    category: "formal",
-    price: 2899,
-    originalPrice: 3799,
-    image: '/images/products/imported-beggy-black.jpg',
-    images: ['/images/products/imported-beggy-black.jpg', '/images/products/slimfit-formal-pants-black-grey.jpg', '/images/products/belt-formal-balck.jpg'],
-    description: "Sophisticated black formal trousers with a sleek silhouette and premium finish. Features a modern flat-front design with perfect tailoring for contemporary business wear.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Black"],
-    material: "Premium Polyester Blend",
-    inStock: true,
-    isBestSeller: true,
-  },
-  {
     id: "fp-005",
     name: "Olive Sophisticated Pants",
     category: "formal",
@@ -241,20 +240,6 @@ export const products: Product[] = [
     material: "Cotton Blend",
     inStock: true,
     isNew: true,
-  },
-  {
-    id: "fp-006",
-    name: "Graphite Executive Fit",
-    category: "formal",
-    price: 3099,
-    originalPrice: 4199,
-    image: '/images/products/preuim-gray.jpg',
-    images: ['/images/products/preuim-gray.jpg'],
-    description: "Sophisticated graphite pants designed for the modern professional woman. Features a slim fit with subtle sheen, perfect for boardroom to dinner transitions.",
-    sizes: ["XS", "S", "M", "L"],
-    colors: ["Graphite"],
-    material: "Wool Blend",
-    inStock: true,
   },
   {
     id: "fp-007",
@@ -299,30 +284,28 @@ export const products: Product[] = [
   },
   {
     id: "fp-010",
-    name: "Belt Formal Pants - Black",
+    name: "Belt Formal Pants",
     category: "formal",
-    price: 2899,
+    price: 2799,
+    originalPrice: 3599,
     image: '/images/products/belt-formal-balck.jpg',
-    images: ['/images/products/belt-formal-balck.jpg'],
-    description: "Sleek black formal pants with belt loops and tailored fit. Features side pockets and premium finish for office and formal occasions.",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Black"],
+    images: ['/images/products/belt-formal-balck.jpg', '/images/products/belt-formal-beige.jpg', '/images/products/belt-formal-beige1.jpg', '/images/products/belt-formal-beige2.jpg'],
+    imageCaptions: {
+      '/images/products/belt-formal-balck.jpg': 'Front view, with belt detail.',
+      '/images/products/belt-formal-beige.jpg': 'Front view in Beige, with belt detail.',
+      '/images/products/belt-formal-beige1.jpg': 'Front view in Beige, with belt detail.',
+      '/images/products/belt-formal-beige2.jpg': 'Front view in Beige, with belt detail.',
+    },
+    colorImages: {
+      'Black': ['/images/products/belt-formal-balck.jpg'],
+      'Beige': ['/images/products/belt-formal-beige.jpg', '/images/products/belt-formal-beige1.jpg', '/images/products/belt-formal-beige2.jpg'],
+    },
+    description: "Elegant belt formal pants available in classic Black and versatile Beige. Tailored cut with comfortable waistband and belt loops for sophisticated professional styling. Features side pockets and premium finish perfect for office wear, business meetings, and formal occasions. The sleek silhouette pairs beautifully with any formal shirt or blazer.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: ["Black", "Beige"],
     material: "Premium Cotton Blend",
     inStock: true,
     isBestSeller: true,
-  },
-  {
-    id: "fp-011",
-    name: "Belt Formal Pants - Beige",
-    category: "formal",
-    price: 2799,
-    image: '/images/products/belt-formal-beige.jpg',
-    images: ['/images/products/belt-formal-beige.jpg'],
-    description: "Elegant beige formal pants with belt design. Tailored cut with comfortable waistband and sophisticated styling for business wear.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Beige"],
-    material: "Premium Polyester Blend",
-    inStock: true,
     isNew: true,
   },
   {
@@ -335,7 +318,7 @@ export const products: Product[] = [
     images: ['/images/products/belt-imported.jpg'],
     description: "Premium imported formal pants with belt styling. Features superior fabric quality and impeccable tailoring for the modern professional.",
     sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Multiple"],
+    colors: ["Gray"],
     material: "Imported Premium Fabric",
     inStock: true,
     isBestSeller: true,
@@ -360,8 +343,13 @@ export const products: Product[] = [
     category: "formal",
     price: 2699,
     image: '/images/products/brown-formal.jpg',
-    images: ['/images/products/brown-formal.jpg'],
-    description: "Classic brown formal pants with refined tailoring. Features comfortable fit and timeless design for versatile professional styling.",
+    images: ['/images/products/brown-formal.jpg', '/images/products/brown1-formal.jpg', '/images/products/brown.jpg'],
+    imageCaptions: {
+      '/images/products/brown-formal.jpg': 'Front view in Brown.',
+      '/images/products/brown1-formal.jpg': 'Front view in Brown.',
+      '/images/products/brown.jpg': 'Front view in Brown.',
+    },
+    description: "Classic brown formal pants with refined tailoring and a flattering high-waisted wide-leg silhouette. Features front pleats, belt loops, and a comfortable relaxed fit crafted from premium fabric. Shown from multiple angles for a complete view. Timeless design perfect for office wear, business meetings, and versatile professional styling.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Brown"],
     material: "Premium Polyester Blend",
@@ -369,74 +357,57 @@ export const products: Product[] = [
   },
   {
     id: "fp-015",
-    name: "Imported Baggy Formal - Black",
+    name: "Imported Baggy Pleated Pants",
     category: "formal",
     price: 3099,
     originalPrice: 3899,
-    image: '/images/products/imported-beggy-black-formal.jpg',
-    images: ['/images/products/imported-beggy-black-formal.jpg'],
-    description: "Trendy imported baggy formal pants in black. Modern relaxed fit with premium fabric and contemporary styling for fashion-forward professionals.",
+    image: '/images/products/imported-beggy-black.jpg',
+    images: ['/images/products/imported-beggy-black.jpg', '/images/products/imported-beggy-black-formal.jpg', '/images/products/imported-beggy-gray.jpg', '/images/products/imported-beggy-gray-formal.jpg'],
+    imageCaptions: {
+      '/images/products/imported-beggy-black.jpg': 'Front view in Black, baggy-fit style.',
+      '/images/products/imported-beggy-black-formal.jpg': 'Side angle in Black, baggy-fit style.',
+      '/images/products/imported-beggy-gray.jpg': 'Front view in Gray, baggy-fit style.',
+      '/images/products/imported-beggy-gray-formal.jpg': 'Side angle in Gray, baggy-fit style.',
+    },
+    colorImages: {
+      'Black': ['/images/products/imported-beggy-black.jpg', '/images/products/imported-beggy-black-formal.jpg'],
+      'Gray': ['/images/products/imported-beggy-gray.jpg', '/images/products/imported-beggy-gray-formal.jpg'],
+    },
+    description: "Trendy imported baggy pleated pants available in classic Black and modern Gray. Featuring a dramatic ultra-wide balloon silhouette with deep front pleats, button closure, and belt loops crafted from premium imported fabric. The exaggerated wide-leg cut tapers gently at the hem for a bold, fashion-forward drape. Shown from front and side angles in both colors. Perfect for making a statement at the office, smart-casual events, and contemporary formal occasions.",
     sizes: ["S", "M", "L", "XL"],
-    colors: ["Black"],
+    colors: ["Black", "Gray"],
     material: "Imported Premium Fabric",
     inStock: true,
     isNew: true,
-  },
-  {
-    id: "fp-016",
-    name: "Imported Baggy Formal - Gray",
-    category: "formal",
-    price: 3099,
-    originalPrice: 3899,
-    image: '/images/products/imported-beggy-gray-formal.jpg',
-    images: ['/images/products/imported-beggy-gray-formal.jpg'],
-    description: "Stylish imported baggy formal pants in gray. Features relaxed comfortable fit with premium quality fabric for modern business casual wear.",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Gray"],
-    material: "Imported Premium Fabric",
-    inStock: true,
-    isNew: true,
+    isBestSeller: true,
   },
   {
     id: "fp-017",
-    name: "Premium Black Formal Pants",
+    name: "Premium Belted Pleated Pants",
     category: "formal",
     price: 2999,
+    originalPrice: 3999,
     image: '/images/products/preuim-black.jpg',
-    images: ['/images/products/preuim-black.jpg'],
-    description: "Premium black formal pants with superior tailoring. Classic design with modern fit for ultimate professional elegance.",
+    images: ['/images/products/preuim-black.jpg', '/images/products/buttoncargo.jpg', '/images/products/preuim-gray.jpg', '/images/products/preuim-grayy.jpg', '/images/products/preuim-dark-brown.jpg', '/images/products/preuim-dark-brownn.jpg'],
+    imageCaptions: {
+      '/images/products/preuim-black.jpg': 'Front view in Black, with belt detail.',
+      '/images/products/buttoncargo.jpg': 'Side angle in Black, with belt detail.',
+      '/images/products/preuim-gray.jpg': 'Front view in Graphite, with belt detail.',
+      '/images/products/preuim-grayy.jpg': 'Alternate angle in Graphite, with belt detail.',
+      '/images/products/preuim-dark-brown.jpg': 'Front view in Dark Brown, with belt detail.',
+      '/images/products/preuim-dark-brownn.jpg': 'Alternate angle in Dark Brown, with belt detail.',
+    },
+    colorImages: {
+      'Black': ['/images/products/preuim-black.jpg', '/images/products/buttoncargo.jpg'],
+      'Graphite': ['/images/products/preuim-gray.jpg', '/images/products/preuim-grayy.jpg'],
+      'Dark Brown': ['/images/products/preuim-dark-brown.jpg', '/images/products/preuim-dark-brownn.jpg'],
+    },
+    description: "Premium belted pleated pants with superior tailoring available in three timeless colors — classic Black, sophisticated Graphite, and luxurious Dark Brown. Features a high-waisted pleated silhouette with an integrated wide belt and rectangular buckle that cinches into a dramatic tapered balloon leg. Crafted from premium fabric with a subtle sheen for ultimate professional elegance. Shown from multiple angles in every colour. Perfect for business attire, executive meetings, and formal events.",
     sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Black"],
+    colors: ["Black", "Graphite", "Dark Brown"],
     material: "Premium Wool Blend",
     inStock: true,
     isBestSeller: true,
-  },
-  {
-    id: "fp-018",
-    name: "Premium Dark Brown Formal Pants",
-    category: "formal",
-    price: 2999,
-    image: '/images/products/preuim-dark-brown.jpg',
-    images: ['/images/products/preuim-dark-brown.jpg'],
-    description: "Luxurious dark brown formal pants with premium finish. Sophisticated styling perfect for executive meetings and formal events.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Dark Brown"],
-    material: "Premium Wool Blend",
-    inStock: true,
-    isBestSeller: true,
-  },
-  {
-    id: "fp-019",
-    name: "Premium Gray Formal Pants",
-    category: "formal",
-    price: 2999,
-    image: '/images/products/formal-3.jpg',
-    images: ['/images/products/formal-3.jpg'],
-    description: "Elegant gray formal pants with premium quality fabric. Features refined tailoring and comfortable fit for sophisticated business attire.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Gray"],
-    material: "Premium Wool Blend",
-    inStock: true,
   },
   {
     id: "fp-020",
@@ -467,21 +438,6 @@ export const products: Product[] = [
     isNew: true,
   },
   {
-    id: "tp-009",
-    name: "Classic Black Cargo Pants",
-    category: "track",
-    price: 1200,
-    originalPrice: 1499,
-    image: '/images/products/blackcar1.jpg',
-    images: ['/images/products/blackcar1.jpg', '/images/products/balckcar2.jpg', '/images/products/blackcargo1.jpg', '/images/products/blackcargo2.jpg'],
-    description: "Modern black cargo pants featuring multiple utility pockets and relaxed fit. Crafted with durable fabric for everyday comfort and versatile styling. Perfect for casual outings and streetwear looks.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black"],
-    material: "Premium Cotton Twill",
-    inStock: true,
-    isNew: true,
-  },
-  {
     id: "fp-022",
     name: "Premium Brown Belt Formal Pants",
     category: "formal",
@@ -489,6 +445,12 @@ export const products: Product[] = [
     originalPrice: 4500,
     image: '/images/products/brownbelt1.jpg',
     images: ['/images/products/brownbelt1.jpg', '/images/products/brownbelt2.jpg', '/images/products/brownbelt3.jpg', '/images/products/brownbelt4.jpg'],
+    imageCaptions: {
+      '/images/products/brownbelt1.jpg': 'Front view in Brown, with belt detail.',
+      '/images/products/brownbelt2.jpg': 'Side angle in Brown, with belt detail.',
+      '/images/products/brownbelt3.jpg': 'Close-up of belt buckle detail.',
+      '/images/products/brownbelt4.jpg': 'Back view in Brown, with belt detail.',
+    },
     description: "Luxurious brown formal pants with elegant belt design. Features refined tailoring and premium fabric for sophisticated professional styling. Perfect for executive meetings and formal occasions with impeccable finish.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Brown"],
@@ -505,6 +467,10 @@ export const products: Product[] = [
     originalPrice: 2999,
     image: '/images/products/greylace.jpg',
     images: ['/images/products/greylace.jpg', '/images/products/greylaceback.jpg'],
+    imageCaptions: {
+      '/images/products/greylace.jpg': 'Front view in Grey, with lace trim.',
+      '/images/products/greylaceback.jpg': 'Back view in Grey, with lace trim.',
+    },
     description: "Elegant grey lace formal pants featuring delicate lace detailing and premium fabric. Perfect for special occasions and formal events. Crafted with comfort and style in mind for the modern woman.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Grey"],
@@ -520,6 +486,10 @@ export const products: Product[] = [
     originalPrice: 2400,
     image: '/images/products/blackmom.jpg',
     images: ['/images/products/blackmom.jpg', '/images/products/blackmom1.jpg'],
+    imageCaptions: {
+      '/images/products/blackmom.jpg': 'Front view in Black, mom-fit style.',
+      '/images/products/blackmom1.jpg': 'Side angle in Black, mom-fit style.',
+    },
     description: "Elegant black mom fit formal trousers featuring a comfortable relaxed fit with premium fabric. Perfect for office wear and formal occasions. Designed with a flattering silhouette that offers both style and comfort for the modern woman.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Black"],
@@ -529,13 +499,17 @@ export const products: Product[] = [
   },
   {
     id: "fp-025",
-    name: "Button Detail Formal Cargo Pants",
-    category: "track",
+    name: "Side Snap-Button Wide-Leg Pants",
+    category: "formal",
     price: 2399,
     originalPrice: 2999,
-    image: '/images/products/buttoncargo.jpg',
-    images: ['/images/products/buttoncargo.jpg', '/images/products/buttoncargo1.jpg'],
-    description: "Elegant formal cargo pants featuring stylish button details and premium fabric. Perfect blend of formal and casual styling. Designed for the modern woman who wants sophistication with a contemporary edge.",
+    image: '/images/products/buttoncargo1.jpg',
+    images: ['/images/products/buttoncargo1.jpg', '/images/products/buttoncargo2.jpg'],
+    imageCaptions: {
+      '/images/products/buttoncargo1.jpg': 'Front view in Black, with button detailing.',
+      '/images/products/buttoncargo2.jpg': 'Side angle in Black, showing snap-button placket.',
+    },
+    description: "Contemporary black wide-leg pants featuring statement side snap-button plackets that run the full length of each leg for a bold, versatile look. Designed with a comfortable drawstring elastic waist and a relaxed straight silhouette crafted from premium fabric. Shown from front and side angles. Perfect for smart-casual styling, evening outings, and fashion-forward occasions.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Black"],
     material: "Premium Cotton Blend",
@@ -544,30 +518,25 @@ export const products: Product[] = [
   },
   {
     id: "fp-026",
-    name: "Black Lace People Fit Formal Pants",
+    name: "Lace People Fit Formal Pants",
     category: "formal",
     price: 2399,
     originalPrice: 2999,
     image: '/images/products/blacklace.jpg',
-    images: ['/images/products/blacklace.jpg', '/images/products/blacklace1.jpg'],
-    description: "Elegant black lace people fit formal pants featuring a flattering silhouette for everyone. Premium fabric with beautiful lace detailing. Perfect for office wear, formal events, and special occasions. Designed to celebrate all body types.",
+    images: ['/images/products/blacklace.jpg', '/images/products/blacklace1.jpg', '/images/products/brownlace.jpg', '/images/products/brownlace1.jpg'],
+    imageCaptions: {
+      '/images/products/blacklace.jpg': 'Front view in Black, with lace trim.',
+      '/images/products/blacklace1.jpg': 'Side angle in Black, with lace trim.',
+      '/images/products/brownlace.jpg': 'Front view in Brown, with lace trim.',
+      '/images/products/brownlace1.jpg': 'Side angle in Brown, with lace trim.',
+    },
+    colorImages: {
+      'Black': ['/images/products/blacklace.jpg', '/images/products/blacklace1.jpg'],
+      'Brown': ['/images/products/brownlace.jpg', '/images/products/brownlace1.jpg'],
+    },
+    description: "Elegant lace people fit formal pants available in sophisticated Black and warm Brown. Premium fabric with beautiful lace detailing and a flattering silhouette designed to celebrate all body types. Perfect for office wear, formal events, and special occasions. The delicate lace trim adds feminine charm while maintaining professional elegance.",
     sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Black"],
-    material: "Premium Lace Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "fp-027",
-    name: "Brown Lace People Fit Formal Pants",
-    category: "formal",
-    price: 2399,
-    originalPrice: 2999,
-    image: '/images/products/brownlace.jpg',
-    images: ['/images/products/brownlace.jpg', '/images/products/brownlace1.jpg'],
-    description: "Elegant brown lace people fit formal pants featuring a flattering silhouette for everyone. Premium fabric with beautiful lace detailing. Perfect for office wear, formal events, and special occasions. Designed to celebrate all body types.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Brown"],
+    colors: ["Black", "Brown"],
     material: "Premium Lace Blend",
     inStock: true,
     isNew: true,
@@ -580,6 +549,11 @@ export const products: Product[] = [
     originalPrice: 3000,
     image: '/images/products/widelook.jpg',
     images: ['/images/products/widelook.jpg', '/images/products/widelook1.jpg', '/images/products/widelook-back.jpg'],
+    imageCaptions: {
+      '/images/products/widelook.jpg': 'Front view in Black, wide-leg style.',
+      '/images/products/widelook1.jpg': 'Side angle in Black, wide-leg style.',
+      '/images/products/widelook-back.jpg': 'Back view in Black, wide-leg style.',
+    },
     description: "Sophisticated premium wide look formal pants with elegant styling and superior fabric quality. Features a flattering wide-leg silhouette perfect for modern professional wear. Designed with impeccable tailoring for boardroom meetings and formal occasions.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Black"],
@@ -588,44 +562,14 @@ export const products: Product[] = [
     isNew: true,
   },
   {
-    id: "fp-029",
-    name: "Brown Sophisticated Formal Wear",
-    category: "formal",
-    price: 2100,
-    originalPrice: 3000,
-    image: '/images/products/brownbelt.jpg',
-    images: ['/images/products/brownbelt.jpg', '/images/products/brownback.jpg', '/images/products/brownside.jpg'],
-    description: "Exquisite brown formal pants with sophisticated styling and premium craftsmanship. Features elegant belt design with refined tailoring. Perfect for professional settings and formal occasions. The rich brown tone adds warmth and elegance to any formal wardrobe.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Brown"],
-    material: "Premium Polyester Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
     id: "fp-030",
-    name: "Button Detail Formal Pants - Black",
-    category: "formal",
-    price: 1499,
-    originalPrice: 1900,
-    image: '/images/products/blackbutton.jpg',
-    images: ['/images/products/blackbutton.jpg'],
-    description: "Elegant black formal pants featuring stylish button details and premium fabric. Perfect for office wear and formal occasions. Crafted with comfort and sophisticated styling for the modern professional woman.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Black"],
-    material: "Premium Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "fp-031",
-    name: "Button Detail Formal Pants - Olive",
+    name: "Button Detail Formal Pants",
     category: "formal",
     price: 1499,
     originalPrice: 1900,
     image: '/images/products/olivedouble-button.jpg',
     images: ['/images/products/olivedouble-button.jpg'],
-    description: "Elegant olive formal pants featuring stylish button details and premium fabric. Perfect for office wear and formal occasions. Crafted with comfort and sophisticated styling for the modern professional woman.",
+    description: "Elegant olive button detail formal pants featuring stylish button closures and premium tailored construction. The sophisticated olive tone adds warmth and versatility to any professional wardrobe. Crafted with comfort-focused fabric and a flattering tailored fit perfect for office wear, business meetings, and formal occasions. The contemporary design pairs beautifully with blouses, formal tops, and blazers.",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Olive"],
     material: "Premium Cotton Blend",
@@ -640,6 +584,12 @@ export const products: Product[] = [
     originalPrice: 1500,
     image: '/images/products/black.jpg',
     images: ['/images/products/black.jpg', '/images/products/blackback.jpg', '/images/products/grey.jpg', '/images/products/greyback.jpg'],
+    imageCaptions: {
+      '/images/products/black.jpg': 'Front view in Black.',
+      '/images/products/blackback.jpg': 'Back view in Black.',
+      '/images/products/grey.jpg': 'Front view in Grey.',
+      '/images/products/greyback.jpg': 'Back view in Grey.',
+    },
     description: "Elegant premium track pants available in stunning black and grey colors. Features superior fabric quality, comfortable fit, and contemporary design perfect for athleisure and casual wear. Versatile styling for any occasion.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Grey"],
@@ -655,6 +605,10 @@ export const products: Product[] = [
     originalPrice: 1800,
     image: '/images/products/khakifront.jpg',
     images: ['/images/products/khakifront.jpg', '/images/products/khakiback.jpg'],
+    imageCaptions: {
+      '/images/products/khakifront.jpg': 'Front view in Khaki.',
+      '/images/products/khakiback.jpg': 'Back view in Khaki.',
+    },
     description: "Sophisticated khaki track pants crafted with premium cotton blend fabric for ultimate comfort and style. Features a relaxed fit design with elastic waistband, perfect for casual wear and athleisure styling. The versatile khaki tone pairs effortlessly with any outfit.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Khaki"],
@@ -670,6 +624,14 @@ export const products: Product[] = [
     originalPrice: 1499,
     image: '/images/products/greycargo.jpg',
     images: ['/images/products/greycargo.jpg', '/images/products/greycargoback.jpg', '/images/products/blackcargofront.jpg', '/images/products/blackcargoback.jpg', '/images/products/lavendercargofront.jpg', '/images/products/lavendercargofrontback.jpg'],
+    imageCaptions: {
+      '/images/products/greycargo.jpg': 'Front view in Grey, cargo-pocket design.',
+      '/images/products/greycargoback.jpg': 'Back view in Grey, cargo-pocket design.',
+      '/images/products/blackcargofront.jpg': 'Front view in Black, cargo-pocket design.',
+      '/images/products/blackcargoback.jpg': 'Back view in Black, cargo-pocket design.',
+      '/images/products/lavendercargofront.jpg': 'Front view in Lavender, cargo-pocket design.',
+      '/images/products/lavendercargofrontback.jpg': 'Back view in Lavender, cargo-pocket design.',
+    },
     description: "Versatile cargo pants collection available in three stunning colors - Grey, Black, and Lavender. Features multiple utility pockets, relaxed fit design, and durable premium fabric perfect for everyday comfort and streetwear styling. The modern cargo silhouette offers both functionality and fashion-forward appeal. Click through the gallery to explore alls. Perfect for casual outings and contemporary urban style.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Grey", "Black", "Lavender"],
@@ -679,46 +641,21 @@ export const products: Product[] = [
     isBestSeller: true,
   },
   {
-    id: "acc-001",
-    name: "Premium Formal Belt Collection",
-    category: "formal",
-    price: 1199,
-    originalPrice: 1500,
-    image: '/images/products/belt.jpg',
-    images: ['/images/products/belt.jpg', '/images/products/beltbeige.jpg'],
-    description: "Elevate your formal wear with our premium belt collection. Featuring two stunning color options - classic black and versatile beige - these belts are crafted with premium materials and exquisite detailing. Perfect for completing any formal outfit, from office wear to special occasions. The sleek designs complement both formal pants and trousers beautifully. Available in multiple sizes (M, XL, XXL) for the perfect fit. Click through the gallery to view both full-length belt variations and choose the perfect match for your style.",
-    sizes: ["M", "XL", "XXL"],
-    colors: ["Black", "Beige"],
-    material: "Premium Leather Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
     id: "fp-032",
-    name: "Premium Straight Fit Formal Pants - Black",
+    name: "Wide-Leg Belt Formal Pants",
     category: "formal",
     price: 1199,
-    originalPrice: 1500,
+    originalPrice: 1800,
     image: '/images/products/blackstraight.jpg',
     images: ['/images/products/blackstraight.jpg', '/images/products/blackstraight1.jpg', '/images/products/blackstraight2.jpg'],
-    description: "Elevate your formal wardrobe with our premium straight fit formal pants. Crafted with superior quality fabric for a sharp, sophisticated look. Features a modern straight-leg silhouette that pairs perfectly with any formal shirt or blazer. Perfect for office wear, business meetings, and special occasions. The sleek black finish adds elegance to your professional look. Click through to view all angle details.",
+    imageCaptions: {
+      '/images/products/blackstraight.jpg': 'Front view in Black, straight-leg style.',
+      '/images/products/blackstraight1.jpg': 'Side angle in Black, straight-leg style.',
+      '/images/products/blackstraight2.jpg': 'Close-up view of belt detail in Black.',
+    },
+    description: "Premium black formal belt pants featuring a structured straight-leg silhouette with integrated belt detailing and metallic buckle accents. Crafted with superior quality fabric for a sharp, sophisticated look. The high-waisted design with front pockets and tailored fit pairs perfectly with any formal shirt or blazer. Perfect for office wear, business meetings, and special occasions. The sleek black tone and refined belt detail add timeless elegance to your professional wardrobe.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black"],
-    material: "Premium Polyester Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "fp-033",
-    name: "Premium Beige Formal Pantsw",
-    category: "formal",
-    price: 1299,
-    originalPrice: 1800,
-    image: '/images/products/beige-formal.jpg',
-    images: ['/images/products/beige-formal.jpg', '/images/products/beige-back-formal.jpg'],
-    description: "Sophisticated beige formal pants crafted with premium fabric for ultimate comfort and professional elegance. Features a refined straight-leg silhouette with impeccable tailoring perfect for office wear, business meetings, and formal occasions. The versatile beige tone pairs effortlessly with any formal shirt or blazer. Designed with a comfortable waistband and practical pocket details",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    colors: ["Beige"],
     material: "Premium Polyester Blend",
     inStock: true,
     isNew: true,
@@ -732,6 +669,12 @@ export const products: Product[] = [
     originalPrice: 3499,
     image: '/images/products/front.jpg',
     images: ['/images/products/front.jpg', '/images/products/back.jpg', '/images/products/leftpose.jpg', '/images/products/righpose.jpg'],
+    imageCaptions: {
+      '/images/products/front.jpg': 'Front view.',
+      '/images/products/back.jpg': 'Back view.',
+      '/images/products/leftpose.jpg': 'Left pose view.',
+      '/images/products/righpose.jpg': 'Right pose view.',
+    },
     description: "Elegant black wide-leg formal pants featuring a delicate lace-trimmed waistband for a touch of feminine sophistication. Designed with front pleats and a flowing wide-leg silhouette that creates a graceful, elongating effect. The high-waisted fit pairs beautifully with cropped tops and tailored blouses. Crafted from premium fabric with impeccable draping for all-day comfort. Click through the gallery to explore front, back, left, and right pose views.",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black"],
@@ -742,47 +685,31 @@ export const products: Product[] = [
   },
   {
     id: "fp-035",
-    name: "Black Lace Wide-Leg Statement Pants",
-    category: "track",
+    name: "Lace Wide-Leg Statement Pants",
+    category: "formal",
     price: 3499,
     originalPrice: 4999,
     image: '/images/products/blacklacepant.jpg',
-    images: ['/images/products/blacklacepant.jpg', '/images/products/blacklacepant1.jpg', '/images/products/blacklacepant2.jpg', '/images/products/blacklacepant4.jpg'],
-    description: "Make an unforgettable entrance in our signature Black Lace Wide-Leg Statement Pants. Crafted from premium floral lace, these show-stopping pants feature an all-over intricate lace pattern that creates a beautifully sheer, dramatic effect. The ultra-wide leg silhouette flows with every step, creating mesmerizing movement that turns heads at every corner. A comfortable elastic drawstring waist ensures a perfect fit across all body types, while the soft polyester lining provides coverage where you need it. Whether you're heading to a cocktail party, a romantic dinner, or a night out with friends, these pants guarantee you'll be the center of attention. Pair with a sleek black bodysuit, statement heels, and minimal jewelry for a look that exudes confidence, mystery, and undeniable glamour. The versatile black shade complements every skin tone and works seamlessly with your existing wardrobe.",
+    images: ['/images/products/blacklacepant.jpg', '/images/products/blacklacepant1.jpg', '/images/products/blacklacepant2.jpg', '/images/products/blacklacepant4.jpg', '/images/products/brownlacepant.jpg', '/images/products/whitelacepant.jpg', '/images/products/whitelacepants1.jpg', '/images/products/whitelacepants2.jpg', '/images/products/whitelacepants3.jpg'],
+    imageCaptions: {
+      '/images/products/blacklacepant.jpg': 'Full-length view in Black, with lace trim.',
+      '/images/products/blacklacepant1.jpg': 'Close-up of floral lace pattern in Black.',
+      '/images/products/blacklacepant2.jpg': 'Side angle showing wide-leg drape in Black.',
+      '/images/products/blacklacepant4.jpg': 'Waist & drawstring detail in Black.',
+      '/images/products/brownlacepant.jpg': 'Full-length view in Brown, with lace trim.',
+      '/images/products/whitelacepant.jpg': 'Full-length view in White, with lace trim.',
+      '/images/products/whitelacepants1.jpg': 'Close-up of floral lace pattern in White.',
+      '/images/products/whitelacepants2.jpg': 'Side angle showing wide-leg drape in White.',
+      '/images/products/whitelacepants3.jpg': 'Back view & waist detail in White.',
+    },
+    colorImages: {
+      'Black': ['/images/products/blacklacepant.jpg', '/images/products/blacklacepant1.jpg', '/images/products/blacklacepant2.jpg', '/images/products/blacklacepant4.jpg'],
+      'Brown': ['/images/products/brownlacepant.jpg'],
+      'White': ['/images/products/whitelacepant.jpg', '/images/products/whitelacepants1.jpg', '/images/products/whitelacepants2.jpg', '/images/products/whitelacepants3.jpg'],
+    },
+    description: "Show-stopping lace wide-leg statement pants available in three stunning colors — dramatic Black, earthy Brown, and elegant White. Crafted from premium floral lace with an all-over intricate pattern that creates a beautifully sheer effect. The ultra-wide leg silhouette flows with every step, creating mesmerizing movement. A comfortable elastic drawstring waist ensures a perfect fit across all body types, while the soft polyester lining provides coverage. Perfect for cocktail parties, romantic dinners, and nights out. Pair with a sleek bodysuit, statement heels, and minimal jewelry for a look that exudes confidence and glamour.",
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black"],
-    material: "Premium Floral Lace with Polyester Lining",
-    inStock: true,
-    isNew: true,
-    isBestSeller: true,
-  },
-  {
-    id: "fp-036",
-    name: "Brown Lace Wide-Leg Statement Pants",
-    category: "track",
-    price: 3499,
-    originalPrice: 4999,
-    image: '/images/products/brownlacepant.jpg',
-    images: ['/images/products/brownlacepant.jpg'],
-    description: "Embrace earthy elegance with our Brown Lace Wide-Leg Statement Pants. The rich chocolate-brown hue brings warmth and sophistication to the dramatic all-over lace design. These pants feature a flowing wide-leg cut that creates beautiful movement with every step, while the intricate floral lace pattern offers an alluring sheer effect. The elastic drawstring waistband adapts comfortably to your body, ensuring you feel as good as you look from morning brunches to evening soirees. Perfect for festive occasions, date nights, or anytime you want to make a bold style statement. The versatile brown tone pairs beautifully with gold accessories, cream tops, or even a simple white tee for contrast. Experience the perfect blend of comfort, confidence, and couture-level design.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Brown"],
-    material: "Premium Floral Lace with Polyester Lining",
-    inStock: true,
-    isNew: true,
-    isBestSeller: true,
-  },
-  {
-    id: "fp-037",
-    name: "White Lace Wide-Leg Statement Pants",
-    category: "track",
-    price: 3499,
-    originalPrice: 4999,
-    image: '/images/products/whitelacepant.jpg',
-    images: ['/images/products/whitelacepant.jpg', '/images/products/whitelacepants1.jpg', '/images/products/whitelacepants2.jpg', '/images/products/whitelacepants3.jpg'],
-    description: "Radiate pure elegance in our White Lace Wide-Leg Statement Pants. The pristine white lace creates an ethereal, angelic silhouette that's perfect for summer soirees, beach weddings, or any occasion where you want to embody grace and sophistication. The delicate floral lace pattern overlays a soft lining, creating a dreamy see-through effect that is both classy and captivating. The dramatic wide-leg design ensures you float rather than walk, commanding attention with every graceful step. An elastic drawstring waist provides all-day comfort while maintaining a flattering fit. Style these with a pastel crop top, nude heels, and delicate pearl accessories for a look that's straight out of a fashion editorial. The timeless white shade makes these pants a versatile addition to your wardrobe, ready to elevate any occasion.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["White"],
+    colors: ["Black", "Brown", "White"],
     material: "Premium Floral Lace with Polyester Lining",
     inStock: true,
     isNew: true,
@@ -790,47 +717,25 @@ export const products: Product[] = [
   },
   {
     id: "fp-038",
-    name: "Black Cord Set - Elegant Co-Ord Pants",
+    name: "Cord Set Co-Ord",
     category: "formal",
     price: 1499,
     originalPrice: 2499,
     image: '/images/products/black-cordset.jpg',
-    images: ['/images/products/black-cordset.jpg'],
-    description: "Elevate your wardrobe with our stunning Black Cord Set featuring premium corduroy fabric that combines timeless style with modern sophistication. This elegant co-ord set delivers a head-to-toe polished look perfect for office wear, brunches, or weekend outings. The rich black tone offers ultimate versatility — pair it together for a coordinated power look or mix and match each piece separately for endless styling possibilities. Crafted with soft-touch corduroy that feels luxurious against the skin while maintaining its structure throughout the day. The tailored fit flatters every body type, while the relaxed silhouette ensures all-day comfort without compromising on style.",
+    images: ['/images/products/black-cordset.jpg', '/images/products/brown-cordset-1.jpg', '/images/products/beige-cordset.jpg'],
+    imageCaptions: {
+      '/images/products/black-cordset.jpg': 'Front view in Black, corduroy co-ord style.',
+      '/images/products/brown-cordset-1.jpg': 'Front view in Brown, corduroy co-ord style.',
+      '/images/products/beige-cordset.jpg': 'Front view in Beige, corduroy co-ord style.',
+    },
+    colorImages: {
+      'Black': ['/images/products/black-cordset.jpg'],
+      'Brown': ['/images/products/brown-cordset-1.jpg'],
+      'Beige': ['/images/products/beige-cordset.jpg'],
+    },
+    description: "Sophisticated corduroy co-ord set available in three versatile colors — classic Black, rich Brown, and elegant Beige. Premium corduroy fabric with soft-touch ribbed texture combines timeless style with modern sophistication. This elegant co-ord delivers a head-to-toe polished look perfect for office wear, brunches, or weekend outings. The tailored fit flatters every body type while the relaxed silhouette ensures all-day comfort. Wear pieces together for a coordinated power look or mix and match separately for endless styling possibilities.",
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Black"],
-    material: "Premium Corduroy Cotton Blend",
-    inStock: true,
-    isNew: true,
-    isBestSeller: true,
-  },
-  {
-    id: "fp-039",
-    name: "Brown Cord Set - Classic Co-Ord Pants",
-    category: "formal",
-    price: 1499,
-    originalPrice: 2499,
-    image: '/images/products/brown-cordset-1.jpg',
-    images: ['/images/products/brown-cordset-1.jpg'],
-    description: "Embrace earthy sophistication with our Brown Cord Set — a beautifully crafted co-ord ensemble in rich chocolate brown corduroy. This versatile set transitions effortlessly from casual coffee dates to semi-formal gatherings, offering a warm and inviting aesthetic that's perfect for every season. The premium corduroy fabric features a soft ribbed texture that adds visual depth and tactile luxury. Designed with a flattering relaxed fit that drapes elegantly on all body types, this set is your go-to for effortless chic. Style the pieces together for a cohesive look or wear them separately to create multiple fresh outfits from a single purchase.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Brown"],
-    material: "Premium Corduroy Cotton Blend",
-    inStock: true,
-    isNew: true,
-    isBestSeller: true,
-  },
-  {
-    id: "fp-040",
-    name: "Beige Cord Set - Chic Co-Ord Pants",
-    category: "formal",
-    price: 1499,
-    originalPrice: 2499,
-    image: '/images/products/beige-cordset.jpg',
-    images: ['/images/products/beige-cordset.jpg'],
-    description: "Radiate understated luxury with our Beige Cord Set — a sophisticated co-ord ensemble that brings effortless elegance to your everyday wardrobe. The soft neutral beige tone complements every skin tone beautifully and pairs seamlessly with bold accessories or minimal jewelry alike. Crafted from premium corduroy with a plush ribbed finish, this set offers the perfect balance of comfort and refined style. The relaxed yet structured silhouette creates a polished appearance ideal for work presentations, gallery visits, or dinner with friends. Each piece is versatile enough to stand alone — pair the top with jeans or the pants with a crisp white shirt for a fresh, modern look.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Beige"],
+    colors: ["Black", "Brown", "Beige"],
     material: "Premium Corduroy Cotton Blend",
     inStock: true,
     isNew: true,
@@ -838,90 +743,31 @@ export const products: Product[] = [
   },
   {
     id: "tp-014",
-    name: "Green Casual Comfort Pants",
+    name: "Casual Comfort Pants",
     category: "track",
     price: 1299,
     originalPrice: 1999,
     image: '/images/products/greencausal.jpg',
-    images: ['/images/products/greencausal.jpg'],
-    description: "Step into effortless style with our Green Casual Comfort Pants. Crafted from breathable, lightweight fabric that keeps you cool and comfortable throughout the day. The relaxed fit and elastic waistband make these your perfect companion for weekend outings, coffee runs, or just lounging in style. The fresh green hue adds a pop of color to any casual outfit — pair with a white tee and sneakers for an effortlessly chic look.",
+    images: ['/images/products/greencausal.jpg', '/images/products/creamcausal.jpg', '/images/products/greycausal.jpg', '/images/products/lavendercausal.jpg', '/images/products/navybluecausal.jpg', '/images/products/browncausal.jpg'],
+    imageCaptions: {
+      '/images/products/greencausal.jpg': 'Front view in Green.',
+      '/images/products/creamcausal.jpg': 'Front view in Cream.',
+      '/images/products/greycausal.jpg': 'Front view in Grey.',
+      '/images/products/lavendercausal.jpg': 'Front view in Lavender.',
+      '/images/products/navybluecausal.jpg': 'Front view in Navy Blue.',
+      '/images/products/browncausal.jpg': 'Front view in Brown.',
+    },
+    colorImages: {
+      'Green': ['/images/products/greencausal.jpg'],
+      'Cream': ['/images/products/creamcausal.jpg'],
+      'Grey': ['/images/products/greycausal.jpg'],
+      'Lavender': ['/images/products/lavendercausal.jpg'],
+      'Navy Blue': ['/images/products/navybluecausal.jpg'],
+      'Brown': ['/images/products/browncausal.jpg'],
+    },
+    description: "Effortless everyday comfort in six versatile colors — Green, Cream, Grey, Lavender, Navy Blue, and Brown. Crafted from breathable, lightweight soft cotton blend fabric that keeps you cool and comfortable throughout the day. The relaxed fit and elastic waistband make these your perfect companion for weekend outings, coffee runs, or lounging in style. Each color pairs beautifully with any top in your wardrobe, making outfit selection effortless. Premium fabric ensures all-day comfort with just the right amount of stretch for easy movement.",
     sizes: ["S", "M", "L"],
-    colors: ["Green"],
-    material: "Soft Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "tp-015",
-    name: "Cream Casual Comfort Pants",
-    category: "track",
-    price: 1299,
-    originalPrice: 1999,
-    image: '/images/products/creamcausal.jpg',
-    images: ['/images/products/creamcausal.jpg'],
-    description: "Embrace minimalist elegance with our Cream Casual Comfort Pants. These versatile pants feature a soft, relaxed silhouette that transitions seamlessly from daytime errands to evening hangouts. The warm cream tone pairs beautifully with any top in your wardrobe, making outfit selection effortless. Premium fabric ensures all-day comfort with just the right amount of stretch for easy movement.",
-    sizes: ["S", "M", "L"],
-    colors: ["Cream"],
-    material: "Soft Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "tp-016",
-    name: "Grey Casual Comfort Pants",
-    category: "track",
-    price: 1299,
-    originalPrice: 1999,
-    image: '/images/products/greycausal.jpg',
-    images: ['/images/products/greycausal.jpg'],
-    description: "Your wardrobe essential just arrived — our Grey Casual Comfort Pants combine timeless appeal with modern comfort. The neutral grey tone works with everything from graphic tees to cozy hoodies, making these the most versatile pants you'll own. Soft elastic waist and relaxed fit ensure maximum comfort whether you're working from home, hitting the gym, or meeting friends for brunch.",
-    sizes: ["S", "M", "L"],
-    colors: ["Grey"],
-    material: "Soft Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "tp-017",
-    name: "Lavender Casual Comfort Pants",
-    category: "track",
-    price: 1299,
-    originalPrice: 1999,
-    image: '/images/products/lavendercausal.jpg',
-    images: ['/images/products/lavendercausal.jpg'],
-    description: "Make a soft statement with our Lavender Casual Comfort Pants. The dreamy lavender shade adds a touch of feminine charm to your casual wardrobe without being overly bold. Perfect for spring outings, park picnics, or lazy Sunday strolls. The lightweight fabric drapes beautifully while the elastic waistband guarantees a perfect fit and unrestricted movement all day long.",
-    sizes: ["S", "M", "L"],
-    colors: ["Lavender"],
-    material: "Soft Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "tp-018",
-    name: "Navy Blue Casual Comfort Pants",
-    category: "track",
-    price: 1299,
-    originalPrice: 1999,
-    image: '/images/products/navybluecausal.jpg',
-    images: ['/images/products/navybluecausal.jpg'],
-    description: "Classic meets comfort in our Navy Blue Casual Comfort Pants. The deep navy blue is a wardrobe staple that looks polished even in the most relaxed settings. Whether you're running errands, catching up with friends, or enjoying a weekend getaway, these pants deliver both style and ease. The premium soft-touch fabric and relaxed fit make them ideal for all-day wear without compromise.",
-    sizes: ["S", "M", "L"],
-    colors: ["Navy Blue"],
-    material: "Soft Cotton Blend",
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: "tp-019",
-    name: "Brown Casual Comfort Pants",
-    category: "track",
-    price: 1299,
-    originalPrice: 1999,
-    image: '/images/products/browncausal.jpg',
-    images: ['/images/products/browncausal.jpg'],
-    description: "Warm and inviting, our Brown Casual Comfort Pants bring earthy elegance to your everyday style. The rich brown hue adds depth and sophistication to casual outfits, pairing perfectly with whites, creams, and denim jackets. Designed for the modern woman who values comfort without sacrificing style — the soft fabric and relaxed fit make these your new go-to for everything from coffee dates to weekend markets.",
-    sizes: ["S", "M", "L"],
-    colors: ["Brown"],
+    colors: ["Green", "Cream", "Grey", "Lavender", "Navy Blue", "Brown"],
     material: "Soft Cotton Blend",
     inStock: true,
     isNew: true,
@@ -934,6 +780,14 @@ export const products: Product[] = [
     originalPrice: 2999,
     image: '/images/products/blackpalted.jpg',
     images: ['/images/products/blackpalted.jpg', '/images/products/blackbothbackfron.jpg', '/images/products/beigeplated.jpg', '/images/products/beigebothbackfront.jpg', '/images/products/greenpalted.jpg', '/images/products/greenbothfront-back.jpg'],
+    imageCaptions: {
+      '/images/products/blackpalted.jpg': 'Front view in Black.',
+      '/images/products/blackbothbackfron.jpg': 'Back view in Black.',
+      '/images/products/beigeplated.jpg': 'Front view in Beige, with pleated detailing.',
+      '/images/products/beigebothbackfront.jpg': 'Back & front view in Beige.',
+      '/images/products/greenpalted.jpg': 'Front view in Green.',
+      '/images/products/greenbothfront-back.jpg': 'Back view in Green.',
+    },
     description: "Step into refined elegance with our Pleated Waist Formal Pants. Designed with a sophisticated pleated waistband that adds structure and polish, these pants are perfect for office wear, client meetings, and formal occasions. The tailored straight-leg silhouette offers a flattering fit while maintaining all-day comfort. Available in three timeless colors — classic Black for boardroom authority, warm Beige for versatile daytime elegance, and refreshing Green for a modern statement. Pair with a crisp blouse and heels for a complete power look.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black", "Beige", "Green"],
@@ -949,6 +803,12 @@ export const products: Product[] = [
     originalPrice: 2999,
     image: '/images/products/beggyplatedkoreanfront.jpg',
     images: ['/images/products/beggyplatedkoreanfront.jpg', '/images/products/beggyplatedkoreanback.jpg', '/images/products/beggyplatedkoreanbackpose.jpg', '/images/products/beggyplatedkoreanbackfront.jpg'],
+    imageCaptions: {
+      '/images/products/beggyplatedkoreanfront.jpg': 'Front view in Black, baggy-fit style.',
+      '/images/products/beggyplatedkoreanback.jpg': 'Back view in Black, baggy-fit style.',
+      '/images/products/beggyplatedkoreanbackpose.jpg': 'Pose shot showing drape in Black.',
+      '/images/products/beggyplatedkoreanbackfront.jpg': 'Back & front view comparison in Black.',
+    },
     description: "Embrace the Korean fashion trend with our Baggy Plated Formal Pants. Designed with a relaxed, oversized silhouette and elegant plated detailing, these pants bring modern Seoul street style to your formal wardrobe. The wide-leg baggy fit offers effortless comfort while maintaining a polished look suitable for office wear and smart casual occasions. Pair with a fitted top and minimal accessories for that chic Korean-inspired ensemble.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Black"],
@@ -964,6 +824,10 @@ export const products: Product[] = [
     originalPrice: 2999,
     image: '/images/products/frontdenim.jpg',
     images: ['/images/products/frontdenim.jpg', '/images/products/backdenim.jpg'],
+    imageCaptions: {
+      '/images/products/frontdenim.jpg': 'Front view in Blue denim.',
+      '/images/products/backdenim.jpg': 'Back view in Blue denim.',
+    },
     description: "Timeless denim crafted for the modern wardrobe. Our Classic Denim Jeans feature a flattering mid-rise waist with a comfortable straight-leg silhouette that never goes out of style. Made from premium denim with just the right amount of stretch, these jeans move with you throughout the day. The rich indigo wash pairs effortlessly with everything from casual tees to dressy blouses — a true everyday essential.",
     sizes: ["S", "M", "L", "XL", "XXL"],
     colors: ["Blue"],
@@ -983,8 +847,71 @@ export const categories = [
 export const getProductsByCategorySync = (category: Product['category']) =>
   products.filter(p => p.category === category);
 
-export const getProductByIdSync = (id: string) =>
-  products.find(p => p.id === id);
+export const getProductByIdSync = (id: string) => {
+  // Case-insensitive lookup so 'FP-005' from the backend matches 'fp-005'
+  // in the static catalog, and stale MongoDB _id URLs (e.g.
+  // '6a32e1d68cbf17e83e47f571') still resolve via the alias cache.
+  const direct = products.find(p => p.id === id);
+  if (direct) return direct;
+  const lower = id.toLowerCase();
+  return products.find(p => p.id.toLowerCase() === lower) || null;
+};
+
+/**
+ * Maps removed/merged legacy SKUs to their surviving static product.
+ * When a user lands on an old MongoDB URL for a product we've merged
+ * away, we transparently show the surviving product instead.
+ */
+const legacySkuAliases: Record<string, string> = {
+  'fp-004': 'fp-015', // Black Premium Trousers merged into Imported Baggy
+  'fp-006': 'fp-017', // Graphite Executive Fit merged into Premium Belted
+  'tp-009': 'tp-013', // Classic Black Cargo Pants removed — nearest cargo
+  'fp-029': 'fp-014', // Brown Sophisticated Formal Wear removed — nearest brown formal
+};
+
+/**
+ * Resolves either a friendly SKU (e.g. 'fp-017') or a stale MongoDB _id
+ * (e.g. '6a32e1d68cbf17e83e47f571') to a curated static product.
+ * The mapping is cached in-memory so subsequent lookups are free.
+ */
+const mongoAliasCache = new Map<string, string>();
+export const resolveProductId = async (id: string): Promise<Product | null> => {
+  // Fast path — id is a known SKU in the curated catalog (case-insensitive).
+  // Returns immediately without touching the network so the page renders in
+  // well under 2 seconds even when the backend is cold-starting.
+  const direct = getProductByIdSync(id);
+  if (direct) return direct;
+
+  // Legacy alias: old SKU that was merged/removed → map to the surviving SKU.
+  const lower = id.toLowerCase();
+  if (legacySkuAliases[lower]) {
+    return getProductByIdSync(legacySkuAliases[lower]);
+  }
+
+  // Cached reverse lookup from MongoDB id -> SKU.
+  const cached = mongoAliasCache.get(id);
+  if (cached) return getProductByIdSync(cached) || null;
+
+  // Ask the backend for the product, then remember its SKU for next time.
+  try {
+    const data = await api.get<{ success: boolean; product: Product }>(`/products/${id}`);
+    if (data.product) {
+      const sku = (data.product.sku || data.product.id || '').toLowerCase();
+      mongoAliasCache.set(id, sku);
+
+      // Apply legacy alias if backend returned a removed/merged SKU.
+      const targetSku = legacySkuAliases[sku] || sku;
+      const staticP = getProductByIdSync(targetSku);
+      if (staticP) {
+        return { ...staticP, inStock: data.product.inStock ?? staticP.inStock };
+      }
+      return data.product;
+    }
+  } catch {
+    // ignore — the page already rendered the static product above
+  }
+  return null;
+};
 
 export const getBestSellersSync = () =>
   products.filter(p => p.isBestSeller && p.price > 1);
@@ -1003,30 +930,30 @@ export const getProductsByCategory = async (category: Product['category']) => {
 };
 
 export const getProductById = async (id: string): Promise<Product | null> => {
+  // Always prefer the curated static product (carries captions, colorImages,
+  // full description, badges). The backend is consulted only to refresh the
+  // inStock flag. This prevents stale MongoDB data from stripping rich fields.
+  const staticP = getProductByIdSync(id);
   try {
     const data = await api.get<{ success: boolean; product: Product }>(`/products/${id}`);
-    return data.product || null;
+    if (!staticP) return data.product || null;
+    if (!data.product) return staticP;
+    return {
+      ...staticP,
+      inStock: data.product.inStock ?? staticP.inStock,
+    };
   } catch {
-    return getProductByIdSync(id) || null;
+    return staticP || null;
   }
 };
 
 export const getBestSellers = async (): Promise<Product[]> => {
-  try {
-    const data = await api.get<{ success: boolean; products: Product[] }>(`/products/featured/bestsellers`);
-    if (data.products && data.products.length > 0) return data.products;
-    return getBestSellersSync();
-  } catch {
-    return getBestSellersSync();
-  }
+  // The curated static catalog is the source of truth for bestsellers.
+  // It preserves per-product badges, captions, and descriptions.
+  return getBestSellersSync();
 };
 
 export const getNewArrivals = async (): Promise<Product[]> => {
-  try {
-    const data = await api.get<{ success: boolean; products: Product[] }>(`/products/featured/new-arrivals`);
-    if (data.products && data.products.length > 0) return data.products;
-    return getNewArrivalsSync();
-  } catch {
-    return getNewArrivalsSync();
-  }
+  // The curated static catalog is the source of truth for new arrivals.
+  return getNewArrivalsSync();
 };

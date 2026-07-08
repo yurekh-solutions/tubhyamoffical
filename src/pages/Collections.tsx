@@ -94,12 +94,12 @@ const Collections = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-[40vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10">
+      <section className="relative min-h-[30vh] sm:min-h-[38vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-primary/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-accent/10 rounded-full blur-3xl" />
         </div>
-        <div className="relative z-10 container mx-auto px-4 text-center py-12 sm:py-16 md:py-20">
+        <div className="relative z-10 container mx-auto px-4 text-center py-8 sm:py-12 md:py-14">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 glass-card rounded-full mb-4 sm:mb-6">
             <Sparkles size={14} className="sm:w-4 sm:h-4 text-primary" />
             <span className="text-xs sm:text-sm">Curated for You</span>
@@ -114,9 +114,9 @@ const Collections = () => {
       </section>
 
       {/* Collections Grid */}
-      <section className="py-12 sm:py-16 md:py-20">
+      <section className="py-8 sm:py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="space-y-16 sm:space-y-20 md:space-y-24">
+          <div className="space-y-12 sm:space-y-16 md:space-y-20">
             {collections.map((collection, index) => (
               <div
                 key={collection.id}

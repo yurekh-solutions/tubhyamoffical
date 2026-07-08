@@ -23,15 +23,41 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Static-first: products appear instantly, then refresh from API in background
+  // Static-first: products appear instantly. The backend is consulted in the
+  // background to refresh stock, but we NEVER let the backend override the
+  // curated static catalog. When a backend product's ID matches a static
+  // product, we keep the static version (which carries captions, colorImages,
+  // descriptions, badges, etc.). Backend-only products (not in the catalog)
+  // are ignored, preventing stale MongoDB entries (removed/merged products)
+  // from reappearing on the shop page.
   useEffect(() => {
     let cancelled = false;
     const fetchProducts = async () => {
       try {
         const data = await api.get<{ success: boolean; products: Product[] }>('/products');
-        if (!cancelled && data.products && data.products.length > 0) {
-          setAllProducts(data.products);
-        }
+        if (cancelled || !data.products || data.products.length === 0) return;
+
+        // Build set of known static IDs for O(1) lookup (case-insensitive
+        // because the backend inventory returns uppercase SKUs like 'FP-017'
+        // while the curated catalog uses lowercase 'fp-017').
+
+        // Start with curated static products as the source of truth.
+        // Optionally merge live stock/status flags from the backend when
+        // the backend returns a product whose SKU matches a static one.
+        const merged: Product[] = staticProducts.map(staticP => {
+          // Backend may key by SKU (uppercase) — normalize.
+          const backendVersion = data.products.find(
+            p => p.id.toLowerCase() === staticP.id.toLowerCase()
+          );
+          if (!backendVersion) return staticP;
+          // Merge live stock flag only (keeps curated captions, colors, etc.)
+          return {
+            ...staticP,
+            inStock: backendVersion.inStock ?? staticP.inStock,
+          };
+        });
+
+        setAllProducts(merged);
       } catch {
         // Static products already displayed — no action needed
       }

@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import OptimizedImage from '@/components/OptimizedImage';
 import PageLoader from '@/components/PageLoader';
-import { getProductById, getProductsByCategory, getProductByIdSync, getProductsByCategorySync, Product } from '@/data/products';
+import { getProductById, getProductsByCategory, getProductByIdSync, getProductsByCategorySync, resolveProductId, Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useTheme } from '@/context/ThemeContext';
 import {
@@ -159,48 +159,70 @@ const ProductDetail = () => {
   );
 
   useEffect(() => {
-    const loadProduct = async () => {
-      if (!id) return;
+    if (!id) return;
+    let cancelled = false;
 
-      // Static-first: show product instantly from local data
-      const syncProduct = getProductByIdSync(id);
-      if (syncProduct) {
-        setProduct(syncProduct);
-        setLoading(false);
-        const syncRelated = getProductsByCategorySync(syncProduct.category);
-        setRelatedProducts(syncRelated.filter((p) => p.id !== id).slice(0, 4));
-      }
+    // ── STEP 1: sync-first render ──────────────────────────────────
+    // Try to show the curated product instantly (<2s target).
+    // Case-insensitive lookup means both 'FP-005' and 'fp-005' hit.
+    const syncProduct = getProductByIdSync(id);
+    if (syncProduct) {
+      setProduct(syncProduct);
+      setLoading(false);
+      const syncRelated = getProductsByCategorySync(syncProduct.category);
+      setRelatedProducts(syncRelated.filter((p) => p.id !== id).slice(0, 4));
+    }
 
-      // Then refresh from API in background
+    // ── STEP 2: background resolution (non-blocking) ────────────────
+    // Either confirms the sync product (merging fresh inStock flag), or
+    // resolves a stale MongoDB _id URL to its curated product. The 8s
+    // AbortController in api.ts guarantees this always settles.
+    (async () => {
       try {
-        const apiProduct = await getProductById(id);
-        if (apiProduct) {
-          setProduct(apiProduct);
-          const related = await getProductsByCategory(apiProduct.category);
-          setRelatedProducts(related.filter((p) => p.id !== id).slice(0, 4));
+        const resolved = await resolveProductId(id);
+        if (cancelled) return;
+        if (resolved) {
+          setProduct(resolved);
+          const related = await getProductsByCategory(resolved.category);
+          if (cancelled) return;
+          setRelatedProducts(related.filter((p) => p.id !== resolved.id).slice(0, 4));
         }
-      } catch (error) {
-        console.error('Error refreshing product from API:', error);
+      } catch (err) {
+        // Timeout / 5xx / network error — the sync product (if any) is
+        // already on screen, so just log and move on.
+        console.warn('ProductDetail: background resolve failed:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
+    })();
 
-      if (!syncProduct) {
-        setLoading(false);
-      }
-    };
-
-    loadProduct();
-    // Reset state when product changes
+    // Reset interactive state when product changes
     setSelectedSize('');
     setSelectedColor('');
     setQuantity(1);
     setActiveImage(0);
     setPincode('');
     setPincodeStatus('idle');
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   // Map colors to their image indices (auto-calculated for multi-color products)
   const getColorImages = (color: string): number[] => {
     if (!product) return [0];
+
+    // Use explicit colorImages mapping if available
+    if (product.colorImages && product.colorImages[color]) {
+      const colorImgs = product.colorImages[color];
+      const indices = colorImgs
+        .map((img: string) => product.images.indexOf(img))
+        .filter((i: number) => i >= 0);
+      if (indices.length > 0) return indices;
+    }
+
+    // Fallback: even distribution across colors
     const imagesPerColor = product.images.length / product.colors.length;
     if (Number.isInteger(imagesPerColor) && imagesPerColor > 1) {
       const colorIndex = product.colors.indexOf(color);
@@ -288,9 +310,13 @@ const ProductDetail = () => {
     );
   }
 
-  const rating = product.rating ?? 4.2;
+  // Deterministic review count per product (2, 3, or 4) based on product ID
+  const reviewSeed = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const maxReviews = 2 + (reviewSeed % 3); // 2, 3, or 4
   const allReviews = [...userReviews, ...mockReviews];
-  const reviewCount = allReviews.length;
+  const displayReviews = allReviews.slice(0, maxReviews);
+  const reviewCount = displayReviews.length;
+  const rating = product.rating ?? parseFloat((displayReviews.reduce((sum, r) => sum + r.rating, 0) / displayReviews.length).toFixed(1));
 
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -387,40 +413,51 @@ const ProductDetail = () => {
             )}
 
             {/* Main Image */}
-            <div
-              className={`relative flex-1 aspect-[3/4] overflow-hidden rounded-2xl ${
-                isLight ? 'bg-[#F5F0E8]' : 'bg-background'
-              }`}
-            >
-              <OptimizedImage
-                src={displayImages[currentDisplayImage]}
-                alt={product.name}
-                containerClassName="w-full h-full"
-                aspectRatio="3/4"
-                objectFit="cover"
-                priority
-              />
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
-                {product.isNew && (
-                  <span className="text-white text-sm px-4 py-2 rounded-lg font-semibold bg-[#8B7355] tracking-wide shadow-sm">
-                    New
-                  </span>
-                )}
-                {product.isBestSeller && (
-                  <span className="text-white text-sm px-4 py-2 rounded-lg font-semibold bg-[#8B7355] tracking-wide shadow-sm">
-                    Bestseller
-                  </span>
-                )}
-                {product.originalPrice && (
-                  <span className="text-white text-sm px-4 py-2 rounded-lg font-bold bg-[#8B5E3C] tracking-wide shadow-sm">
-                    {Math.round(
-                      (1 - product.price / product.originalPrice) * 100,
-                    )}
-                    % OFF
-                  </span>
-                )}
+            <div className="flex-1 flex flex-col gap-2">
+              <div
+                className={`relative aspect-[3/4] overflow-hidden rounded-2xl ${
+                  isLight ? 'bg-[#F5F0E8]' : 'bg-background'
+                }`}
+              >
+                <OptimizedImage
+                  src={displayImages[currentDisplayImage]}
+                  alt={product.name}
+                  containerClassName="w-full h-full"
+                  aspectRatio="3/4"
+                  objectFit="cover"
+                  priority
+                />
+                {/* Badges */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  {product.isNew && (
+                    <span className="text-white text-sm px-4 py-2 rounded-lg font-semibold bg-[#8B7355] tracking-wide shadow-sm">
+                      New
+                    </span>
+                  )}
+                  {product.isBestSeller && (
+                    <span className="text-white text-sm px-4 py-2 rounded-lg font-semibold bg-[#8B7355] tracking-wide shadow-sm">
+                      Bestseller
+                    </span>
+                  )}
+                  {product.originalPrice && (
+                    <span className="text-white text-sm px-4 py-2 rounded-lg font-bold bg-[#8B5E3C] tracking-wide shadow-sm">
+                      {Math.round(
+                        (1 - product.price / product.originalPrice) * 100,
+                      )}
+                      % OFF
+                    </span>
+                  )}
+                </div>
               </div>
+              {/* Per-image caption (only when captions are defined for this image) */}
+              {product.imageCaptions &&
+                product.imageCaptions[displayImages[currentDisplayImage]] && (
+                  <p className={`text-xs sm:text-sm text-center italic px-2 py-1 ${
+                    isLight ? 'text-[#4A3228]' : 'text-muted-foreground'
+                  }`}>
+                    {product.imageCaptions[displayImages[currentDisplayImage]]}
+                  </p>
+                )}
             </div>
           </div>
 
@@ -453,7 +490,7 @@ const ProductDetail = () => {
                   {rating}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  ({reviewCount} views)
+                  ({reviewCount} reviews)
                 </span>
               </div>
 
@@ -809,7 +846,7 @@ const ProductDetail = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {allReviews.map((review, i) => (
+          {displayReviews.map((review, i) => (
             <div
               key={i}
               className={`p-6 rounded-xl ${
@@ -863,8 +900,8 @@ const ProductDetail = () => {
                 onClick={() => setShowReviewForm(true)}
                 className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 ${
                   isLight
-                    ? 'bg-[#2E241F] text-white hover:bg-[#3D2F29]'
-                    : 'bg-primary text-primary-foreground hover:shadow-elegant'
+                    ? 'bg-[#2E1A0E] text-white hover:bg-[#4A3228]'
+                    : 'bg-[#8B5E3C] text-white hover:bg-[#A0714D]'
                 }`}
               >
                 <Star size={18} />
@@ -976,7 +1013,7 @@ const ProductDetail = () => {
                   rows={4}
                   className={`w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none ${
                     isLight
-                      ? 'bg-gray-50 border-gray-200 text-foreground'
+                      ? 'bg-white border-gray-200 text-foreground'
                       : 'bg-secondary/50 border-border text-foreground'
                   }`}
                 />
@@ -989,8 +1026,8 @@ const ProductDetail = () => {
                   reviewRating === 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : isLight
-                      ? 'bg-[#2E241F] text-white hover:bg-[#3D2F29]'
-                      : 'bg-primary text-primary-foreground hover:shadow-elegant'
+                      ? 'bg-[#2E1A0E] text-white hover:bg-[#4A3228]'
+                      : 'bg-[#8B5E3C] text-white hover:bg-[#A0714D]'
                 }`}
               >
                 Submit Review

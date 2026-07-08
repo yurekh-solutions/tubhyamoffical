@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -23,6 +23,12 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
     e.stopPropagation();
     addToCart(product, product.sizes[0], product.colors[0]);
   };
+
+  // Deterministic per-product review count (2, 3, or 4) — same seed as
+  // ProductDetail.tsx so the card and detail page agree on the count.
+  const reviewSeed = product.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const reviewCount = 2 + (reviewSeed % 3);
+  const rating = 4 + ((reviewSeed % 10) / 10); // 4.0 – 4.9
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -118,6 +124,11 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
           <h3 className="font-heading text-xs sm:text-sm md:text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">
             {product.name}
           </h3>
+          {product.description && (
+            <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+              {product.description}
+            </p>
+          )}
           <div className="flex items-center gap-2.5">
             <span className="font-bold text-lg text-primary">
               {formatPrice(product.price)}
@@ -127,6 +138,31 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
                 {formatPrice(product.originalPrice)}
               </span>
             )}
+          </div>
+
+          {/* Dynamic per-product rating + review count */}
+          <div className="flex items-center gap-1.5 pt-0.5">
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  size={11}
+                  className={
+                    star <= Math.round(rating)
+                      ? 'fill-amber-400 text-amber-400'
+                      : isLight
+                        ? 'text-gray-300'
+                        : 'text-gray-600'
+                  }
+                />
+              ))}
+            </div>
+            <span className={`text-[10px] sm:text-xs font-medium ${isLight ? 'text-[#4A3228]' : 'text-foreground'}`}>
+              {rating.toFixed(1)}
+            </span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">
+              ({reviewCount})
+            </span>
           </div>
           
           {/* Colors */}

@@ -1,4 +1,5 @@
 import logo from '@/assets/looo.png';
+import { useTheme } from '@/context/ThemeContext';
 
 interface PageLoaderProps {
   message?: string;
@@ -6,6 +7,8 @@ interface PageLoaderProps {
 }
 
 const PageLoader = ({ message = 'Loading...', minHeight = '60vh' }: PageLoaderProps) => {
+  const { isLight } = useTheme();
+
   return (
     <div
       className="flex flex-col items-center justify-center w-full"
@@ -17,15 +20,15 @@ const PageLoader = ({ message = 'Loading...', minHeight = '60vh' }: PageLoaderPr
         <img
           src={logo}
           alt="Tubhyam"
-          className="relative h-16 w-16 sm:h-20 sm:w-20 object-cover rounded-xl animate-bounce-slow"
+          className={`relative h-16 w-16 sm:h-20 sm:w-20 object-cover rounded-xl animate-bounce-slow ${isLight ? 'brightness-[0.3] sepia' : ''}`}
         />
       </div>
 
       {/* Brand name */}
-      <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-gradient-gold mb-2">
+      <h2 className={`font-heading text-2xl sm:text-3xl font-semibold mb-2 ${isLight ? 'text-[#2E1A0E]' : 'text-gradient-gold'}`}>
         Tubhyam
       </h2>
-      <p className="text-xs text-muted-foreground tracking-[0.3em] uppercase mb-6">
+      <p className={`text-xs tracking-[0.3em] uppercase mb-6 ${isLight ? 'text-[#4A3228]' : 'text-muted-foreground'}`}>
         तुम्हारे लिए
       </p>
 

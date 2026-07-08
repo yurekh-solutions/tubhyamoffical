@@ -8,9 +8,9 @@ const Footer = () => {
   const { isLight } = useTheme();
 
   return (
-    <footer className={`border-t mt-10 md:mt-16 ${isLight ? 'bg-[hsla(30, 65%, 64%, 1.00)] border-gray-200' : 'bg-card/50 border-border'}`}>
+    <footer className={`border-t mt-2 md:mt-4 ${isLight ? 'bg-[hsla(30, 65%, 64%, 1.00)] border-gray-200' : 'bg-card/50 border-border'}`}>
       {/* Main Footer */}
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="container mx-auto px-4 py-6 md:py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
           {/* Brand + Contact */}
           <div className="space-y-3">
@@ -94,10 +94,23 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-3 md:py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-muted-foreground">
             <p>© {currentYear} Tubhyam. All rights reserved.</p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-center">
               <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy</Link>
               <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
-              <span className="text-[10px]">by <a href="https://yurekh.com/" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline">Yurekh Solutions</a></span>
+              <a
+                href="https://yurekh.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-all hover:scale-105 ${
+                  isLight
+                    ? 'bg-[#2E1A0E] text-[#F5F0E8] hover:bg-[#4A3228] shadow-sm'
+                    : 'bg-gradient-to-r from-[#8B5E3C] to-[#D4A373] text-[#1A0F08] shadow-md'
+                }`}
+                title="Built by Yurekh Solutions"
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${isLight ? 'bg-[#D4A373]' : 'bg-[#1A0F08]'}`} />
+                by Yurekh Solutions
+              </a>
             </div>
           </div>
         </div>

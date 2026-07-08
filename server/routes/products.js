@@ -14,9 +14,16 @@ function mapProduct(p) {
     img.startsWith('http') ? img : `${imageBase}${img}`
   );
 
+  // Prefer the human-readable SKU as the product id. This lets the
+  // frontend merge with its curated static catalog (which uses SKUs like
+  // 'fp-017', 'tp-002'). Fall back to _id for legacy documents that have
+  // no sku field.
+  const id = p.sku || p.id || p._id;
+
   return {
-    id: p._id || p.id,
-    sku: p.sku,
+    id,
+    sku: p.sku || id,
+    mongoId: p._id, // preserve MongoDB _id so frontend can match stale URLs
     name: p.name,
     price: p.sellingPrice || p.mrp || 0,
     sellingPrice: p.sellingPrice || 0,
