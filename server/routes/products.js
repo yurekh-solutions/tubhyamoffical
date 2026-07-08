@@ -160,7 +160,7 @@ router.get('/featured/bestsellers', async (req, res) => {
     const deduped = deduplicateRawProducts(rawProducts);
     const products = deduped
       .filter(p => (p.currentStock || 0) > 30)
-      .sort((a, b) => (b.currentStock || 0) - (a.currentStock || 0) || a.name.localeCompare(b.name))
+      .sort((a, b) => (b.currentStock || 0) - (a.currentStock || 0) || (a.sku || '').localeCompare(b.sku || ''))
       .slice(0, 8)
       .map(mapProduct);
     res.json({ success: true, products });
@@ -177,7 +177,7 @@ router.get('/featured/new-arrivals', async (req, res) => {
     const rawProducts = Array.isArray(data) ? data : [];
     const deduped = deduplicateRawProducts(rawProducts);
     const products = deduped
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt) || (a.sku || '').localeCompare(b.sku || ''))
       .slice(0, 8)
       .map(mapProduct);
     res.json({ success: true, products });
