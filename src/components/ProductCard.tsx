@@ -72,7 +72,11 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
               </span>
             )}
             {product.originalPrice && (
-              <span className="text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-sm bg-[#E8652B]">
+              <span className={`text-xs px-3 py-1.5 rounded-full font-bold shadow-sm ${
+                isLight
+                  ? 'text-white bg-[#E8652B]'
+                  : 'glass-card bg-[#3B2A1A]/70 backdrop-blur-md border border-white/10 text-[#FFD3AC]'
+              }`}>
                 {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
               </span>
             )}

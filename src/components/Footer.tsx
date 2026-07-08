@@ -8,7 +8,7 @@ const Footer = () => {
   const { isLight } = useTheme();
 
   return (
-    <footer className={`border-t mt-8 md:mt-20 ${isLight ? 'bg-[hsl(35,25%,94%)] border-gray-200' : 'bg-card/50 border-border'}`}>
+    <footer className={`border-t mt-8 md:mt-20 ${isLight ? 'bg-[hsla(30, 65%, 64%, 1.00)] border-gray-200' : 'bg-card/50 border-border'}`}>
       {/* Main Footer */}
       <div className="container mx-auto px-2 md:px-4 py-8 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">

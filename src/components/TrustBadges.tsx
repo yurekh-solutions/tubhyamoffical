@@ -9,25 +9,29 @@ const TrustBadges = () => {
       icon: CreditCard,
       title: 'Cash on Delivery',
       subtitle: 'Pay when you receive',
-      accent: '#E8652B',
+      accentLight: '#E8652B',
+      accentDark: '#FFD3AC',
     },
     {
       icon: Truck,
       title: 'Free Shipping',
       subtitle: 'On all orders across India',
-      accent: '#3B82F6',
+      accentLight: '#3B82F6',
+      accentDark: '#93C5FD',
     },
     {
       icon: RefreshCw,
       title: 'Easy Returns',
       subtitle: '7-day hassle-free returns',
-      accent: '#10B981',
+      accentLight: '#10B981',
+      accentDark: '#6EE7B7',
     },
     {
       icon: Shield,
       title: 'Secure Payment',
       subtitle: 'UPI, Cards & Net Banking',
-      accent: '#8B5CF6',
+      accentLight: '#8B5CF6',
+      accentDark: '#C4B5FD',
     },
   ];
 
@@ -37,6 +41,7 @@ const TrustBadges = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {badges.map((badge, i) => {
             const Icon = badge.icon;
+            const accent = isLight ? badge.accentLight : badge.accentDark;
             return (
               <div
                 key={i}
@@ -48,9 +53,9 @@ const TrustBadges = () => {
               >
                 <div
                   className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${badge.accent}15` }}
+                  style={{ backgroundColor: `${accent}15` }}
                 >
-                  <Icon size={20} style={{ color: badge.accent }} />
+                  <Icon size={20} style={{ color: accent }} />
                 </div>
                 <div className="min-w-0">
                   <p className={`text-sm font-semibold truncate ${isLight ? 'text-gray-900' : 'text-white'}`}>

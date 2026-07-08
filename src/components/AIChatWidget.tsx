@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageCircle, X, Send, User, Loader2, Volume2, VolumeX, Globe, Mic, MicOff } from 'lucide-react';
+import { MessageCircle, X, Send, User, Loader2, Volume2, VolumeX, Globe, Mic, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -98,6 +98,8 @@ const AIChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance>(null);
+  const latestTranscriptRef = useRef('');
+  const sendToBackendRef = useRef<(text: string) => Promise<void>>();
 
   // Find best female voice for a language
   const getVoice = useCallback((language: Lang): SpeechSynthesisVoice | null => {
@@ -184,6 +186,56 @@ const AIChatWidget = () => {
     window.speechSynthesis.speak(utterance);
   }, [voiceOn, getVoice]);
 
+  const sendOrSetInput = useCallback((text: string) => {
+    if (!text.trim()) {
+      toast(lang === 'hi' ? 'कोई आवाज़ नहीं सुनाई दी। कृपया दोबारा बोलें।' : lang === 'mr' ? 'कोणताही आवाज़ ऐकू आला नाही. कृपया पुन्हा बोला.' : "Couldn't catch that. Please try speaking again.");
+      return;
+    }
+    setInputValue(text);
+    setTimeout(() => {
+      const userMessage: Message = { role: 'user', content: text.trim(), timestamp: new Date() };
+      setMessages(prev => [...prev, userMessage]);
+      setInputValue('');
+      setIsLoading(true);
+      sendToBackendRef.current?.(text.trim());
+    }, 50);
+  }, [lang]);
+
+  const sendToBackend = async (text: string) => {
+    try {
+      const trackKeywords = ['track', 'order', 'where is', 'delivery', 'shipment', 'tracking'];
+      const hasTrackIntent = trackKeywords.some(kw => text.toLowerCase().includes(kw));
+      const hasPhoneNumber = /\d{10}/.test(text);
+      const action = hasTrackIntent && hasPhoneNumber ? 'track_order' : undefined;
+
+      const response = await api.post<{ success: boolean; reply: string }>('/chat', {
+        message: text,
+        conversationHistory: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
+        action
+      });
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: response.reply || (lang === 'hi' ? 'माफ़ करें, मैं अभी यह प्रोसेस नहीं कर पाई। कृपया दोबारा कोशिश करें।' : lang === 'mr' ? 'माफ करा, मी आत्ता हे प्रोसेस करू शकत नाही. कृपया पुन्हा प्रयत्न करा.' : "Sorry, I couldn't process that right now. Please try again."),
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      speak(assistantMessage.content, lang);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: lang === 'hi' ? 'माफ़ करें, कनेक्शन में दिक्कत है।' : lang === 'mr' ? 'माफ करा, कनेक्शन मध्ये समस्या आहे.' : "Sorry, connection issue. Please try again.",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      speak(errorMessage.content, lang);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  sendToBackendRef.current = sendToBackend;
+
   // Voice input (speech-to-text)
   const initRecognition = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -200,6 +252,7 @@ const AIChatWidget = () => {
       for (let i = 0; i < event.results.length; i++) {
         transcript += event.results[i][0].transcript;
       }
+      latestTranscriptRef.current = transcript;
       setInputValue(transcript);
     };
 
@@ -210,13 +263,21 @@ const AIChatWidget = () => {
 
     recognition.onend = () => {
       setIsListening(false);
+      const finalText = latestTranscriptRef.current;
+      if (finalText.trim()) {
+        sendOrSetInput(finalText);
+      } else {
+        toast(lang === 'hi' ? 'कोई आवाज़ नहीं सुनाई दी।' : lang === 'mr' ? 'कोणताही आवाज़ ऐकू आला नाही.' : "Didn't catch that. Try again.");
+      }
+      latestTranscriptRef.current = '';
     };
 
     recognitionRef.current = recognition;
-  }, [lang]);
+  }, [lang, sendOrSetInput]);
 
   const startListening = useCallback(() => {
     stopSpeaking();
+    latestTranscriptRef.current = '';
     initRecognition();
     if (!recognitionRef.current) {
       toast('Voice input not supported in this browser.');
@@ -274,43 +335,7 @@ const AIChatWidget = () => {
     setInputValue('');
     setIsLoading(true);
 
-    try {
-      // Check if user is asking about order tracking
-      const trackKeywords = ['track', 'order', 'where is', 'delivery', 'shipment', 'tracking'];
-      const hasTrackIntent = trackKeywords.some(kw => inputValue.toLowerCase().includes(kw));
-      const hasPhoneNumber = /\d{10}/.test(inputValue);
-
-      const action = hasTrackIntent && hasPhoneNumber ? 'track_order' : undefined;
-
-      const response = await api.post<{ success: boolean; reply: string }>('/chat', {
-        message: inputValue.trim(),
-        conversationHistory: messages.slice(-10).map(m => ({
-          role: m.role,
-          content: m.content
-        })),
-        action
-      });
-
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: response.reply || (lang === 'hi' ? 'माफ़ करें, मैं अभी यह प्रोसेस नहीं कर पाई। कृपया दोबारा कोशिश करें।' : lang === 'mr' ? 'माफ करा, मी आत्ता हे प्रोसेस करू शकत नाही. कृपया पुन्हा प्रयत्न करा.' : "Sorry, I couldn't process that right now. Please try again."),
-        timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
-      speak(assistantMessage.content, lang);
-    } catch (error) {
-      console.error('Chat error:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: lang === 'hi' ? 'माफ़ करें, कनेक्शन में दिक्कत है। कृपया थोड़ी देर बाद कोशिश करें।' : lang === 'mr' ? 'माफ करा, कनेक्शन मध्ये समस्या आहे. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.' : "Sorry, I'm having trouble connecting. Please try again in a moment.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      speak(errorMessage.content, lang);
-    } finally {
-      setIsLoading(false);
-    }
+    await sendToBackend(inputValue.trim());
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -467,13 +492,19 @@ const AIChatWidget = () => {
 
           {/* Input */}
           <div className="p-4 border-t border-border flex-shrink-0">
+            {isListening && (
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-xs text-red-500 font-medium">{lang === 'hi' ? '🎤 सुन रही हूँ... बोलें' : lang === 'mr' ? '🎤 ऐकत आहे... बोला' : '🎤 Listening... speak now'}</span>
+              </div>
+            )}
             <div className="flex gap-2">
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={isListening ? 'Listening... speak now' : 'Type your message...'}
-                disabled={isLoading || isListening}
+                disabled={isLoading}
                 className="flex-1"
               />
               <Button
@@ -481,14 +512,14 @@ const AIChatWidget = () => {
                 disabled={isLoading}
                 size="icon"
                 variant={isListening ? 'destructive' : 'outline'}
-                className={`shrink-0 ${isListening ? 'animate-pulse' : ''}`}
-                title={isListening ? 'Stop listening' : 'Speak'}
+                className={`shrink-0 relative ${isListening ? 'animate-pulse bg-red-500 hover:bg-red-600' : ''}`}
+                title={isListening ? 'Tap to stop & send' : 'Tap to speak'}
               >
-                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                {isListening ? <Square className="w-4 h-4 fill-white" /> : <Mic className="w-4 h-4" />}
               </Button>
               <Button
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading || isListening}
+                disabled={!inputValue.trim() || isLoading}
                 size="icon"
                 className="shrink-0"
               >

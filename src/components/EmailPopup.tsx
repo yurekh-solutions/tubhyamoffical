@@ -54,7 +54,7 @@ const EmailPopup = () => {
         className={`relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300 ${
           isLight
             ? 'bg-white'
-            : 'bg-[#1a1410] border border-white/10'
+            : 'glass-card bg-[#1a1410]/80 backdrop-blur-xl border border-white/10'
         }`}
       >
         {/* Close button */}
@@ -66,7 +66,9 @@ const EmailPopup = () => {
         </button>
 
         {/* Top accent */}
-        <div className="h-2 bg-gradient-to-r from-[#E8652B] via-[#D4A853] to-[#E8652B]" />
+        {isLight && (
+          <div className="h-2 bg-gradient-to-r from-[#E8652B] via-[#D4A853] to-[#E8652B]" />
+        )}
 
         <div className="p-8 text-center">
           {submitted ? (
@@ -84,8 +86,10 @@ const EmailPopup = () => {
           ) : (
             <>
               {/* Gift icon */}
-              <div className="w-16 h-16 bg-[#E8652B]/20 rounded-full flex items-center justify-center mx-auto mb-5">
-                <Gift size={32} className="text-[#E8652B]" />
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 ${
+                isLight ? 'bg-[#E8652B]/20' : 'bg-white/5 border border-white/10'
+              }`}>
+                <Gift size={32} className={isLight ? 'text-[#E8652B]' : 'text-[#FFD3AC]'} />
               </div>
 
               <h3 className={`text-2xl font-heading font-bold mb-2 ${isLight ? 'text-gray-900' : 'text-white'}`}>
@@ -113,7 +117,11 @@ const EmailPopup = () => {
                 />
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#E8652B] text-white rounded-xl font-semibold text-sm hover:bg-[#d45a24] transition-all duration-300 hover:scale-[1.02]"
+                  className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-[1.02] ${
+                    isLight
+                      ? 'bg-[#E8652B] text-white hover:bg-[#d45a24]'
+                      : 'glass-card bg-white/10 border border-white/15 text-white hover:bg-white/15'
+                  }`}
                 >
                   Claim My 10% Off
                   <ArrowRight size={16} />

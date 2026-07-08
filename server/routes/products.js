@@ -43,28 +43,83 @@ function mapProduct(p) {
 }
 
 /**
- * Deduplicates products with the same name by merging their images.
- * If two products have the same name (case-insensitive), they are merged:
- * - The first product's details are kept
- * - Images from duplicate products are added to the first product's images array
- * - The duplicate product is removed from the list
+ * Deduplicates products by name, merging images from variants.
+ * Handles partial matches: "Product - Pose" merges into "Product".
+ * - The first (base) product's details are kept
+ * - Images from variant/duplicate products are merged in
+ * - Variant products are removed from the list
  */
 function deduplicateProducts(products) {
   const seen = new Map();
   for (const product of products) {
-    const key = product.name.toLowerCase().trim();
-    if (seen.has(key)) {
-      const existing = seen.get(key);
-      // Merge images (avoid duplicates)
-      const existingUrls = new Set(existing.images);
-      for (const img of product.images) {
-        if (!existingUrls.has(img)) {
+    const name = product.name.toLowerCase().trim();
+    // Check exact match first
+    if (seen.has(name)) {
+      mergeImages(seen.get(name), product);
+      continue;
+    }
+    // Check partial match: does this name start with an existing key?
+    // e.g. "korean baggy plated formal pants - pose" starts with "korean baggy plated formal pants"
+    let merged = false;
+    for (const [key, existing] of seen) {
+      if (name.startsWith(key) || key.startsWith(name)) {
+        mergeImages(existing, product);
+        merged = true;
+        break;
+      }
+    }
+    if (!merged) {
+      seen.set(name, { ...product });
+    }
+  }
+  return Array.from(seen.values());
+}
+
+function mergeImages(existing, incoming) {
+  const existingUrls = new Set(existing.images);
+  for (const img of incoming.images) {
+    if (!existingUrls.has(img)) {
+      existing.images.push(img);
+      existingUrls.add(img);
+    }
+  }
+}
+
+/**
+ * Deduplicates raw MongoDB product documents by name (partial match).
+ * Used before sorting/slicing to ensure variants are merged early.
+ */
+function deduplicateRawProducts(products) {
+  const seen = new Map();
+  for (const product of products) {
+    const name = (product.name || '').toLowerCase().trim();
+    if (seen.has(name)) {
+      const existing = seen.get(name);
+      const existingImgs = new Set(existing.images || []);
+      for (const img of (product.images || [])) {
+        if (!existingImgs.has(img)) {
           existing.images.push(img);
-          existingUrls.add(img);
+          existingImgs.add(img);
         }
       }
-    } else {
-      seen.set(key, { ...product });
+      continue;
+    }
+    let merged = false;
+    for (const [key, existing] of seen) {
+      if (name.startsWith(key) || key.startsWith(name)) {
+        const existingImgs = new Set(existing.images || []);
+        for (const img of (product.images || [])) {
+          if (!existingImgs.has(img)) {
+            existing.images.push(img);
+            existingImgs.add(img);
+          }
+        }
+        merged = true;
+        break;
+      }
+    }
+    if (!merged) {
+      seen.set(name, { ...product });
     }
   }
   return Array.from(seen.values());
@@ -85,6 +140,11 @@ router.get('/', async (req, res) => {
     );
 
     const products = deduplicateProducts((Array.isArray(data) ? data : []).map(mapProduct));
+    // Stable sort: bestsellers first, then by name for consistent ordering on every refresh
+    products.sort((a, b) => {
+      if (a.isBestSeller !== b.isBestSeller) return b.isBestSeller ? 1 : -1;
+      return a.name.localeCompare(b.name);
+    });
     res.json({ success: true, products, totalCount: products.length });
   } catch (error) {
     console.error('Products proxy error:', error.message);
@@ -96,10 +156,13 @@ router.get('/', async (req, res) => {
 router.get('/featured/bestsellers', async (req, res) => {
   try {
     const { data } = await axios.get(`${INVENTORY_API}/api/products`, { timeout: 10000 });
-    const products = deduplicateProducts((Array.isArray(data) ? data : [])
+    const rawProducts = Array.isArray(data) ? data : [];
+    const deduped = deduplicateRawProducts(rawProducts);
+    const products = deduped
       .filter(p => (p.currentStock || 0) > 30)
+      .sort((a, b) => (b.currentStock || 0) - (a.currentStock || 0) || a.name.localeCompare(b.name))
       .slice(0, 8)
-      .map(mapProduct));
+      .map(mapProduct);
     res.json({ success: true, products });
   } catch (error) {
     res.json({ success: true, products: [] });
@@ -110,11 +173,13 @@ router.get('/featured/bestsellers', async (req, res) => {
 router.get('/featured/new-arrivals', async (req, res) => {
   try {
     const { data } = await axios.get(`${INVENTORY_API}/api/products`, { timeout: 10000 });
-    // Sort by createdAt descending, take top 8
-    const products = deduplicateProducts((Array.isArray(data) ? data : [])
+    // Deduplicate raw data FIRST, then sort by createdAt, take top 8, then map
+    const rawProducts = Array.isArray(data) ? data : [];
+    const deduped = deduplicateRawProducts(rawProducts);
+    const products = deduped
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 8)
-      .map(mapProduct));
+      .map(mapProduct);
     res.json({ success: true, products });
   } catch (error) {
     res.json({ success: true, products: [] });

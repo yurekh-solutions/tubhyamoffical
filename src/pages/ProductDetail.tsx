@@ -39,43 +39,43 @@ const colorMap: Record<string, string> = {
   Black: '#1A1A1A',
   White: '#FFFFFF',
   'Off-White': '#F5F0E8',
-  Grey: '#9CA3AF',
-  Gray: '#9CA3AF',
-  Charcoal: '#36454F',
-  'Charcoal Grey': '#5A5A5A',
-  'Slate Grey': '#708090',
-  'Dark Silver': '#71797E',
-  Graphite: '#41424C',
+  Grey: '#A0A0A0',
+  Gray: '#A0A0A0',
+  Charcoal: '#3A3A3A',
+  'Charcoal Grey': '#4A4A4A',
+  'Slate Grey': '#5C6370',
+  'Dark Silver': '#6B6B6B',
+  Graphite: '#3D3D3D',
   Silver: '#C0C0C0',
-  Navy: '#1B2A4A',
-  'Navy Blue': '#1B2A4A',
-  Blue: '#3B82F6',
-  'Classic Blue': '#4A6FA5',
-  'Light Wash': '#A8C5DA',
-  'Medium Wash': '#6B8AAD',
-  'Stone Wash': '#B5AFA0',
-  'Dark Wash': '#3A5068',
-  Olive: '#708238',
-  'Olive Green': '#556B2F',
-  Sage: '#9CAF88',
-  Forest: '#228B22',
-  Green: '#4CAF50',
-  Beige: '#E8DCC8',
-  Sand: '#C2B280',
-  Cream: '#FFFDD0',
-  Camel: '#C19A6B',
-  Brown: '#8B4513',
-  'Dark Brown': '#5C4033',
+  Navy: '#1C2331',
+  'Navy Blue': '#1C2331',
+  Blue: '#2D5F8A',
+  'Classic Blue': '#2E4A6B',
+  'Light Wash': '#9AB3C7',
+  'Medium Wash': '#5A7A95',
+  'Stone Wash': '#B0A898',
+  'Dark Wash': '#2F4356',
+  Olive: '#6B7C3E',
+  'Olive Green': '#4F6027',
+  Sage: '#8FA37E',
+  Forest: '#2D6A2E',
+  Green: '#3E7B42',
+  Beige: '#D9CCBA',
+  Sand: '#BDA97D',
+  Cream: '#F5F0DC',
+  Camel: '#B8916A',
+  Brown: '#7A4A2D',
+  'Dark Brown': '#4A3228',
   Chocolate: '#3E2723',
-  Tan: '#D2B48C',
-  Khaki: '#C3B091',
+  Tan: '#C9A882',
+  Khaki: '#B8A88A',
   'Rose Gold': '#B76E79',
-  Mauve: '#E0B0FF',
-  Blush: '#DE5D83',
-  Teal: '#008080',
+  Mauve: '#C9A0C9',
+  Blush: '#D4849A',
+  Teal: '#2A7A7A',
   Peacock: '#1F6F78',
-  Turquoise: '#40E0D0',
-  Lavender: '#B57EDC',
+  Turquoise: '#3CB5AD',
+  Lavender: '#A78BCA',
   Multiple: 'linear-gradient(135deg,#e74c3c,#f1c40f,#2ecc71)',
 };
 
@@ -402,25 +402,17 @@ const ProductDetail = () => {
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 {product.isNew && (
-                  <span
-                    className={`text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm ${
-                      isLight ? 'bg-amber-600' : 'bg-primary text-primary-foreground'
-                    }`}
-                  >
+                  <span className="text-white text-sm px-4 py-2 rounded-lg font-semibold bg-[#8B7355] tracking-wide shadow-sm">
                     New
                   </span>
                 )}
                 {product.isBestSeller && (
-                  <span
-                    className={`text-white text-xs px-3 py-1 rounded-full font-medium shadow-sm ${
-                      isLight ? 'bg-amber-600' : 'bg-accent text-accent-foreground'
-                    }`}
-                  >
+                  <span className="text-white text-sm px-4 py-2 rounded-lg font-semibold bg-[#8B7355] tracking-wide shadow-sm">
                     Bestseller
                   </span>
                 )}
                 {product.originalPrice && (
-                  <span className="text-white text-xs px-3 py-1 rounded-full font-bold shadow-sm bg-[#E8652B]">
+                  <span className="text-white text-sm px-4 py-2 rounded-lg font-bold bg-[#8B5E3C] tracking-wide shadow-sm">
                     {Math.round(
                       (1 - product.price / product.originalPrice) * 100,
                     )}
@@ -460,7 +452,7 @@ const ProductDetail = () => {
                   {rating}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  ({reviewCount} customer reviews)
+                  ({reviewCount} views)
                 </span>
               </div>
 
@@ -474,7 +466,7 @@ const ProductDetail = () => {
                     <span className="text-lg text-muted-foreground line-through">
                       {formatPrice(product.originalPrice)}
                     </span>
-                    <span className="text-xs font-bold text-white bg-[#E8652B] px-2 py-1 rounded-full">
+                    <span className="text-sm font-bold text-white bg-[#8B5E3C] px-3 py-1.5 rounded-lg tracking-wide">
                       {Math.round(
                         (1 - product.price / product.originalPrice) * 100,
                       )}
@@ -490,43 +482,45 @@ const ProductDetail = () => {
               {product.description}
             </p>
 
-            {/* Color selection — circular swatches */}
-            <div className="space-y-3">
-              <h4 className="font-medium text-sm">
-                Color:{' '}
-                <span className="text-muted-foreground font-normal">
-                  {selectedColor || product.colors[0]}
-                </span>
-              </h4>
-              <div className="flex flex-wrap gap-3">
-                {product.colors.map((color) => {
-                  const isActive =
-                    (selectedColor || product.colors[0]) === color;
-                  return (
-                    <button
-                      key={color}
-                      onClick={() => {
-                        setSelectedColor(color);
-                        setActiveImage(0);
-                      }}
-                      title={color}
-                      className={`relative w-10 h-10 rounded-full border-2 transition-all ${
-                        isActive
-                          ? 'border-primary ring-2 ring-primary/20'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <span
-                        className="absolute inset-1 rounded-full border border-black/5"
-                        style={{
-                          background: colorMap[color] || '#CCCCCC',
+            {/* Color selection — circular swatches (hidden when only 1 color) */}
+            {product.colors.length > 1 && (
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm">
+                  Color:{' '}
+                  <span className="text-muted-foreground font-normal">
+                    {selectedColor || product.colors[0]}
+                  </span>
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  {product.colors.map((color) => {
+                    const isActive =
+                      (selectedColor || product.colors[0]) === color;
+                    return (
+                      <button
+                        key={color}
+                        onClick={() => {
+                          setSelectedColor(color);
+                          setActiveImage(0);
                         }}
-                      />
-                    </button>
-                  );
-                })}
+                        title={color}
+                        className={`relative w-10 h-10 rounded-full border-2 transition-all ${
+                          isActive
+                            ? 'border-[#8B7355] ring-2 ring-[#8B7355]/30'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        <span
+                          className="absolute inset-1 rounded-full border border-black/5"
+                          style={{
+                            background: colorMap[color] || '#CCCCCC',
+                          }}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Size selection */}
             <div className="space-y-3">
@@ -607,10 +601,10 @@ const ProductDetail = () => {
                   selectedSize
                     ? isLight
                       ? 'bg-[#2E241F] text-white hover:bg-[#1A1410] hover:shadow-lg active:scale-[0.98]'
-                      : 'bg-white text-[#1A1410] hover:bg-gray-100 hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]'
+                      : 'glass-card bg-white/90 text-[#1A1410] hover:bg-white hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]'
                     : isLight
                       ? 'bg-[#D4C5B5] text-[#8A7D70] cursor-not-allowed'
-                      : 'bg-[#3D3229] text-[#6B5E52] cursor-not-allowed'
+                      : 'glass-card bg-white/10 text-[#6B5E52] cursor-not-allowed'
                 }`}
               >
                 <ShoppingBag size={18} />
@@ -618,20 +612,20 @@ const ProductDetail = () => {
               </button>
               <button
                 onClick={handleWhatsApp}
-                className={`flex-1 flex items-center justify-center gap-2 border-2 py-3.5 rounded-lg font-semibold transition-all text-sm ${
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg font-semibold transition-all text-sm ${
                   isLight
-                    ? 'border-green-600 text-green-700 hover:bg-green-50 active:scale-[0.98]'
-                    : 'border-green-500 text-green-400 hover:bg-green-950/30 active:scale-[0.98]'
+                    ? 'border-2 border-green-600 text-green-700 hover:bg-green-50 active:scale-[0.98]'
+                    : 'glass-card bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 active:scale-[0.98] shadow-lg shadow-green-500/10'
                 }`}
               >
                 <Phone size={18} />
                 Buy on WhatsApp
               </button>
               <button
-                className={`p-3.5 rounded-lg border-2 transition-colors ${
+                className={`p-3.5 rounded-lg transition-colors ${
                   isLight
-                    ? 'border-[#D4C5B5] text-[#8A7D70] hover:border-[#2E241F] hover:text-[#2E241F]'
-                    : 'border-[#3D3229] text-[#8A7D70] hover:border-[#FFD3AC] hover:text-[#FFD3AC]'
+                    ? 'border-2 border-[#D4C5B5] text-[#8A7D70] hover:border-[#2E241F] hover:text-[#2E241F]'
+                    : 'glass-card text-[#8A7D70] hover:text-[#FFD3AC] active:scale-[0.98]'
                 }`}
               >
                 <Heart size={20} />
@@ -786,7 +780,7 @@ const ProductDetail = () => {
       <section className="container mx-auto px-4 py-12">
         <div className="text-center mb-8">
           <h2 className="font-heading text-3xl font-semibold">
-            Custo<span className="text-[#E8652B]">mer</span> Reviews
+            Custo<span className="text-[#8b5e3c]">mer</span> Reviews
           </h2>
           <div className="flex items-center justify-center gap-2 mt-3">
             <div className="flex items-center gap-0.5">
