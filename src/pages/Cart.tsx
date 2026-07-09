@@ -77,18 +77,18 @@ const Cart = () => {
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Header */}
           <div className="mb-6 md:mb-8">
-            <Link 
-              to="/shop" 
-              className="inline-flex items-center gap-2 text-sm md:text-base text-muted-foreground hover:text-primary transition-colors mb-4"
-            >
-              <ArrowLeft size={18} className="md:w-5 md:h-5" />
-              <span>Continue Shopping</span>
-            </Link>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Shopping Cart</h1>
                 <p className="text-sm md:text-base text-muted-foreground">{totalItems} {totalItems === 1 ? 'item' : 'items'} in your cart</p>
               </div>
+              <Link
+                to="/shop"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-all hover:scale-105"
+              >
+                <ArrowLeft size={18} />
+                Back to Shopping
+              </Link>
             </div>
           </div>
 

@@ -3,7 +3,7 @@ import { useCart } from '@/context/CartContext';
 import { useTheme } from '@/context/ThemeContext';
 
 const AddToBagSheet = () => {
-  const { lastAddedItem, isAddToBagSheetOpen, setIsAddToBagSheetOpen, setIsCartOpen, totalItems } = useCart();
+  const { lastAddedItem, isAddToBagSheetOpen, setIsAddToBagSheetOpen, setIsCartOpen, totalItems, totalPrice } = useCart();
   const { isLight } = useTheme();
 
   const formatPrice = (price: number) => {
@@ -106,7 +106,7 @@ const AddToBagSheet = () => {
               {totalItems} {totalItems === 1 ? 'item' : 'items'} in bag
             </span>
             <span className="font-semibold">
-              Bag Total: {formatPrice(product.price * quantity)}
+              Bag Total: {formatPrice(totalPrice)}
             </span>
           </div>
 

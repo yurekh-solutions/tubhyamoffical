@@ -1,0 +1,6 @@
+feat: cart UX improvements — button placement, totals, and layout
+
+- Move "Back to Shopping" above product list in CartSidebar drawer
+- Promote "Back to Shopping" to prominent button in Cart page header
+- Fix AddToBagSheet "Bag Total" to show actual cart total (not last item)
+- Equal-width Hero buttons via CSS Grid (Shop Collection + Contact Us)

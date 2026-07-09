@@ -129,17 +129,17 @@ const Hero = () => {
                 From formal office wear to casual weekend comfort — crafted for the modern woman.
               </p>
 
-              <div className="flex flex-col gap-3 sm:flex-row justify-center lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <Link
                   to="/shop"
-                  className="group inline-flex items-center justify-center gap-2 w-full sm:flex-1 px-8 py-4 bg-[#E8652B]/20 backdrop-blur-xl border border-[#E8652B]/30 text-[#3B2A1A] rounded-full font-semibold transition-all duration-300 hover:bg-[#E8652B]/30 hover:border-[#E8652B]/50 hover:scale-105 shadow-lg shadow-[#E8652B]/10"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#E8652B]/20 backdrop-blur-xl border border-[#E8652B]/30 text-[#3B2A1A] rounded-full font-semibold transition-all duration-300 hover:bg-[#E8652B]/30 hover:border-[#E8652B]/50 hover:scale-105 shadow-lg shadow-[#E8652B]/10"
                 >
                   Shop Collection
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 w-full sm:flex-1 glass-card px-8 py-4 rounded-full font-medium hover:border-primary/30 transition-all duration-300"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 glass-card rounded-full font-medium hover:border-primary/30 transition-all duration-300"
                 >
                   Contact Us
                 </Link>
@@ -328,17 +328,17 @@ const Hero = () => {
             From formal office wear to casual weekend comfort — crafted for the modern woman.
           </p>
 
-          <div className="flex flex-wrap gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Link
               to="/shop"
-              className="group inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold transition-all duration-300 hover:scale-105 bg-primary text-primary-foreground hover:shadow-elegant hover:shadow-primary/30 btn-glow"
+              className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold transition-all duration-300 hover:scale-105 bg-primary text-primary-foreground hover:shadow-elegant hover:shadow-primary/30 btn-glow"
             >
               Shop Collection
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 glass-card hover:border-primary/30"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 glass-card hover:border-primary/30"
             >
               Contact Us
             </Link>
