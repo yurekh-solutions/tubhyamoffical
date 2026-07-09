@@ -11,7 +11,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, size: string, color: string) => void;
+  addToCart: (product: Product, size: string, color: string, qty?: number) => void;
   removeFromCart: (productId: string, size: string, color: string) => void;
   updateQuantity: (productId: string, size: string, color: string, quantity: number) => void;
   clearCart: () => void;
@@ -50,12 +50,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [items]);
 
-  const addToCart = useCallback((product: Product, size: string, color: string) => {
+  const addToCart = useCallback((product: Product, size: string, color: string, qty: number = 1) => {
     // Skip test products with price <= 1
     if (product.price <= 1) {
       toast.error('This product is not available for purchase');
       return;
     }
+
+    // Enforce qty >= 1
+    const safeQty = Math.max(1, Math.floor(qty));
 
     setItems(prev => {
       const existingIndex = prev.findIndex(
@@ -64,12 +67,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       if (existingIndex >= 0) {
         const updated = [...prev];
-        updated[existingIndex].quantity += 1;
+        updated[existingIndex].quantity += safeQty;
         setLastAddedItem({ ...updated[existingIndex] });
         return updated;
       }
 
-      const newItem: CartItem = { product, quantity: 1, size, color };
+      const newItem: CartItem = { product, quantity: safeQty, size, color };
       setLastAddedItem(newItem);
       return [...prev, newItem];
     });

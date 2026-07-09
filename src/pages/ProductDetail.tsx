@@ -273,7 +273,7 @@ const ProductDetail = () => {
     if (!selectedSize || !product) {
       return;
     }
-    addToCart(product, selectedSize, selectedColor || product.colors[0]);
+    addToCart(product, selectedSize, selectedColor || product.colors[0], quantity);
   };
 
   const handleWhatsApp = () => {
