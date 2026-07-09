@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
+import { useOrderHistory } from '@/context/OrderHistoryContext';
 import { ShoppingBag, CreditCard, MapPin, User, Phone, Mail, Loader2, Shield, Truck, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
@@ -26,6 +27,7 @@ interface CustomerInfo {
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
+  const { addOrder } = useOrderHistory();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -133,6 +135,39 @@ const Checkout = () => {
             const verifyData = await verifyResponse.json();
 
             if (verifyData.success) {
+              // Persist the order to local history BEFORE clearing the cart
+              // so the items array still has the product snapshots.
+              try {
+                addOrder({
+                  id: response.razorpay_order_id,
+                  paymentId: response.razorpay_payment_id,
+                  amount: finalAmount,
+                  currency: 'INR',
+                  status: 'processing',
+                  createdAt: new Date().toISOString(),
+                  customer: {
+                    name: customerInfo.name,
+                    phone: customerInfo.phone,
+                    email: customerInfo.email || undefined,
+                    address: customerInfo.address,
+                    city: customerInfo.city,
+                    state: customerInfo.state,
+                    pincode: customerInfo.pincode,
+                  },
+                  items: items.map((i) => ({
+                    id: i.product.id,
+                    name: i.product.name,
+                    image: i.product.image,
+                    price: i.product.price,
+                    quantity: i.quantity,
+                    size: i.size,
+                    color: i.color,
+                  })),
+                });
+              } catch (histErr) {
+                console.warn('OrderHistory: failed to save order', histErr);
+              }
+
               toast.success('Payment successful! Order confirmed.');
               
               // Create shipment via Shiprocket

@@ -1,8 +1,10 @@
-import { X, Plus, Minus, Trash2, Phone } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Phone, CreditCard, Receipt, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { Link } from 'react-router-dom';
+import { useOrderHistory } from '@/context/OrderHistoryContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const CartSidebar = () => {
+  const navigate = useNavigate();
   const { 
     items, 
     isCartOpen, 
@@ -12,6 +14,7 @@ const CartSidebar = () => {
     totalPrice,
     totalItems,
   } = useCart();
+  const { addOrder } = useOrderHistory();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -22,20 +25,63 @@ const CartSidebar = () => {
   };
 
   const handleWhatsAppCheckout = () => {
+    if (items.length === 0) return;
+
     const message = items.map(item => 
       `• ${item.product.name} (${item.size}, ${item.color}) x${item.quantity} - ${formatPrice(item.product.price * item.quantity)}`
     ).join('\n');
     
-    const fullMessage = `Hi! I'd like to order the following items:\n\n${message}\n\nTotal: ${formatPrice(totalPrice)}\n\nPlease confirm availability.`;
+    const orderId = `TBHM-WA-${Date.now()}`;
+    const fullMessage = `Hi! I'd like to order the following items:\n\nOrder ID: ${orderId}\n\n${message}\n\nTotal: ${formatPrice(totalPrice)}\n\nPlease confirm availability and share payment details.`;
+
+    // Persist WhatsApp order before opening new tab.
+    try {
+      addOrder({
+        id: orderId,
+        amount: totalPrice,
+        currency: 'INR',
+        status: 'processing',
+        createdAt: new Date().toISOString(),
+        customer: {
+          name: 'WhatsApp Customer',
+          phone: '',
+          address: 'Shared via WhatsApp',
+          city: '',
+          state: '',
+          pincode: '',
+        },
+        items: items.map((i) => ({
+          id: i.product.id,
+          name: i.product.name,
+          image: i.product.image,
+          price: i.product.price,
+          quantity: i.quantity,
+          size: i.size,
+          color: i.color,
+        })),
+      });
+    } catch (err) {
+      console.warn('OrderHistory: failed to save WhatsApp order', err);
+    }
     
     window.open(`https://wa.me/917039382706?text=${encodeURIComponent(fullMessage)}`, '_blank');
+  };
+
+  const handlePayOnline = () => {
+    setIsCartOpen(false);
+    navigate('/checkout');
+  };
+
+  const handleViewOrders = () => {
+    setIsCartOpen(false);
+    navigate('/orders');
   };
 
   return (
     <>
       {/* Overlay */}
       <div 
-        className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-background/80 z-40 transition-opacity duration-300 ${
           isCartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsCartOpen(false)}
@@ -49,13 +95,23 @@ const CartSidebar = () => {
       >
         <div className="flex flex-col h-full">
         <div className="flex items-center justify-between p-6 border-b border-border/50 bg-gradient-to-r from-secondary/20 to-transparent backdrop-blur-sm sticky top-0 z-10">
-            <div>
-              <h2 className="font-heading text-2xl font-semibold tracking-tight">Your Cart</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">{totalItems} {totalItems === 1 ? 'item' : 'items'}</p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="p-2 hover:bg-secondary/50 rounded-full transition-all"
+                aria-label="Back"
+              >
+                <ArrowLeft size={20} className="w-5 h-5" />
+              </button>
+              <div>
+                <h2 className="font-heading text-2xl font-semibold tracking-tight">Your Cart</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">{totalItems} {totalItems === 1 ? 'item' : 'items'}</p>
+              </div>
             </div>
             <button 
               onClick={() => setIsCartOpen(false)}
               className="p-2.5 hover:bg-secondary/50 rounded-full transition-all hover:rotate-90 duration-300 flex-shrink-0"
+              aria-label="Close"
             >
               <X size={20} className="w-5 h-5" />
             </button>
@@ -160,14 +216,34 @@ const CartSidebar = () => {
                 <Phone size={18} />
                 Order via WhatsApp
               </button>
-              
-              <Link 
-                to="/shop"
-                onClick={() => setIsCartOpen(false)}
-                className="block text-center text-sm text-muted-foreground hover:text-primary transition-colors link-underline"
+
+              <button
+                onClick={handlePayOnline}
+                className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground py-3.5 rounded-xl font-medium transition-all hover:scale-105 shadow-lg hover:shadow-xl"
               >
-                Continue Shopping
-              </Link>
+                <CreditCard size={18} />
+                Pay Online (UPI / Card)
+              </button>
+
+              <button
+                onClick={handleViewOrders}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-sm border border-border hover:border-primary/50 transition-colors"
+              >
+                <Receipt size={16} />
+                View My Orders
+              </button>
+              
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-medium text-sm border border-border hover:border-primary/50 hover:bg-secondary/50 transition-colors"
+              >
+                <ArrowLeft size={16} />
+                Back to Shopping
+              </button>
+
+              <p className="text-[10px] text-muted-foreground text-center">
+                Secure payment powered by Razorpay
+              </p>
             </div>
           )}
         </div>

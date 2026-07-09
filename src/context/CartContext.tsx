@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Product } from '@/data/products';
 import { toast } from 'sonner';
 
@@ -27,10 +27,28 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  // Hydrate cart from localStorage on mount so items survive hard refresh.
+  const [items, setItems] = useState<CartItem[]>(() => {
+    try {
+      const stored = localStorage.getItem('tubhyam_cart_v1');
+      if (stored) return JSON.parse(stored) as CartItem[];
+    } catch (err) {
+      console.warn('CartContext: failed to hydrate cart from localStorage', err);
+    }
+    return [];
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
   const [isAddToBagSheetOpen, setIsAddToBagSheetOpen] = useState(false);
+
+  // Persist cart to localStorage whenever it changes.
+  useEffect(() => {
+    try {
+      localStorage.setItem('tubhyam_cart_v1', JSON.stringify(items));
+    } catch (err) {
+      console.warn('CartContext: failed to persist cart to localStorage', err);
+    }
+  }, [items]);
 
   const addToCart = useCallback((product: Product, size: string, color: string) => {
     // Skip test products with price <= 1

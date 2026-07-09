@@ -31,7 +31,7 @@ const AddToBagSheet = () => {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/40 z-50 transition-opacity duration-300 ${
           isAddToBagSheetOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={handleContinueShopping}

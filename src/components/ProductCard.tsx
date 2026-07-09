@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { Product } from '@/data/products';
-import { useCart } from '@/context/CartContext';
 import { useTheme } from '@/context/ThemeContext';
 import OptimizedImage from './OptimizedImage';
 
@@ -12,16 +11,20 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, priority = false }: ProductCardProps) => {
-  const { addToCart } = useCart();
   const { isLight } = useTheme();
+  const navigate = useNavigate();
   const [showSecondImage, setShowSecondImage] = useState(false);
   const hasMultipleImages = product.images && product.images.length > 1;
   const currentImage = showSecondImage && hasMultipleImages ? product.images[1] : product.image;
 
+  // Quick Add now takes the user INTO the product detail page first,
+  // so they can browse images, description, and pick their own size.
+  // No item is added to the bag until the user selects a size on the
+  // detail page — prevents wrong-size cart entries.
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product, product.sizes[0], product.colors[0]);
+    navigate(`/product/${product.id}`);
   };
 
   // Deterministic per-product review count (2, 3, or 4) — same seed as
@@ -98,7 +101,8 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
             </button>
           </div>
 
-          {/* Quick Add Button */}
+          {/* Quick Add Button — takes the user to the product detail
+              page where they pick their size before adding to bag. */}
           <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
             <button
               onClick={handleQuickAdd}

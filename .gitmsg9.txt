@@ -1,0 +1,8 @@
+feat: order history, cart persistence, and UX improvements
+
+- Add /orders page with localStorage-backed OrderHistoryContext
+- Persist cart items across hard refreshes (tubhyam_cart_v1)
+- Cart drawer: Pay Online, View My Orders, back navigation buttons
+- Cart page: WhatsApp order persistence, Pay Online button
+- Quick Add navigates to product detail for size selection
+- Remove backdrop-blur from cart/add-to-bag overlays

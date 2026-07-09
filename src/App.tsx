@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "@/context/CartContext";
+import { OrderHistoryProvider } from "@/context/OrderHistoryContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
@@ -30,6 +31,7 @@ import InstagramGallery from "./pages/InstagramGallery";
 import AdminOrders from "./pages/AdminOrders";
 import BlogDetail from "./pages/BlogDetail";
 import TrackOrder from "./pages/TrackOrder";
+import Orders from "./pages/Orders";
 import NotFound from "./pages/NotFound";
 import AIChatWidget from "./components/AIChatWidget";
 import CartSidebar from "./components/CartSidebar";
@@ -43,6 +45,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
+          <OrderHistoryProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter
@@ -78,12 +81,14 @@ const App = () => (
               {/* Admin Routes */}
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/track-order" element={<TrackOrder />} />
+              <Route path="/orders" element={<Orders />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <CartSidebar />
             <AddToBagSheet />
           </BrowserRouter>
           <AIChatWidget />
+          </OrderHistoryProvider>
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>

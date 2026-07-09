@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Trash2, Phone, ShoppingBag, ArrowLeft, CreditCard } from 'lucide-react';
+import { Plus, Minus, Trash2, Phone, ShoppingBag, ArrowLeft, CreditCard, Receipt } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useOrderHistory } from '@/context/OrderHistoryContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -13,6 +14,7 @@ const Cart = () => {
     totalPrice,
     totalItems,
   } = useCart();
+  const { addOrder } = useOrderHistory();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -23,12 +25,48 @@ const Cart = () => {
   };
 
   const handleWhatsAppCheckout = () => {
+    if (items.length === 0) return;
+
     const message = items.map(item => 
       `• ${item.product.name} (${item.size}, ${item.color}) x${item.quantity} - ${formatPrice(item.product.price * item.quantity)}`
     ).join('\n');
     
-    const fullMessage = `Hi! I'd like to order the following items:\n\n${message}\n\nTotal: ${formatPrice(totalPrice)}\n\nPlease confirm availability.`;
-    
+    const orderId = `TBHM-WA-${Date.now()}`;
+    const fullMessage = `Hi! I'd like to order the following items:\n\nOrder ID: ${orderId}\n\n${message}\n\nTotal: ${formatPrice(totalPrice)}\n\nPlease confirm availability and share payment details.`;
+
+    // Persist the WhatsApp order to local history BEFORE navigating away.
+    // The order stays in "processing" until the seller confirms on WhatsApp.
+    // If the user comes back (browser back button works naturally because
+    // WhatsApp opens in a new tab), they'll see this in /orders.
+    try {
+      addOrder({
+        id: orderId,
+        amount: totalPrice,
+        currency: 'INR',
+        status: 'processing',
+        createdAt: new Date().toISOString(),
+        customer: {
+          name: 'WhatsApp Customer',
+          phone: '',
+          address: 'Shared via WhatsApp',
+          city: '',
+          state: '',
+          pincode: '',
+        },
+        items: items.map((i) => ({
+          id: i.product.id,
+          name: i.product.name,
+          image: i.product.image,
+          price: i.product.price,
+          quantity: i.quantity,
+          size: i.size,
+          color: i.color,
+        })),
+      });
+    } catch (err) {
+      console.warn('OrderHistory: failed to save WhatsApp order', err);
+    }
+
     window.open(`https://wa.me/917039382706?text=${encodeURIComponent(fullMessage)}`, '_blank');
   };
 
@@ -193,6 +231,14 @@ const Cart = () => {
                     <CreditCard size={18} className="md:w-5 md:h-5" />
                     Pay Online (UPI / Card)
                   </button>
+
+                  <Link
+                    to="/orders"
+                    className="w-full flex items-center justify-center gap-2 text-sm md:text-base font-medium py-2.5 rounded-xl border border-border hover:border-primary/50 transition-colors mb-3 md:mb-4"
+                  >
+                    <Receipt size={16} />
+                    View My Orders
+                  </Link>
 
                   <p className="text-xs text-muted-foreground text-center">
                     Secure payment powered by Razorpay
