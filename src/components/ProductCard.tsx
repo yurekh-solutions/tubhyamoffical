@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { Product } from '@/data/products';
 import { useTheme } from '@/context/ThemeContext';
+import { useWishlist } from '@/context/WishlistContext';
 import OptimizedImage from './OptimizedImage';
 
 interface ProductCardProps {
@@ -12,6 +13,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, priority = false }: ProductCardProps) => {
   const { isLight } = useTheme();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
   const [showSecondImage, setShowSecondImage] = useState(false);
   const hasMultipleImages = product.images && product.images.length > 1;
@@ -94,10 +96,14 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
           {/* Quick Actions */}
           <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
             <button 
-              className="p-2.5 glass-card backdrop-blur-xl border border-white/20 rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              className={`p-2.5 glass-card backdrop-blur-xl border border-white/20 rounded-full transition-all duration-300 hover:scale-110 shadow-lg ${
+                isInWishlist(product.id)
+                  ? 'bg-red-500 text-white border-red-500 hover:bg-red-600'
+                  : 'hover:bg-primary hover:text-white hover:border-primary'
+              }`}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product); }}
             >
-              <Heart size={18} />
+              <Heart size={18} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
             </button>
           </div>
 

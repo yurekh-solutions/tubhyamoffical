@@ -291,8 +291,8 @@ const Hero = () => {
           <source src={heroVideo} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
       </div>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

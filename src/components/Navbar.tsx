@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Menu, X, Instagram, Phone, MapPin, Sun, Moon, MessageCircle } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, Instagram, Phone, MapPin, Sun, Moon, MessageCircle, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { useTheme } from '@/context/ThemeContext';
 import logo from '@/assets/looo.png';
 
@@ -12,6 +13,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const { totalItems } = useCart();
+  const { totalItems: wishlistCount } = useWishlist();
   const { theme, toggleTheme, isLight } = useTheme();
 
   useEffect(() => {
@@ -185,6 +187,19 @@ const Navbar = () => {
                   <Sun size={18} className="sm:w-5 sm:h-5 transition-transform duration-300" />
                 )}
               </button>
+
+              {/* Wishlist */}
+              <Link
+                to="/wishlist"
+                className="relative p-1.5 sm:p-2 hover:bg-secondary/50 rounded-full transition-colors flex-shrink-0"
+              >
+                <Heart size={18} className="sm:w-5 sm:h-5" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium animate-scale-in">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Cart */}
               <Link

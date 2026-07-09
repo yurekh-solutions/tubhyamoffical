@@ -7,6 +7,7 @@ import OptimizedImage from '@/components/OptimizedImage';
 import PageLoader from '@/components/PageLoader';
 import { getProductById, getProductsByCategory, getProductByIdSync, getProductsByCategorySync, resolveProductId, Product } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import { useTheme } from '@/context/ThemeContext';
 import {
   Accordion,
@@ -134,6 +135,7 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const { isLight } = useTheme();
 
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -154,6 +156,7 @@ const ProductDetail = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [showSizeError, setShowSizeError] = useState(false);
   const [userReviews, setUserReviews] = useState<{name:string;location:string;rating:number;date:string;comment:string}[]>(() =>
     id ? getStoredReviews(id) : []
   );
@@ -271,8 +274,10 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!selectedSize || !product) {
+      setShowSizeError(true);
       return;
     }
+    setShowSizeError(false);
     addToCart(product, selectedSize, selectedColor || product.colors[0], quantity);
   };
 
@@ -532,8 +537,8 @@ const ProductDetail = () => {
               {product.description}
             </p>
 
-            {/* Color selection — circular swatches (hidden when only 1 color) */}
-            {product.colors.length > 1 && (
+            {/* Color selection — circular swatches (always show when product has colors) */}
+            {product.colors.length >= 1 && (
               <div className="space-y-3">
                 <h4 className="font-medium text-sm">
                   Color:{' '}
@@ -587,21 +592,30 @@ const ProductDetail = () => {
                 {product.sizes.map((size) => (
                   <button
                     key={size}
-                    onClick={() => setSelectedSize(size)}
+                    onClick={() => { setSelectedSize(size); setShowSizeError(false); }}
                     className={`min-w-[3rem] h-11 px-4 rounded-lg border-2 font-semibold transition-all text-sm ${
                       selectedSize === size
                         ? isLight
                           ? 'border-[#2E241F] bg-[#2E241F] text-white'
                           : 'border-[#FFD3AC] bg-gradient-to-r from-[#FFD3AC] to-[#ffcd94] text-[#1A1410]'
-                        : isLight
-                          ? 'border-[#D4C5B5] text-foreground hover:border-[#2E241F]'
-                          : 'border-[#3D3229] text-foreground hover:border-[#FFD3AC]'
+                        : showSizeError
+                          ? 'border-red-400 text-foreground hover:border-red-500 animate-pulse'
+                          : isLight
+                            ? 'border-[#D4C5B5] text-foreground hover:border-[#2E241F]'
+                            : 'border-[#3D3229] text-foreground hover:border-[#FFD3AC]'
                     }`}
                   >
                     {size}
                   </button>
                 ))}
               </div>
+              {/* Size error popup */}
+              {showSizeError && (
+                <div className="flex items-center gap-2 text-red-500 text-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500" />
+                  Please select a size before adding to bag
+                </div>
+              )}
             </div>
 
             {/* Quantity */}
@@ -646,32 +660,35 @@ const ProductDetail = () => {
             <div className="space-y-3 pt-2">
               <div className="flex gap-3">
                 <button
-                  onClick={handleAddToCart}
-                  disabled={!selectedSize}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl font-semibold transition-all text-sm ${
-                    selectedSize
-                      ? isLight
-                        ? 'bg-[#2E241F] text-white hover:bg-[#1A1410] hover:shadow-lg active:scale-[0.98]'
-                        : 'glass-card bg-white/90 text-[#1A1410] hover:bg-white hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]'
-                      : isLight
-                        ? 'bg-[#D4C5B5] text-[#8A7D70] cursor-not-allowed'
-                        : 'glass-card bg-white/10 text-[#6B5E52] cursor-not-allowed'
-                  }`}
-                >
-                  <ShoppingBag size={18} />
-                  Add to Bag
-                </button>
-                <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  onClick={() => toggleWishlist(product)}
                   className={`p-4 rounded-xl transition-all active:scale-95 ${
-                    isWishlisted
+                    isInWishlist(product.id)
                       ? 'bg-red-50 border-2 border-red-400 text-red-500'
                       : isLight
                         ? 'border-2 border-[#D4C5B5] text-[#8A7D70] hover:border-[#2E241F] hover:text-[#2E241F]'
                         : 'glass-card text-[#8A7D70] hover:text-[#FFD3AC] active:scale-[0.98]'
                   }`}
                 >
-                  <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
+                  <Heart size={20} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
+                </button>
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl font-semibold transition-all text-sm ${
+                    selectedSize
+                      ? isLight
+                        ? 'bg-[#2E241F] text-white hover:bg-[#1A1410] hover:shadow-lg active:scale-[0.98]'
+                        : 'glass-card bg-white/90 text-[#1A1410] hover:bg-white hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]'
+                      : showSizeError
+                        ? isLight
+                          ? 'bg-red-100 text-red-700 border-2 border-red-400'
+                          : 'bg-red-500/10 text-red-400 border border-red-500/30'
+                        : isLight
+                          ? 'bg-[#D4C5B5] text-[#8A7D70] cursor-not-allowed'
+                          : 'glass-card bg-white/10 text-[#6B5E52] cursor-not-allowed'
+                  }`}
+                >
+                  <ShoppingBag size={18} />
+                  {showSizeError ? 'Select a Size' : 'Add to Bag'}
                 </button>
               </div>
               <button
@@ -1055,7 +1072,7 @@ const ProductDetail = () => {
           <h2 className="font-heading text-3xl font-semibold mb-8">
             You May Also <span className="text-gradient-gold">Like</span>
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}

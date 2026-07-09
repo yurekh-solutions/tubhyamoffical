@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import { OrderHistoryProvider } from "@/context/OrderHistoryContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -28,6 +29,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Lookbook from "./pages/Lookbook";
 import Collections from "./pages/Collections";
 import InstagramGallery from "./pages/InstagramGallery";
+import Wishlist from "./pages/Wishlist";
 import AdminOrders from "./pages/AdminOrders";
 import BlogDetail from "./pages/BlogDetail";
 import TrackOrder from "./pages/TrackOrder";
@@ -45,6 +47,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
+          <WishlistProvider>
           <OrderHistoryProvider>
           <Toaster />
           <Sonner />
@@ -78,6 +81,7 @@ const App = () => (
               <Route path="/terms" element={<Terms />} />
               <Route path="/shipping" element={<Shipping />} />
               <Route path="/returns" element={<Returns />} />
+              <Route path="/wishlist" element={<Wishlist />} />
               {/* Admin Routes */}
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/track-order" element={<TrackOrder />} />
@@ -89,6 +93,7 @@ const App = () => (
           </BrowserRouter>
           <AIChatWidget />
           </OrderHistoryProvider>
+          </WishlistProvider>
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>
