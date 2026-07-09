@@ -28,7 +28,7 @@ export const instagramFallbackPosts: InstagramFallbackPost[] = [
   },
   {
     id: 'fallback-03',
-    caption: '👖 Classic denim that never goes out of style. Shop the look on tubhyam.com',
+    caption: '👖 Classic denim that never goes out of style. Shop the look on tubhyam.in',
     instagramUrl: 'https://www.instagram.com/tubhyamofficial/',
     likesCount: 2156,
   },

@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    sourcemap: false,
     assetsInlineLimit: 0,
     rollupOptions: {
       output: {

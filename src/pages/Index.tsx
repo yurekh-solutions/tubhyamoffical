@@ -21,7 +21,7 @@ const Index = () => {
         title="Tubhyam | Premium Women's Pants, Jeans & Formal Wear"
         description="Shop premium women's pants at Tubhyam. Explore our collection of jeans, formal trousers, and track pants. Free shipping, sustainable fashion, 7-day returns."
         keywords="women's pants, women's jeans, formal trousers, track pants, Indian fashion, premium clothing, sustainable fashion"
-        url="https://tubhyam.com"
+        url="https://tubhyam.in"
       />
       <Navbar />
       <Hero />

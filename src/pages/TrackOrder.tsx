@@ -21,7 +21,7 @@ interface Order {
   createdAt?: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://tubhyamoffical.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const TrackOrder = () => {
   const [phone, setPhone] = useState('');

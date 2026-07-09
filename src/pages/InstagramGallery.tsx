@@ -96,7 +96,7 @@ const InstagramGallery = () => {
       <SEO
         title="Instagram | Tubhyam Official"
         description="Follow @tubhyamofficial on Instagram for the latest styles, behind-the-scenes, and exclusive drops."
-        url="https://tubhyam.com/instagram"
+        url="https://tubhyam.in/instagram"
       />
       <Helmet>
         <meta name="instagram:site" content={`@${instagramConfig.username}`} />

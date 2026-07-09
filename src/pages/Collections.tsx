@@ -89,7 +89,7 @@ const Collections = () => {
         title="Collections | Seasonal Fashion"
         description="Explore Tubhyam's exclusive collections - Formal Elegance, Denim Stories, Active Luxe, and Summer Essentials. Premium women's fashion for every occasion."
         keywords="fashion collections, women's formal wear, denim collection, track pants, summer fashion, Tubhyam collections"
-        url="https://tubhyam.com/collections"
+        url="https://tubhyam.in/collections"
       />
       <Navbar />
 

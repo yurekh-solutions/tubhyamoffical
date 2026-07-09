@@ -113,7 +113,7 @@ const Terms = () => {
             </p>
             <ul className="text-muted-foreground space-y-2 ml-4">
               <li>WhatsApp: +91 70393 82706</li>
-              <li>Email: contact@tubhyam.com</li>
+              <li>Email: contact@tubhyam.in</li>
               <li>Instagram: @tubhyamofficial</li>
             </ul>
           </div>

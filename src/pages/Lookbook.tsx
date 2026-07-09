@@ -78,7 +78,7 @@ const Lookbook = () => {
         title="Lookbook | Fashion Inspiration"
         description="Explore Tubhyam's lookbook for premium women's fashion inspiration. Discover styling ideas for formal wear, jeans, and casual pants."
         keywords="fashion lookbook, women's style, outfit inspiration, premium fashion, Tubhyam lookbook"
-        url="https://tubhyam.com/lookbook"
+        url="https://tubhyam.in/lookbook"
       />
       <Navbar />
 

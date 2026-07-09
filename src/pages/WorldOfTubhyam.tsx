@@ -12,7 +12,7 @@ const WorldOfTubhyam = () => {
         title="World of Tubhyam | Inclusive Premium Fashion for Every Woman - All Sizes, All Skin Tones"
         description="Discover Tubhyam's revolutionary approach to women's fashion. Premium, size-inclusive clothing (XS-5XL) designed for every skin tone and body type. Experience elegance, comfort, and confidence. Made for Indian women, by women who understand you."
         keywords="inclusive fashion India, all size women clothing, premium pants all skin tones, size inclusive brand, XS to 5XL women's wear, body positive fashion, Indian women's clothing, comfortable elegant pants, diverse fashion India, affordable premium wear, Tubhyam"
-        url="https://tubhyam.com/world-of-tubhyam"
+        url="https://tubhyam.in/world-of-tubhyam"
       />
       <Navbar />
       {/* Hero Section - Heartfelt Introduction */}

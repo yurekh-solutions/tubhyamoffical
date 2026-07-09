@@ -246,10 +246,10 @@ const Orders = () => {
             </a>{' '}
             or email{' '}
             <a
-              href="mailto:contact@tubhyam.com"
+              href="mailto:contact@tubhyam.in"
               className="text-primary hover:underline"
             >
-              contact@tubhyam.com
+              contact@tubhyam.in
             </a>
             .
           </p>

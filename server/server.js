@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const cron = require('node-cron');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 // Load env vars
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -15,6 +16,7 @@ const instagramRoutes = require('./routes/instagram');
 const paymentRoutes = require('./routes/payment');
 const chatRoutes = require('./routes/chat');
 const blogRoutes = require('./routes/blogs');
+const otpRoutes = require('./routes/otp');
 
 // Services
 const { syncInstagramPosts } = require('./services/instagramSync');
@@ -40,12 +42,15 @@ app.use(cors({
     // Allow requests with no origin (mobile apps, curl, Postman, etc.)
     if (!origin) return callback(null, true);
     // Allow any localhost port in development
-    const isLocalhost = origin.match(/^https?:\/\/localhost:\d+/) || origin.match(/^https?:\/\/127\.0\.0\.1:\d+/);
-    if (allowedOrigins.includes(origin) || isLocalhost) {
+    if (process.env.NODE_ENV !== 'production') {
+      const isLocalhost = origin.match(/^https?:\/\/localhost:\d+/) || origin.match(/^https?:\/\/127\.0\.0\.1:\d+/);
+      if (isLocalhost) return callback(null, true);
+    }
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    // In production, allow tubhyam domains and vercel
-    if (origin.includes('tubhyam') || origin.includes('vercel.app') || origin.includes('onrender.com')) {
+    // In production, only allow tubhyam domains
+    if (process.env.NODE_ENV === 'production' && (origin.includes('tubhyam.in') || origin.includes('tubhyamoffical.vercel.app'))) {
       return callback(null, true);
     }
     console.warn(`CORS blocked origin: ${origin}`);
@@ -55,6 +60,27 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting — protect all API endpoints from abuse
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
+
+// Stricter rate limit for sensitive endpoints (payment, OTP, chat)
+const sensitiveLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20, // 20 requests per 15 minutes for sensitive routes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
+
+// Apply general rate limit to all API routes
+app.use('/api/', apiLimiter);
 
 // Serve static images
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
@@ -72,17 +98,18 @@ const connectDB = async () => {
   }
 };
 
-// Routes
+// Routes — sensitive routes get stricter rate limits
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/instagram', instagramRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/chat', chatRoutes);
+app.use('/api/payment', sensitiveLimiter, paymentRoutes);
+app.use('/api/chat', sensitiveLimiter, chatRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/otp', sensitiveLimiter, otpRoutes);
 
-// Health check
+// Health check (minimal info exposure)
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ status: 'OK' });
 });
 
 // Error handling middleware

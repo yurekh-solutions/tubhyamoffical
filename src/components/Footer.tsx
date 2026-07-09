@@ -33,7 +33,7 @@ const Footer = () => {
                 className={`p-2 rounded-lg transition-all ${isLight ? 'bg-white border border-gray-200 text-primary' : 'glass-card text-primary'}`}>
                 <Phone size={16} />
               </a>
-              <a href="mailto:contact@tubhyam.com"
+              <a href="mailto:contact@tubhyam.in"
                 className={`p-2 rounded-lg transition-all ${isLight ? 'bg-white border border-gray-200 text-primary' : 'glass-card text-primary'}`}>
                 <Mail size={16} />
               </a>
@@ -70,9 +70,9 @@ const Footer = () => {
                 <Phone size={14} className="text-primary" />
                 +91 70393 82706
               </a>
-              <a href="mailto:contact@tubhyam.com" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm">
+              <a href="mailto:contact@tubhyam.in" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm">
                 <Mail size={14} className="text-primary" />
-                contact@tubhyam.com
+                contact@tubhyam.in
               </a>
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <MapPin size={14} className="text-primary" />

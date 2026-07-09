@@ -23,11 +23,8 @@ function mapProduct(p) {
   return {
     id,
     sku: p.sku || id,
-    mongoId: p._id, // preserve MongoDB _id so frontend can match stale URLs
     name: p.name,
     price: p.sellingPrice || p.mrp || 0,
-    sellingPrice: p.sellingPrice || 0,
-    costPrice: p.costPrice || 0,
     mrp: p.mrp || p.sellingPrice || 0,
     category: p.category,
     description: p.description || '',
@@ -35,17 +32,12 @@ function mapProduct(p) {
     image: images[0] || '',
     sizes: (p.sizes || []).map(s => s.size || s),
     colors: (p.colors || []).map(c => c.color || c),
-    currentStock: p.currentStock || 0,
-    status: p.status || 'in-stock',
     inStock: (p.currentStock || 0) > 0,
     isNew: false,
     isBestSeller: (p.currentStock || 0) > 30,
     isFeatured: (p.currentStock || 0) > 20,
     rating: 4.5,
     reviews: 0,
-    hsn: p.hsn || '',
-    gstRate: p.gstRate || 18,
-    unit: p.unit || 'pcs',
   };
 }
 

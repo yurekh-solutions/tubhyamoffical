@@ -18,8 +18,8 @@ const SEO = ({
   title = 'Tubhyam | Premium Women\'s Fashion - Formal Pants, Track Pants & Jeans',
   description = 'Discover Tubhyam\'s premium collection of women\'s pants - jeans, formal wear, and track pants crafted for the modern Indian woman. Sustainable, high-quality, elegant fashion.',
   keywords = 'women\'s pants, premium fashion, jeans, formal trousers, Indian fashion, sustainable clothing, luxury women\'s wear, designer pants, Tubhyam, buy formal pants online, women\'s track pants, casual wear India',
-  image = 'https://tubhyam.com/og-image.jpg',
-  url = 'https://tubhyam.com',
+  image = 'https://tubhyam.in/og-image.jpg',
+  url = 'https://tubhyam.in',
   type = 'website',
   price,
   originalPrice,
@@ -88,8 +88,8 @@ const SEO = ({
           "@context": "https://schema.org",
           "@type": "Organization",
           "name": "Tubhyam",
-          "url": "https://tubhyam.com",
-          "logo": "https://tubhyam.com/logo.png",
+          "url": "https://tubhyam.in",
+          "logo": "https://tubhyam.in/logo.png",
           "description": "Premium women's fashion brand specializing in formal pants, track pants, and jeans for the modern Indian woman.",
           "sameAs": [
             "https://www.instagram.com/tubhyamofficial",
@@ -114,12 +114,12 @@ const SEO = ({
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://tubhyam.com"
+            "item": "https://tubhyam.in"
           }, {
             "@type": "ListItem",
             "position": 2,
             "name": "Products",
-            "item": "https://tubhyam.com/products"
+            "item": "https://tubhyam.in/products"
           }]
         })}
       </script>

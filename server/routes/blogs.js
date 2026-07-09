@@ -13,14 +13,17 @@ console.log('[blogs.js] Route file loaded successfully');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'tubhyam_admin_2024';
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
+
+if (!ADMIN_SECRET) {
+  console.warn('[blogs.js] WARNING: ADMIN_SECRET not set in environment. Admin routes will reject all requests.');
+}
 
 const verifyAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ success: false, message: 'Admin access required' });
   const token = authHeader.replace('Bearer ', '');
-  const validTokens = [ADMIN_SECRET, 'tubhyam_admin_2024', 'tubhyam-admin-2024'];
-  if (!validTokens.includes(token)) return res.status(401).json({ success: false, message: 'Admin access required' });
+  if (!ADMIN_SECRET || token !== ADMIN_SECRET) return res.status(401).json({ success: false, message: 'Admin access required' });
   next();
 };
 
@@ -824,9 +827,12 @@ router.get('/admin/search', verifyAdmin, async (req, res) => {
 
 // ═══ PUBLIC ROUTES ═══════════════════════════════════════════════════════════
 
+// Fields to strip from public blog responses (internal pipeline data)
+const INTERNAL_FIELDS = '-campaignId -dayIndex -autoPublish -generationMode -generationStatus -errorMessage -held -trendKeyword -trendSource -scheduledPublishDate';
+
 router.get('/', async (req, res) => {
   try {
-    const blogs = await Blog.find({ status: 'published' }).sort({ publishedAt: -1 }).select('-content');
+    const blogs = await Blog.find({ status: 'published' }).sort({ publishedAt: -1 }).select(`-content ${INTERNAL_FIELDS}`);
     res.json({ success: true, count: blogs.length, blogs });
   } catch (error) { res.status(500).json({ success: false, message: 'Failed to fetch blogs' }); }
 });
@@ -851,7 +857,7 @@ router.get('/product-images', async (req, res) => {
 
 router.get('/:slug', async (req, res) => {
   try {
-    const blog = await Blog.findOne({ slug: req.params.slug, status: 'published' });
+    const blog = await Blog.findOne({ slug: req.params.slug, status: 'published' }).select(INTERNAL_FIELDS);
     if (!blog) return res.status(404).json({ success: false, message: 'Blog post not found' });
     res.json({ success: true, blog });
   } catch (error) { res.status(500).json({ success: false, message: 'Failed to fetch blog' }); }

@@ -43,8 +43,8 @@ const Contact = () => {
     {
       icon: Mail,
       label: "Email",
-      value: "contact@tubhyam.com",
-      link: "mailto:contact@tubhyam.com"
+      value: "contact@tubhyam.in",
+      link: "mailto:contact@tubhyam.in"
     },
     {
       icon: MapPin,

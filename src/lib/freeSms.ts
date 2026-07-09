@@ -1,11 +1,13 @@
-// SMS Service using Fast2SMS via backend proxy
-// Solves CORS issues by routing through local server
+// SMS Service using backend proxy
+// All SMS credentials are kept server-side only — never exposed to the browser
 
 interface SendSmsResponse {
   success: boolean;
   message: string;
   otp?: string;
 }
+
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 export const sendOtpViaSms = async (phoneNumber: string): Promise<SendSmsResponse> => {
   try {
@@ -16,8 +18,8 @@ export const sendOtpViaSms = async (phoneNumber: string): Promise<SendSmsRespons
     const businessMessage = `New video call request from +91${phoneNumber}. OTP: ${otp}`;
 
     try {
-      // Send OTP to customer via backend proxy
-      const customerResponse = await fetch('http://localhost:3001/api/send-sms', {
+      // Send OTP to customer via backend (credentials stay server-side)
+      const customerResponse = await fetch(`${API_BASE}/otp/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +34,6 @@ export const sendOtpViaSms = async (phoneNumber: string): Promise<SendSmsRespons
 
       if (!customerData.success) {
         console.warn('Failed to send SMS to customer, using demo mode');
-        console.log(`📱 Demo OTP for +91${phoneNumber}: ${otp}`);
         return {
           success: true,
           message: 'Demo mode: SMS would be sent in production',
@@ -40,10 +41,8 @@ export const sendOtpViaSms = async (phoneNumber: string): Promise<SendSmsRespons
         };
       }
 
-      console.log('SMS sent to customer:', customerData);
-
       // Send notification to business number (7039382706)
-      const businessResponse = await fetch('http://localhost:3001/api/send-sms', {
+      await fetch(`${API_BASE}/otp/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,20 +53,13 @@ export const sendOtpViaSms = async (phoneNumber: string): Promise<SendSmsRespons
         }),
       });
 
-      const businessData = await businessResponse.json();
-      if (businessData.success) {
-        console.log('SMS sent to business:', businessData);
-      }
-
       return {
         success: true,
-        message: 'OTP sent via SMS',
+        message: customerData.demo ? 'Demo mode: SMS would be sent in production' : 'OTP sent via SMS',
         otp,
       };
     } catch (fetchError) {
       console.error('Error with SMS API:', fetchError);
-      console.log(`📱 Demo OTP for +91${phoneNumber}: ${otp}`);
-      console.log(`📞 Business: New request from +91${phoneNumber}, OTP: ${otp}`);
       return {
         success: true,
         message: 'Demo mode: SMS would be sent in production',
@@ -77,7 +69,6 @@ export const sendOtpViaSms = async (phoneNumber: string): Promise<SendSmsRespons
   } catch (error) {
     console.error('Error sending SMS:', error);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`📱 Demo OTP for +91${phoneNumber}: ${otp}`);
     
     return {
       success: true,

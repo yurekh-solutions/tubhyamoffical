@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://tubhyamoffical.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Hard timeout for all API calls (ms). Render free tier can cold-start
 // for 30–60+ seconds; this ensures the UI never hangs indefinitely.
