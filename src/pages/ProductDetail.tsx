@@ -200,7 +200,10 @@ const ProductDetail = () => {
           setProduct(resolved);
           const related = await getProductsByCategory(resolved.category);
           if (cancelled) return;
-          setRelatedProducts(pickRandom(related.filter((p) => p.id !== resolved.id), 4));
+          // Only update related products if API returned results; otherwise keep sync data
+          if (related.length > 0) {
+            setRelatedProducts(pickRandom(related.filter((p) => p.id !== resolved.id), 4));
+          }
         }
       } catch (err) {
         // Timeout / 5xx / network error — the sync product (if any) is
