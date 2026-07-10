@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Menu, X, Instagram, Phone, MapPin, Sun, Moon, MessageCircle, Heart } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, ShoppingBag, Menu, X, Instagram, Phone, MapPin, Sun, Moon, MessageCircle, Heart, ArrowLeft, TrendingUp, Clock } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -218,34 +218,153 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Search Bar */}
+      {/* Mobile Search - Full Screen Overlay */}
       {isSearchOpen && (
-        <div className="md:hidden fixed top-20 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border p-4 animate-in slide-in-from-top-5">
-          <form onSubmit={handleSearch} className="flex items-center gap-2">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products..."
-              className="flex-1 bg-secondary/80 backdrop-blur border border-border rounded-full
-                         pl-4 pr-4 py-2 text-sm focus:outline-none focus:ring-2
-                         focus:ring-primary/50"
-              autoFocus
-            />
-            <button
-              type="submit"
-              className="px-6 py-2 bg-primary text-primary-foreground rounded-full font-medium hover:shadow-elegant transition-all"
-            >
-              Search
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsSearchOpen(false)}
-              className="p-2 hover:bg-secondary/50 rounded-full transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </form>
+        <div className="md:hidden fixed inset-0 z-[100] animate-in fade-in duration-200">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+            onClick={() => setIsSearchOpen(false)} 
+          />
+          
+          {/* Search Panel */}
+          <div className={`relative h-full flex flex-col ${
+            isLight ? 'bg-white' : 'bg-[#1A1410]'
+          } animate-in slide-in-from-top duration-300`}>
+            {/* Search Header */}
+            <div className={`flex items-center gap-3 px-4 py-3 border-b ${
+              isLight ? 'border-gray-200' : 'border-white/10'
+            }`}>
+              <button
+                onClick={() => setIsSearchOpen(false)}
+                className={`p-2 rounded-full transition-colors ${
+                  isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+                }`}
+              >
+                <ArrowLeft size={22} />
+              </button>
+              
+              <form onSubmit={handleSearch} className="flex-1 relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for products..."
+                  className={`w-full py-2.5 pl-4 pr-12 rounded-xl text-base focus:outline-none ${
+                    isLight 
+                      ? 'bg-gray-100 placeholder:text-gray-400' 
+                      : 'bg-white/10 placeholder:text-white/40'
+                  }`}
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary text-primary-foreground rounded-lg"
+                >
+                  <Search size={18} />
+                </button>
+              </form>
+            </div>
+
+            {/* Search Content */}
+            <div className="flex-1 overflow-y-auto px-4 py-5">
+              {/* Quick Links */}
+              <div className="mb-6">
+                <h3 className={`text-xs font-semibold uppercase tracking-wider mb-3 ${
+                  isLight ? 'text-gray-500' : 'text-white/50'
+                }`}>Quick Links</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Formal Pants', 'Jeans', 'Track Pants', 'New Arrivals', 'Best Sellers'].map((term) => (
+                    <button
+                      key={term}
+                      onClick={() => {
+                        setSearchQuery(term);
+                        window.location.href = `/shop?search=${encodeURIComponent(term)}`;
+                      }}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        isLight
+                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          : 'bg-white/10 hover:bg-white/20 text-white/80'
+                      }`}
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Trending Searches */}
+              <div className="mb-6">
+                <h3 className={`text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2 ${
+                  isLight ? 'text-gray-500' : 'text-white/50'
+                }`}>
+                  <TrendingUp size={14} />
+                  Trending Searches
+                </h3>
+                <div className="space-y-1">
+                  {['Wide Leg Trousers', 'Cargo Pants', 'Palazzo', 'Belt Formal Pants', 'Vintage Jeans'].map((term) => (
+                    <button
+                      key={term}
+                      onClick={() => {
+                        setSearchQuery(term);
+                        window.location.href = `/shop?search=${encodeURIComponent(term)}`;
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${
+                        isLight
+                          ? 'hover:bg-gray-100 text-gray-700'
+                          : 'hover:bg-white/5 text-white/80'
+                      }`}
+                    >
+                      <Search size={16} className={isLight ? 'text-gray-400' : 'text-white/30'} />
+                      <span className="text-sm">{term}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Shop by Category */}
+              <div>
+                <h3 className={`text-xs font-semibold uppercase tracking-wider mb-3 ${
+                  isLight ? 'text-gray-500' : 'text-white/50'
+                }`}>Shop by Category</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { name: 'Formal', emoji: '👔', path: '/shop?category=formal' },
+                    { name: 'Jeans', emoji: '👖', path: '/shop?category=jeans' },
+                    { name: 'Track Pants', emoji: '🏃', path: '/shop?category=track' },
+                    { name: 'All Products', emoji: '🛍️', path: '/shop' },
+                  ].map((cat) => (
+                    <Link
+                      key={cat.name}
+                      to={cat.path}
+                      onClick={() => setIsSearchOpen(false)}
+                      className={`flex items-center gap-3 p-4 rounded-xl transition-all ${
+                        isLight
+                          ? 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                          : 'bg-white/5 hover:bg-white/10 border border-white/10'
+                      }`}
+                    >
+                      <span className="text-2xl">{cat.emoji}</span>
+                      <span className={`text-sm font-medium ${
+                        isLight ? 'text-gray-700' : 'text-white/80'
+                      }`}>{cat.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Safe Area */}
+            <div className={`px-4 py-3 border-t ${
+              isLight ? 'border-gray-200 bg-gray-50' : 'border-white/10 bg-black/20'
+            }`}>
+              <p className={`text-xs text-center ${
+                isLight ? 'text-gray-500' : 'text-white/40'
+              }`}>
+                Press enter to search • Tap outside to close
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
