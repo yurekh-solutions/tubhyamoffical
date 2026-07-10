@@ -1,20 +1,35 @@
 import { useState } from 'react';
-import { Mail, Sparkles, Check } from 'lucide-react';
+import { Mail, Sparkles, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [emailError, setEmailError] = useState('');
+
+  const validateEmail = (value: string): boolean => {
+    if (!value.trim()) {
+      setEmailError('Please enter your email address');
+      return false;
+    }
+    if (!EMAIL_REGEX.test(value.trim())) {
+      setEmailError('Please enter a valid email (e.g. name@example.com)');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      setIsSubscribed(true);
-      toast.success('Welcome to Tubhyam!', {
-        description: 'You\'ve been added to our exclusive list.',
-      });
-      setEmail('');
-    }
+    if (!validateEmail(email)) return;
+    setIsSubscribed(true);
+    toast.success('Welcome to Tubhyam!', {
+      description: 'You\'ve been added to our exclusive list.',
+    });
+    setEmail('');
   };
 
   return (
@@ -41,15 +56,34 @@ const NewsletterSection = () => {
           {!isSubscribed ? (
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
               <div className="relative flex-1">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 ${
+                  emailError ? 'text-red-400' : 'text-muted-foreground'
+                }`} size={20} />
                 <input
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) validateEmail(e.target.value);
+                  }}
+                  onBlur={() => email && validateEmail(email)}
                   placeholder="Enter your email"
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-card/80 backdrop-blur border border-border/50 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+                  className={`w-full pl-12 pr-4 py-4 bg-card/80 backdrop-blur border rounded-full focus:outline-none focus:ring-2 transition-all ${
+                    emailError
+                      ? 'border-red-400 focus:ring-red-400/50'
+                      : 'border-border/50 focus:ring-primary/50'
+                  }`}
                 />
+                {emailError && (
+                  <div className="absolute left-4 -bottom-6 flex items-center gap-1.5">
+                    <AlertCircle size={13} className="text-red-400" />
+                    <span className="text-xs text-red-400">{emailError}</span>
+                  </div>
+                )}
               </div>
               <button
                 type="submit"

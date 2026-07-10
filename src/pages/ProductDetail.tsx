@@ -1070,7 +1070,7 @@ const ProductDetail = () => {
       {relatedProducts.length > 0 && (
         <section className="container mx-auto px-4 py-16">
           <h2 className="font-heading text-3xl font-semibold mb-8">
-            You May Also <span className="text-gradient-gold">Like</span>
+            Related <span className="text-gradient-gold">Products</span>
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {relatedProducts.map((p) => (
