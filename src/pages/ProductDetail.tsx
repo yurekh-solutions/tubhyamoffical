@@ -185,7 +185,7 @@ const ProductDetail = () => {
       setProduct(syncProduct);
       setLoading(false);
       const syncRelated = getProductsByCategorySync(syncProduct.category);
-      setRelatedProducts(pickRandom(syncRelated.filter((p) => p.id !== id), 4));
+      setRelatedProducts(pickRandom(syncRelated.filter((p) => p.id !== syncProduct.id), 4));
     }
 
     // ── STEP 2: background resolution (non-blocking) ────────────────

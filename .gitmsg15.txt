@@ -1,0 +1,4 @@
+fix: related products filter using correct product ID
+
+- Use syncProduct.id instead of URL id parameter for filtering
+- Fixes issue where related products weren't showing when URL had MongoDB _id

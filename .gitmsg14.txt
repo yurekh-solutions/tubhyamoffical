@@ -1,0 +1,9 @@
+fix: strict email validation for newsletter subscription
+
+- Add regex-based email format validation (name@domain.com only)
+- Show red border and error icon for invalid input
+- Display error message: "Please enter a valid email"
+- Live validation clears error as user fixes input
+- Blur validation triggers when clicking away
+- Add HTML5 pattern attribute for browser validation
+- Add inputMode="email" for mobile email keyboard
