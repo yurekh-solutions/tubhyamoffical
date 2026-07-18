@@ -4,6 +4,7 @@ import { Phone, Mail, MapPin, Send, Instagram } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
+import SEO from '@/components/SEO';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -56,6 +57,13 @@ const Contact = () => {
 
   return (
     <>
+      <SEO
+        title="Contact Us | Tubhyam - Customer Support & Inquiries"
+        description="Get in touch with Tubhyam — reach us via phone +91 7039382706, email tubhyamofficial@gmail.com, or Instagram @tubhyamofficial. Visit us at 304, BN02 Shalibhadranagar, Block A, BP Road, Thane, Maharashtra. We're here to help!"
+        keywords="contact tubhyam, tubhyam customer service, tubhyam phone number, tubhyam email, tubhyam address, tubhyam instagram, tubhyam support, tubhyam help, women's fashion store contact, online clothing store India contact"
+        url="https://tubhyam.in/contact"
+        breadcrumbItems={[{ name: 'Contact Us', url: 'https://tubhyam.in/contact' }]}
+      />
       <Navbar />
       <ScrollToTop />
       <main className="min-h-screen bg-background">

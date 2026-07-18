@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
 import Pagination from '@/components/Pagination';
 import PageLoader from '@/components/PageLoader';
@@ -66,8 +67,22 @@ const Products = () => {
     setSearchParams({});
   };
 
+  const categoryTitle = categoryParam 
+    ? categories.find(c => c.id === categoryParam)?.name || 'All Products'
+    : 'All Products';
+
   return (
     <div className="min-h-screen">
+      <SEO
+        title={`Shop ${categoryTitle} | Tubhyam - Premium Women's Fashion`}
+        description={`Browse Tubhyam's ${categoryTitle.toLowerCase()} collection. Premium quality formal trousers, wide-leg pants, baggy pleated pants, belt formal pants, cargo pants, jeans, and track pants. Free shipping on orders ₹2000+. Shop now at tubhyam.in!`}
+        keywords={`shop ${categoryTitle.toLowerCase()}, buy ${categoryTitle.toLowerCase()} online, ${categoryTitle.toLowerCase()} for women, women's ${categoryTitle.toLowerCase()} India, best ${categoryTitle.toLowerCase()} brand, premium ${categoryTitle.toLowerCase()} online, cheap ${categoryTitle.toLowerCase()} India, ${categoryTitle.toLowerCase()} online shopping`}
+        url="https://tubhyam.in/shop"
+        breadcrumbItems={[
+          { name: 'Shop', url: 'https://tubhyam.in/shop' },
+          ...(categoryParam ? [{ name: categoryTitle, url: `https://tubhyam.in/shop?category=${categoryParam}` }] : [])
+        ]}
+      />
       <Navbar />
 
       {/* Page Header */}

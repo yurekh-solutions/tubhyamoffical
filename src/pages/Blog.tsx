@@ -266,9 +266,12 @@ const Blog = () => {
     <>
       <Helmet>
         <title>Fashion Blog - Styling Guides, Trends & Tips | Tubhyam</title>
-        <meta name="description" content="Expert fashion guides, styling tips, and trend reports for Indian women." />
+        <meta name="description" content="Expert fashion guides, styling tips, and trend reports for Indian women. Learn how to style formal pants, wide-leg pants, baggy pleated pants, jeans, cargo pants, and more. Seasonal fashion trends and wardrobe essentials." />
+        <meta name="keywords" content="fashion blog India, women's fashion tips, styling guide women, formal pants styling, how to wear wide leg pants, fashion trends 2026, wardrobe essentials women, outfit ideas India, tubhyam blog, women's fashion articles, office wear tips, casual wear styling" />
         <meta property="og:title" content="Fashion Blog - Styling Guides & Trend Reports | Tubhyam" />
+        <meta property="og:description" content="Expert fashion guides, styling tips, and trend reports for Indian women. Learn how to style formal pants, jeans, and casual wear." />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://tubhyam.in/blog" />
         <link rel="canonical" href="https://tubhyam.in/blog" />
       </Helmet>
 

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
+import SEO from '@/components/SEO';
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -45,6 +46,13 @@ const FAQ = () => {
 
   return (
     <>
+      <SEO
+        title="FAQ | Tubhyam - Frequently Asked Questions About Shopping"
+        description="Find answers to common questions about Tubhyam — shipping, returns, sizing, payment methods, order tracking, product care, and more. Everything you need to know about shopping at tubhyam.in."
+        keywords="tubhyam FAQ, tubhyam questions, tubhyam shipping policy, tubhyam return policy, tubhyam size guide, tubhyam payment methods, tubhyam order tracking, tubhyam customer service, tubhyam contact, women's pants online FAQ, free shipping India, return policy women's clothing"
+        url="https://tubhyam.in/faq"
+        breadcrumbItems={[{ name: 'FAQ', url: 'https://tubhyam.in/faq' }]}
+      />
       <Navbar />
       <ScrollToTop />
       <main className="min-h-screen bg-background">

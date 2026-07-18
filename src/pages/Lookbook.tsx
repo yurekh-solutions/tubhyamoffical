@@ -75,10 +75,11 @@ const Lookbook = () => {
   return (
     <>
       <SEO
-        title="Lookbook | Fashion Inspiration"
-        description="Explore Tubhyam's lookbook for premium women's fashion inspiration. Discover styling ideas for formal wear, jeans, and casual pants."
-        keywords="fashion lookbook, women's style, outfit inspiration, premium fashion, Tubhyam lookbook"
+        title="Lookbook | Tubhyam - Fashion Inspiration & Styling Ideas"
+        description="Explore Tubhyam's lookbook for premium women's fashion inspiration. Discover styling ideas for formal trousers, wide-leg pants, baggy pleated pants, jeans, cargo pants, and casual wear. Outfit inspiration for office, events, and everyday style."
+        keywords="tubhyam lookbook, fashion lookbook India, women's style inspiration, outfit ideas women, formal pants styling, wide leg pants outfit, office wear inspiration, premium fashion lookbook, how to style formal pants, women's fashion trends 2026"
         url="https://tubhyam.in/lookbook"
+        breadcrumbItems={[{ name: 'Lookbook', url: 'https://tubhyam.in/lookbook' }]}
       />
       <Navbar />
 

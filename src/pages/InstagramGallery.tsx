@@ -94,9 +94,11 @@ const InstagramGallery = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="Instagram | Tubhyam Official"
-        description="Follow @tubhyamofficial on Instagram for the latest styles, behind-the-scenes, and exclusive drops."
+        title="Instagram Gallery | Tubhyam - @tubhyamofficial Style Feed"
+        description="Follow @tubhyamofficial on Instagram for the latest women's fashion styles, behind-the-scenes content, exclusive drops, and styling inspiration. Shop the look from our Instagram feed."
+        keywords="tubhyam instagram, tubhyamofficial, tubhyam social media, women's fashion instagram India, shop the look, style inspiration instagram, fashion photography women, tubhyam style feed"
         url="https://tubhyam.in/instagram"
+        breadcrumbItems={[{ name: 'Instagram', url: 'https://tubhyam.in/instagram' }]}
       />
       <Helmet>
         <meta name="instagram:site" content={`@${instagramConfig.username}`} />

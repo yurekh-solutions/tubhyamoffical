@@ -1,18 +1,29 @@
-# Robots.txt for Tubhyam - Premium Women's Fashion
-# Last Updated: 2025-12-29
+# Robots.txt for Tubhyam - Premium Women's Fashion (tubhyam.in)
+# Last Updated: 2026-07-09
 
 # Allow all crawlers by default
 User-agent: *
 Allow: /
 Disallow: /admin/
-Disallow: /private/
-Disallow: /temp/
-Disallow: /test/
+Disallow: /checkout
+Disallow: /order-confirmation
+Disallow: /orders
 
 # Specific rules for Google Bot
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+
+# Specific rules for Google Images
+User-agent: Googlebot-Image
+Allow: /
 
 # Specific rules for Bing Bot
 User-agent: Bingbot
@@ -34,21 +45,14 @@ Disallow: /
 User-agent: DotBot
 Disallow: /
 
+# Allow Google AdSense / AdWords
+User-agent: Mediapartners-Google
+Allow: /
+
 # Sitemap
-Sitemap: https://tubhyam.com/sitemap.xml
+Sitemap: https://tubhyam.in/sitemap.xml
 
 # Crawl delay for other bots
 User-agent: *
 Crawl-delay: 1
 Request-rate: 30/60
-
-# Allow images and assets
-User-agent: *
-Allow: *.png
-Allow: *.jpg
-Allow: *.jpeg
-Allow: *.gif
-Allow: *.css
-Allow: *.js
-Allow: *.svg
-Allow: *.webp

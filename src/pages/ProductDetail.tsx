@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import ProductCard from '@/components/ProductCard';
 import OptimizedImage from '@/components/OptimizedImage';
 import PageLoader from '@/components/PageLoader';
@@ -362,6 +363,26 @@ const ProductDetail = () => {
 
   return (
     <div className={`min-h-screen ${isLight ? 'bg-[#F5F0E8]' : ''}`}>
+      {product && (
+        <SEO
+          title={`${product.name} | Tubhyam`}
+          description={`${product.description} Price: ₹${product.price}. ${product.originalPrice ? `MRP: ₹${product.originalPrice}.` : ''} Available in ${product.colors.join(', ')}. Sizes: ${product.sizes.join(', ')}. ${product.material ? `Material: ${product.material}.` : ''} Free shipping on orders above ₹2000.`}
+          keywords={`${product.name.toLowerCase()}, ${product.category} pants, ${product.colors.map(c => c.toLowerCase() + ' ' + product.category + ' pants').join(', ')}, ${product.material?.toLowerCase()}, buy ${product.name.toLowerCase()} online, ${product.sizes.map(s => 'size ' + s).join(', ')} ${product.category} pants women`}
+          image={product.image ? `https://tubhyam.in${product.image}` : undefined}
+          url={`https://tubhyam.in/product/${product.id}`}
+          type="product"
+          price={product.price}
+          originalPrice={product.originalPrice}
+          availability={product.inStock ? 'in stock' : 'out of stock'}
+          productName={product.name}
+          category={product.category}
+          breadcrumbItems={[
+            { name: 'Shop', url: 'https://tubhyam.in/shop' },
+            { name: product.category.charAt(0).toUpperCase() + product.category.slice(1), url: `https://tubhyam.in/shop?category=${product.category}` },
+            { name: product.name, url: `https://tubhyam.in/product/${product.id}` }
+          ]}
+        />
+      )}
       <Navbar />
 
       {/* Back to Shop */}

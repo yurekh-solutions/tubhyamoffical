@@ -18,9 +18,9 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="Tubhyam | Premium Women's Pants, Jeans & Formal Wear"
-        description="Shop premium women's pants at Tubhyam. Explore our collection of jeans, formal trousers, and track pants. Free shipping, sustainable fashion, 7-day returns."
-        keywords="women's pants, women's jeans, formal trousers, track pants, Indian fashion, premium clothing, sustainable fashion"
+        title="Tubhyam | Premium Women's Pants, Jeans & Formal Wear | Shop Online India"
+        description="Shop premium women's pants at Tubhyam.in — India's destination for formal trousers, wide-leg pants, baggy pleated pants, belt formal pants, cargo pants, track pants, cord sets, lace pants, Korean baggy pants, and classic denim jeans. Free shipping on orders ₹2000+. 15-day easy returns."
+        keywords="tubhyam, tubhyam.in, women's pants, women's jeans, formal trousers, wide leg pants, baggy pleated pants, belt formal pants, cargo pants, track pants, cord set co-ord, lace pants, korean baggy pants, premium women's clothing, Indian fashion, sustainable fashion, online shopping India, buy formal pants online, women's fashion store, office wear women, best formal pants India, affordable premium fashion, designer pants women"
         url="https://tubhyam.in"
       />
       <Navbar />

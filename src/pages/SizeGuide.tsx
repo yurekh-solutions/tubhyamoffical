@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { Ruler, Info } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-// import Cart from "@/components/Cart";
 import ScrollToTop from "@/components/ScrollToTop";
+import SEO from "@/components/SEO";
 
 const sizeCharts = {
   jeans: {
@@ -68,6 +68,13 @@ export default function SizeGuide() {
 
   return (
     <>
+      <SEO
+        title="Size Guide | Tubhyam - Women's Pants Size Chart & Measurements"
+        description="Tubhyam's comprehensive size guide — find your perfect fit for formal pants, jeans, track pants, and cargo pants. Detailed measurements for sizes XS to XXL. How to measure yourself for women's pants."
+        keywords="tubhyam size guide, women's pants size chart, formal pants size guide India, jeans size chart women, track pants size guide, how to measure waist women, pant size calculator, women's clothing sizes India, XS S M L XL XXL size chart"
+        url="https://tubhyam.in/size-guide"
+        breadcrumbItems={[{ name: 'Size Guide', url: 'https://tubhyam.in/size-guide' }]}
+      />
       
       <Navbar />
       <ScrollToTop />

@@ -1,10 +1,18 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import { RefreshCw, Package, Phone } from 'lucide-react';
 
 const Returns = () => {
   return (
     <div className="min-h-screen">
+      <SEO
+        title="Returns & Refund Policy | Tubhyam - 15 Day Easy Returns"
+        description="Tubhyam's 15-day easy return policy — return unused products with original tags. Refunds processed within 5-7 business days. Report damaged or wrong products within 48 hours with unboxing video."
+        keywords="tubhyam return policy, tubhyam refund policy, women's clothing returns, online shopping return policy India, 15 day return, easy returns India, tubhyam exchange policy, cancel order tubhyam, refund timeline"
+        url="https://tubhyam.in/returns"
+        breadcrumbItems={[{ name: 'Returns & Refunds', url: 'https://tubhyam.in/returns' }]}
+      />
       <Navbar />
 
       {/* Page Header */}
