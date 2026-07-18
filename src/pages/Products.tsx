@@ -77,10 +77,10 @@ const Products = () => {
         title={`Shop ${categoryTitle} | Tubhyam - Premium Women's Fashion`}
         description={`Browse Tubhyam's ${categoryTitle.toLowerCase()} collection. Premium quality formal trousers, wide-leg pants, baggy pleated pants, belt formal pants, cargo pants, jeans, and track pants. Free shipping on orders ₹2000+. Shop now at tubhyam.in!`}
         keywords={`shop ${categoryTitle.toLowerCase()}, buy ${categoryTitle.toLowerCase()} online, ${categoryTitle.toLowerCase()} for women, women's ${categoryTitle.toLowerCase()} India, best ${categoryTitle.toLowerCase()} brand, premium ${categoryTitle.toLowerCase()} online, cheap ${categoryTitle.toLowerCase()} India, ${categoryTitle.toLowerCase()} online shopping`}
-        url="https://tubhyam.in/shop"
+        url="https://www.tubhyam.in/shop"
         breadcrumbItems={[
-          { name: 'Shop', url: 'https://tubhyam.in/shop' },
-          ...(categoryParam ? [{ name: categoryTitle, url: `https://tubhyam.in/shop?category=${categoryParam}` }] : [])
+          { name: 'Shop', url: 'https://www.tubhyam.in/shop' },
+          ...(categoryParam ? [{ name: categoryTitle, url: `https://www.tubhyam.in/shop?category=${categoryParam}` }] : [])
         ]}
       />
       <Navbar />

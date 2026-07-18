@@ -9,8 +9,8 @@ const Terms = () => {
         title="Terms & Conditions | Tubhyam - Online Shopping Terms of Service"
         description="Read Tubhyam's terms and conditions — usage guidelines, payment terms, intellectual property rights, and legal information for shopping at tubhyam.in."
         keywords="tubhyam terms and conditions, tubhyam terms of service, online shopping terms India, women's clothing store terms, tubhyam legal, tubhyam usage policy"
-        url="https://tubhyam.in/terms"
-        breadcrumbItems={[{ name: 'Terms & Conditions', url: 'https://tubhyam.in/terms' }]}
+        url="https://www.tubhyam.in/terms"
+        breadcrumbItems={[{ name: 'Terms & Conditions', url: 'https://www.tubhyam.in/terms' }]}
       />
       <Navbar />
 

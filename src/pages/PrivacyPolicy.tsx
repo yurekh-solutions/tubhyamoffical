@@ -26,8 +26,8 @@ const PrivacyPolicy = () => {
         title="Privacy Policy | Tubhyam - Data Protection & Privacy Rights"
         description="Tubhyam's privacy policy — learn how we collect, use, and protect your personal data. Compliant with DPDP Act. Contact our grievance officer for data concerns. Your privacy is our priority."
         keywords="tubhyam privacy policy, data protection India, DPDP Act compliance, online shopping privacy, women's clothing store privacy, tubhyam data policy, grievance officer tubhyam, personal data protection"
-        url="https://tubhyam.in/privacy-policy"
-        breadcrumbItems={[{ name: 'Privacy Policy', url: 'https://tubhyam.in/privacy-policy' }]}
+        url="https://www.tubhyam.in/privacy-policy"
+        breadcrumbItems={[{ name: 'Privacy Policy', url: 'https://www.tubhyam.in/privacy-policy' }]}
       />
       <Navbar />
 

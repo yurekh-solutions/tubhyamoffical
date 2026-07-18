@@ -1,0 +1,9 @@
+fix: update all canonical URLs to www.tubhyam.in for SEO consistency
+
+- Site redirects to www.tubhyam.in, so all canonical URLs must match
+- Updated sitemap.xml (299 URLs), robots.txt, index.html
+- Updated SEO component default URLs and JSON-LD schemas
+- Updated 18 page files (Index, Shop, ProductDetail, About, FAQ, Contact, etc.)
+- Updated Blog, BlogDetail, Lookbook, Collections, Instagram, VideoCall
+- Updated SizeGuide, Shipping, Returns, Terms, PrivacyPolicy, Wishlist
+- Ensures no duplicate content issues from www/non-www mismatch

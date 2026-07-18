@@ -50,7 +50,7 @@ User-agent: Mediapartners-Google
 Allow: /
 
 # Sitemap
-Sitemap: https://tubhyam.in/sitemap.xml
+Sitemap: https://www.tubhyam.in/sitemap.xml
 
 # Crawl delay for other bots
 User-agent: *

@@ -230,7 +230,7 @@ const BlogDetail = () => {
   const formatShort = (d: string) => new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const handleShare = async () => {
-    const url = `https://tubhyam.in/blog/${blog?.slug}`;
+    const url = `https://www.tubhyam.in/blog/${blog?.slug}`;
     if (navigator.share) {
       try { await navigator.share({ title: blog?.title, text: blog?.excerpt, url }); } catch { /* silent */ }
     } else {
@@ -282,7 +282,7 @@ const BlogDetail = () => {
   }
 
   const toc = extractTOC(processedContent.content);
-  const canonicalUrl = `https://tubhyam.in/blog/${blog.slug}`;
+  const canonicalUrl = `https://www.tubhyam.in/blog/${blog.slug}`;
   const pageTitle = blog.metaTitle || blog.title;
   const pageDesc = blog.metaDescription || blog.excerpt;
   const displayImage = processedContent.heroImage || blog.image;
@@ -296,7 +296,7 @@ const BlogDetail = () => {
     "image": displayImage,
     "datePublished": blog.publishedAt,
     "author": { "@type": "Organization", "name": "Tubhyam" },
-    "publisher": { "@type": "Organization", "name": "Tubhyam", "logo": { "@type": "ImageObject", "url": "https://tubhyam.in/logo.png" } },
+    "publisher": { "@type": "Organization", "name": "Tubhyam", "logo": { "@type": "ImageObject", "url": "https://www.tubhyam.in/logo.png" } },
     "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
     "keywords": [...(blog.keywords || []), ...(blog.tags || [])].join(', '),
   };
@@ -305,8 +305,8 @@ const BlogDetail = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://tubhyam.in" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://tubhyam.in/blog" },
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.tubhyam.in" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.tubhyam.in/blog" },
       { "@type": "ListItem", "position": 3, "name": blog.title, "item": canonicalUrl },
     ]
   };

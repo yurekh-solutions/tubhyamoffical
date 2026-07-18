@@ -16,7 +16,7 @@ const Wishlist = () => {
       <SEO
         title="My Wishlist | Tubhyam"
         description="Your saved fashion picks at Tubhyam. Shop your favourite pants, jeans and track pants."
-        url="https://tubhyam.in/wishlist"
+        url="https://www.tubhyam.in/wishlist"
       />
       <Navbar />
 

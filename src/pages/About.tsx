@@ -41,8 +41,8 @@ const About = () => {
         title="About Tubhyam | Our Story & Mission - Premium Women's Fashion"
         description="Learn about Tubhyam — India's premium destination for women's pants, jeans, and formal wear. Discover our story, mission, and commitment to sustainable fashion, premium quality fabrics, and affordable luxury for the modern Indian woman."
         keywords="about tubhyam, tubhyam story, tubhyam mission, women's fashion brand India, sustainable fashion India, ethical fashion brand, premium women's clothing brand, tubhyam review, who is tubhyam"
-        url="https://tubhyam.in/about"
-        breadcrumbItems={[{ name: 'About Us', url: 'https://tubhyam.in/about' }]}
+        url="https://www.tubhyam.in/about"
+        breadcrumbItems={[{ name: 'About Us', url: 'https://www.tubhyam.in/about' }]}
       />
       <Navbar />
       <ScrollToTop />

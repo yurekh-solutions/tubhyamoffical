@@ -271,8 +271,8 @@ const Blog = () => {
         <meta property="og:title" content="Fashion Blog - Styling Guides & Trend Reports | Tubhyam" />
         <meta property="og:description" content="Expert fashion guides, styling tips, and trend reports for Indian women. Learn how to style formal pants, jeans, and casual wear." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tubhyam.in/blog" />
-        <link rel="canonical" href="https://tubhyam.in/blog" />
+        <meta property="og:url" content="https://www.tubhyam.in/blog" />
+        <link rel="canonical" href="https://www.tubhyam.in/blog" />
       </Helmet>
 
       <Navbar />

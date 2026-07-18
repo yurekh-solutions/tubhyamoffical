@@ -106,8 +106,8 @@ const VideoCall = () => {
         title="Video Call Shopping | Tubhyam - See Products Live Before Buying"
         description="Book a video call shopping session with Tubhyam — see products live, get styling advice, and shop with confidence. Personal shopping experience for women's pants, jeans, and formal wear."
         keywords="tubhyam video call shopping, live shopping India, virtual try-on, personal shopping experience, video call buy clothes, online video shopping, see products live, tubhyam live shopping, women's clothing video call"
-        url="https://tubhyam.in/video-call"
-        breadcrumbItems={[{ name: 'Video Call Shopping', url: 'https://tubhyam.in/video-call' }]}
+        url="https://www.tubhyam.in/video-call"
+        breadcrumbItems={[{ name: 'Video Call Shopping', url: 'https://www.tubhyam.in/video-call' }]}
       />
       <Navbar />
       <ScrollToTop />

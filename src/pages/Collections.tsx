@@ -89,8 +89,8 @@ const Collections = () => {
         title="Collections | Tubhyam - Premium Women's Fashion Collections"
         description="Explore Tubhyam's exclusive collections — formal elegance with belt formal pants, wide-leg pants, baggy pleated pants, denim stories with classic jeans, active luxe with cargo pants and track pants, and summer essentials. Premium women's fashion for every occasion."
         keywords="tubhyam collections, women's formal wear collection, denim jeans collection, cargo pants collection, track pants collection, summer fashion collection, premium women's clothing collections, best women's pants India, new arrivals tubhyam"
-        url="https://tubhyam.in/collections"
-        breadcrumbItems={[{ name: 'Collections', url: 'https://tubhyam.in/collections' }]}
+        url="https://www.tubhyam.in/collections"
+        breadcrumbItems={[{ name: 'Collections', url: 'https://www.tubhyam.in/collections' }]}
       />
       <Navbar />
 

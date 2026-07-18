@@ -78,8 +78,8 @@ const Lookbook = () => {
         title="Lookbook | Tubhyam - Fashion Inspiration & Styling Ideas"
         description="Explore Tubhyam's lookbook for premium women's fashion inspiration. Discover styling ideas for formal trousers, wide-leg pants, baggy pleated pants, jeans, cargo pants, and casual wear. Outfit inspiration for office, events, and everyday style."
         keywords="tubhyam lookbook, fashion lookbook India, women's style inspiration, outfit ideas women, formal pants styling, wide leg pants outfit, office wear inspiration, premium fashion lookbook, how to style formal pants, women's fashion trends 2026"
-        url="https://tubhyam.in/lookbook"
-        breadcrumbItems={[{ name: 'Lookbook', url: 'https://tubhyam.in/lookbook' }]}
+        url="https://www.tubhyam.in/lookbook"
+        breadcrumbItems={[{ name: 'Lookbook', url: 'https://www.tubhyam.in/lookbook' }]}
       />
       <Navbar />
 

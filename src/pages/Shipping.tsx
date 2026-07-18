@@ -10,8 +10,8 @@ const Shipping = () => {
         title="Shipping Policy | Tubhyam - Free Shipping on Orders ₹2000+"
         description="Tubhyam shipping policy — free shipping on orders above ₹2000 across India. Standard delivery 5-7 business days. Track your order easily. We ship to all major cities in India."
         keywords="tubhyam shipping policy, free shipping India, women's clothing delivery, online shopping shipping, tubhyam delivery, track order tubhyam, shipping charges tubhyam, delivery time India"
-        url="https://tubhyam.in/shipping"
-        breadcrumbItems={[{ name: 'Shipping Policy', url: 'https://tubhyam.in/shipping' }]}
+        url="https://www.tubhyam.in/shipping"
+        breadcrumbItems={[{ name: 'Shipping Policy', url: 'https://www.tubhyam.in/shipping' }]}
       />
       <Navbar />
 

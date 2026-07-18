@@ -22,8 +22,8 @@ const SEO = ({
   title = 'Tubhyam | Premium Women\'s Fashion - Formal Pants, Track Pants & Jeans | Shop Online India',
   description = 'Discover Tubhyam\'s premium collection of women\'s pants — formal trousers, wide-leg pants, baggy pleated pants, belt formal pants, cargo pants, track pants, cord sets, lace pants, Korean baggy pants, and classic denim jeans. Crafted for the modern Indian woman. Sustainable, high-quality, elegant fashion. Free shipping on orders ₹2000+.',
   keywords = BASE_KEYWORDS,
-  image = 'https://tubhyam.in/images/og-image.jpg',
-  url = 'https://tubhyam.in',
+  image = 'https://www.tubhyam.in/images/og-image.jpg',
+  url = 'https://www.tubhyam.in',
   type = 'website',
   price,
   originalPrice,
@@ -141,9 +141,9 @@ const SEO = ({
           "@context": "https://schema.org",
           "@type": "Organization",
           "name": "Tubhyam",
-          "url": "https://tubhyam.in",
-          "logo": "https://tubhyam.in/src/assets/logo.png",
-          "image": "https://tubhyam.in/images/og-image.jpg",
+          "url": "https://www.tubhyam.in",
+          "logo": "https://www.tubhyam.in/src/assets/logo.png",
+          "image": "https://www.tubhyam.in/images/og-image.jpg",
           "description": "Tubhyam is India's premium online destination for women's pants, jeans, formal trousers, wide-leg pants, baggy pleated pants, cargo pants, track pants, cord sets, lace pants, Korean baggy pants, and classic denim jeans.",
           "foundingDate": "2024",
           "slogan": "Premium Women's Fashion",
@@ -175,12 +175,12 @@ const SEO = ({
           "@context": "https://schema.org",
           "@type": "WebSite",
           "name": "Tubhyam",
-          "url": "https://tubhyam.in",
+          "url": "https://www.tubhyam.in",
           "potentialAction": {
             "@type": "SearchAction",
             "target": {
               "@type": "EntryPoint",
-              "urlTemplate": "https://tubhyam.in/shop?q={search_term_string}"
+              "urlTemplate": "https://www.tubhyam.in/shop?q={search_term_string}"
             },
             "query-input": "required name=search_term_string"
           }
@@ -197,9 +197,9 @@ const SEO = ({
               "@type": "ListItem",
               "position": 1,
               "name": "Home",
-              "item": "https://tubhyam.in"
+              "item": "https://www.tubhyam.in"
             },
-            ...(breadcrumbItems || [{ name: "Shop", item: "https://tubhyam.in/shop" }]).map((item, index) => ({
+            ...(breadcrumbItems || [{ name: "Shop", item: "https://www.tubhyam.in/shop" }]).map((item, index) => ({
               "@type": "ListItem",
               "position": index + 2,
               "name": item.name,

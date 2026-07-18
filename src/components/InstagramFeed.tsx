@@ -93,7 +93,7 @@ const InstagramFeed = () => {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": instagramConfig.displayName,
-            "url": "https://tubhyam.in",
+            "url": "https://www.tubhyam.in",
             "sameAs": [instagramConfig.profileUrl],
             "description": instagramConfig.bio
           })}
