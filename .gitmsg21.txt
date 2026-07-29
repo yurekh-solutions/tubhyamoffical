@@ -1,0 +1,12 @@
+style: refine hero section typography and button design
+
+- Reduced heading font weight from bold to medium/light for elegance
+- "Premium" uses semibold with gradient text; "Women's Pants" uses font-light
+- Smaller, more refined font sizes across both themes
+- Subtitle text uses font-light with better line-height
+- Buttons redesigned with gradient backgrounds and hover animations
+- "Shop Collection" button has dual-layer gradient with reverse on hover
+- "Contact Us" button has subtle glass-style with border accent
+- Buttons stack on mobile, side-by-side on desktop (flex instead of grid)
+- Stats section uses semibold instead of bold, slightly smaller
+- Badge pill uses gradient background with shadow
