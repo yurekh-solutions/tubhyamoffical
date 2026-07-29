@@ -110,9 +110,9 @@ const Hero = () => {
           <div className="relative w-full px-6 sm:px-12 lg:px-16 xl:px-24">
             <div className="max-w-lg mx-auto mt-10 lg:mx-0 space-y-6 lg:space-y-8">
               <div className="flex justify-center lg:justify-start">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8b5e3c] animate-fade-in-up">
-                  <Sparkles size={13} className="text-[#ffd3ac]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#ffd3ac]">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ba7336]/20 backdrop-blur-xl border border-[#ba7336]/30 shadow-lg shadow-[#ba7336]/10 animate-fade-in-up">
+                  <Sparkles size={13} className="text-[#8b5e3c]" />
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8b5e3c]">
                     New Collection 2026
                   </span>
                 </div>
@@ -132,14 +132,14 @@ const Hero = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <Link
                   to="/shop"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium transition-all duration-300 hover:shadow-elegant hover:scale-105"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#E8652B]/20 backdrop-blur-xl border border-[#E8652B]/30 text-[#3B2A1A] rounded-full font-semibold transition-all duration-300 hover:bg-[#E8652B]/30 hover:border-[#E8652B]/50 hover:scale-105 shadow-lg shadow-[#E8652B]/10"
                 >
                   Shop Collection
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium transition-all duration-300 hover:shadow-elegant hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-[#8b5e3c]/40 text-[#5A4433] rounded-full font-medium transition-all duration-300 hover:bg-[#ba7336]/10 hover:border-[#ba7336]/70 hover:scale-105"
                 >
                   Contact Us
                 </Link>

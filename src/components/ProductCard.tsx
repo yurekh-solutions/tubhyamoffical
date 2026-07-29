@@ -96,10 +96,12 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
           {/* Quick Actions */}
           <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
             <button 
-              className={`p-2.5 glass-card backdrop-blur-xl border border-white/20 rounded-full transition-all duration-300 hover:scale-110 shadow-lg ${
+              className={`p-2.5 backdrop-blur-xl border rounded-full transition-all duration-300 hover:scale-110 shadow-lg ${
                 isInWishlist(product.id)
                   ? 'bg-red-500 text-white border-red-500 hover:bg-red-600'
-                  : 'hover:bg-primary hover:text-white hover:border-primary'
+                  : isLight
+                    ? 'bg-white text-[#2A1A0E] border-gray-200 hover:bg-primary hover:text-white hover:border-primary'
+                    : 'glass-card text-white border-white/20 hover:bg-primary hover:text-white hover:border-primary'
               }`}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product); }}
             >

@@ -130,7 +130,7 @@ const Categories = () => {
         >
           <Link
             to="/shop"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105 group"
+            className="inline-flex items-center gap-3 px-8 py-4 glass-card border-2 border-primary/30 hover:border-primary rounded-2xl font-bold hover:bg-primary/5 transition-all duration-300 hover:scale-105 group"
           >
             <span>View All Products</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
