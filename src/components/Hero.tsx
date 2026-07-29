@@ -139,7 +139,7 @@ const Hero = () => {
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-xl border border-[#8b5e3c]/20 text-[#5A4433] rounded-full font-medium transition-all duration-300 hover:bg-white/20 hover:border-[#8b5e3c]/40 hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-[#8b5e3c]/40 text-[#5A4433] rounded-full font-medium transition-all duration-300 hover:bg-[#8b5e3c]/10 hover:border-[#8b5e3c]/70 hover:scale-105"
                 >
                   Contact Us
                 </Link>
