@@ -1,0 +1,1 @@
+style: solid brown bg-primary for Shop Collection, Contact Us and View All Products buttons  

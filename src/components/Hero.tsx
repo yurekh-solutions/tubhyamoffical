@@ -132,14 +132,14 @@ const Hero = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <Link
                   to="/shop"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#E8652B]/20 backdrop-blur-xl border border-[#E8652B]/30 text-[#3B2A1A] rounded-full font-semibold transition-all duration-300 hover:bg-[#E8652B]/30 hover:border-[#E8652B]/50 hover:scale-105 shadow-lg shadow-[#E8652B]/10"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium transition-all duration-300 hover:shadow-elegant hover:scale-105"
                 >
                   Shop Collection
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-[#8b5e3c]/40 text-[#5A4433] rounded-full font-medium transition-all duration-300 hover:bg-[#8b5e3c]/10 hover:border-[#8b5e3c]/70 hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium transition-all duration-300 hover:shadow-elegant hover:scale-105"
                 >
                   Contact Us
                 </Link>
