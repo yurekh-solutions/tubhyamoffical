@@ -1,5 +1,0 @@
-fix: preserve sync related products when API returns empty
-
-- Only overwrite related products from API if it returns results
-- Fixes issue where empty API response cleared sync-loaded products
-- Removed VITE_API_URL env var to use /api proxy correctly

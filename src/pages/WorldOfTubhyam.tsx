@@ -3,10 +3,12 @@ import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { Heart, Users, Palette, Ruler, Sparkles, Award, Shield, Leaf, ArrowRight, Check, Star, ShoppingBag, Gem, Crown, Feather } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 
 const heroBg = '/images/products/image.jpg';
 
 const WorldOfTubhyam = () => {
+  const { isLight } = useTheme();
   return (
     <>
       <SEO
@@ -18,21 +20,21 @@ const WorldOfTubhyam = () => {
       <Navbar />
       {/* Hero Section - Heartfelt Introduction */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden" style={{ backgroundImage: `url(${heroBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-background/70"></div>
+        {/* Overlay for better text readability (cinematic dark in light theme) */}
+        <div className={`absolute inset-0 ${isLight ? 'bg-gradient-to-b from-black/65 via-black/45 to-black/70' : 'bg-background/70'}`}></div>
 
         <div className="relative z-20 container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-full mb-4 animate-fade-in">
-              <Heart size={16} className="text-primary" fill="currentColor" />
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 animate-fade-in ${isLight ? 'bg-white/10 backdrop-blur-md border border-white/25 text-white' : 'glass-card'}`}>
+              <Heart size={16} className={isLight ? 'text-[#E8B882]' : 'text-primary'} fill="currentColor" />
               <span className="text-xs sm:text-sm font-medium">तुम्हारे लिए - Made For You, With Love</span>
             </div>
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold animate-fade-in leading-tight">
+            <h1 className={`font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold animate-fade-in leading-tight ${isLight ? 'text-white' : ''}`}>
               Every Woman <span className="text-gradient-gold">Deserves Elegance</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
+            <p className={`text-base sm:text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed px-4 ${isLight ? 'text-white/85' : 'text-muted-foreground'}`}>
               Regardless of size. Regardless of skin tone. Because confidence isn't one-size-fits-all,
-              <span className="block mt-2 font-medium text-foreground">and neither should your wardrobe be.</span>
+              <span className={`block mt-2 font-medium ${isLight ? 'text-white' : 'text-foreground'}`}>and neither should your wardrobe be.</span>
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 pt-4">
               <Link 
@@ -44,7 +46,11 @@ const WorldOfTubhyam = () => {
               </Link>
               <a 
                 href="#our-promise"
-                className="inline-flex items-center justify-center gap-2 glass-card px-6 sm:px-8 py-3 sm:py-4 rounded-full text-sm sm:text-base font-medium hover:border-primary/30 transition-all duration-300 hover:scale-105"
+                className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 hover:scale-105 ${
+                  isLight
+                    ? 'bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20'
+                    : 'glass-card hover:border-primary/30'
+                }`}
               >
                 <Heart size={18} className="sm:w-5 sm:h-5" />
                 Read Our Story

@@ -1,0 +1,7 @@
+fix(light-theme): cinematic black gradient hero overlays on Lookbook & World of Tubhyam
+
+- Replace washed-out cream background/xx overlays with black gradient overlays in light theme
+- White headings, white/85 subtitles, gold #E8B882 accents over darkened hero images
+- Frosted-glass badge and Read Our Story button on World of Tubhyam hero (light theme)
+- Dark theme untouched
+- Remove obsolete .gitmsg*.txt commit-message helper files

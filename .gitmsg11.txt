@@ -1,6 +1,0 @@
-fix: respect quantity selector when adding items to cart
-
-- addToCart now accepts optional qty parameter (defaults to 1)
-- ProductDetail passes selected quantity to addToCart
-- New items created with correct quantity, existing items increment by qty
-- Safe floor: qty < 1 forced to 1, decimals floored to integer

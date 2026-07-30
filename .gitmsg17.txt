@@ -1,7 +1,0 @@
-feat: comprehensive privacy policy and cancellation/return/refund policy
-
-- Updated Privacy Policy with full legal content (Articles I-VI)
-- Added Cancellation, Return, and Refund Policy (Articles I-VI)
-- Includes DPDP Act compliance, grievance officer details
-- Refund timeline table for all payment modes
-- 48-hour reporting window and unboxing video requirements

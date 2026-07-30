@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { api } from '@/config/api';
 import { instagramConfig } from '@/config/instagramConfig';
 import { instagramFallbackPosts, getFallbackImage } from '@/data/instagramFallback';
+import { useTheme } from '@/context/ThemeContext';
 
 const formal1 = '/images/products/formal-7.jpg';
 
@@ -31,6 +32,7 @@ interface InstagramPost {
 }
 
 const Lookbook = () => {
+  const { isLight } = useTheme();
   const [feed, setFeed] = useState<InstagramPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -87,7 +89,11 @@ const Lookbook = () => {
       {/* Hero Section */}
       <section className="relative min-h-[50vh] sm:min-h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background z-10" />
+          <div className={`absolute inset-0 z-10 ${
+            isLight
+              ? 'bg-gradient-to-b from-black/60 via-black/35 to-black/70'
+              : 'bg-gradient-to-b from-background/90 via-background/70 to-background'
+          }`} />
           <img
             src={formal1}
             alt="Tubhyam Lookbook - Premium Women's Fashion"
@@ -95,11 +101,11 @@ const Lookbook = () => {
           />
         </div>
         <div className="relative z-20 container mx-auto px-4 text-center py-12 sm:py-16">
-          <p className="text-primary uppercase tracking-widest text-xs sm:text-sm mb-3 sm:mb-4 animate-fade-in">Season 2026</p>
-          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 animate-fade-in">
+          <p className={`uppercase tracking-widest text-xs sm:text-sm mb-3 sm:mb-4 animate-fade-in ${isLight ? 'text-[#E8B882]' : 'text-primary'}`}>Season 2026</p>
+          <h1 className={`font-heading text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 animate-fade-in ${isLight ? 'text-white' : ''}`}>
             The <span className="text-gradient-gold">Lookbook</span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in px-4">
+          <p className={`text-base sm:text-lg md:text-xl max-w-2xl mx-auto animate-fade-in px-4 ${isLight ? 'text-white/85' : 'text-muted-foreground'}`}>
             Discover our curated collection of style inspirations
           </p>
         </div>

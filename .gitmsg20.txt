@@ -1,6 +1,0 @@
-fix: set light theme as default for first-time visitors
-
-- ThemeContext default changed from 'dark' to 'light'
-- Matches index.html flash-prevention script (already defaulted to light)
-- Visitors see light theme by default; dark mode available via toggle
-- Stored preference in localStorage still respected on return visits

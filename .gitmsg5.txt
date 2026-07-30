@@ -1,1 +1,0 @@
-feat: add email popup, sale banner with countdown, and trust badges
