@@ -381,9 +381,9 @@ html {
   border-color: hsl(30 15% 87%);
 }
 
-/* Light theme: cleaner footer */
+/* Light theme: rich chocolate brown footer */
 [data-theme="light"] footer {
-  background: hsl(35 25% 94%);
+  background: #3A241A;
 }
 
 /* Light theme: refined input backgrounds */

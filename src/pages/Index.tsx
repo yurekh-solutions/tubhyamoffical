@@ -38,7 +38,7 @@ const Index = () => {
       {/* Video Call CTA */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="relative overflow-hidden rounded-3xl glass-card p-12 md:p-20 bg-gradient-to-br from-primary/20 via-background to-primary/10">
+          <div className="relative overflow-hidden rounded-3xl glass-card p-6 sm:p-12 md:p-20 bg-gradient-to-br from-primary/20 via-background to-primary/10">
             <div className="absolute inset-0 opacity-5">
               <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent rounded-full blur-3xl" />
@@ -48,12 +48,12 @@ const Index = () => {
               <h2 className="font-heading text-4xl md:text-5xl font-semibold mb-6">
                 Shop via <span className="text-gradient-gold">Video Call</span>
               </h2>
-              <p className="text-muted-foreground mb-8 text-lg max-w-2xl mx-auto">
+              <p className="text-muted-foreground mb-8 text-base sm:text-lg max-w-2xl mx-auto">
                 Get a free virtual styling session with our fashion experts. Receive personalized recommendations tailored to your unique taste.
               </p>
               <Link 
                 to="/video-call"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-medium hover:shadow-elegant transition-all duration-300 hover:scale-105"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3.5 sm:px-8 sm:py-4 rounded-full font-medium text-sm sm:text-base whitespace-nowrap hover:shadow-elegant transition-all duration-300 hover:scale-105"
               >
                 Book Your Appointment
               </Link>

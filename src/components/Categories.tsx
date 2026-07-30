@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { categories, products } from '@/data/products';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/context/ThemeContext';
 import jeans1 from '@/assets/products/jeans-8.jpg';
 import trousers from '@/assets/Tracks/trousers.png';
 
 const Categories = () => {
+  const { isLight } = useTheme();
   const categoryImages = {
     formal: products.filter(p => p.category === 'formal')[0]?.image,
     jeans: jeans1,
@@ -130,7 +132,11 @@ const Categories = () => {
         >
           <Link
             to="/shop"
-            className="inline-flex items-center gap-3 px-8 py-4 glass-card border-2 border-primary/30 hover:border-primary rounded-2xl font-bold hover:bg-primary/5 transition-all duration-300 hover:scale-105 group"
+            className={`group inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold transition-all duration-300 hover:scale-105 ${
+              isLight
+                ? 'bg-[#E8652B]/20 backdrop-blur-xl border border-[#E8652B]/30 text-[#3B2A1A] hover:bg-[#E8652B]/30 hover:border-[#E8652B]/50 shadow-lg shadow-[#E8652B]/10'
+                : 'glass-card border-2 border-primary/30 hover:border-primary hover:bg-primary/5'
+            }`}
           >
             <span>View All Products</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

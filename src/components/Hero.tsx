@@ -119,7 +119,7 @@ const Hero = () => {
               </div>
 
               <h1 className="font-heading text-3xl sm:text-4xl lg:text-[3.5rem] xl:text-6xl font-bold leading-[1.08] text-[#2A1A0E] animate-fade-in-up text-center lg:text-left" style={{ animationDelay: '0.1s' }}>
-                <span className="text-[#8b5e3c]">Premium</span>
+                <span className="text-[#c27a3c]">Premium</span>
                 <br />
                 Women&apos;s Pants
               </h1>
