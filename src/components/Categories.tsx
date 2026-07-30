@@ -3,8 +3,9 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import { categories, products } from '@/data/products';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
-import jeans1 from '@/assets/products/jeans-8.jpg';
-import trousers from '@/assets/Tracks/trousers.png';
+
+const jeans1 = '/images/products/jeans-8.jpg';
+const trousers = '/images/products/trousers.jpg';
 
 const Categories = () => {
   const { isLight } = useTheme();

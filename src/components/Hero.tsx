@@ -5,13 +5,13 @@ import heroVideo from '@/assets/video.mp4';
 import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/config/api';
 
-/* ─── Static fallback images ─── */
-import img1 from '@/assets/formals/beggyplatedkoreanfront.png';
-import img2 from '@/assets/formals/blackstraight.png';
-import img3 from '@/assets/formals/brownbelt.png';
-import img4 from '@/assets/products/frontdenim.png';
-import img5 from '@/assets/Tracks/cargo.png';
-import img6 from '@/assets/formals/blackmom.png';
+/* ─── Static fallback images (optimized JPGs from public/) ─── */
+const img1 = '/images/products/beggyplatedkoreanfront.jpg';
+const img2 = '/images/products/blackstraight.jpg';
+const img3 = '/images/products/brownbelt.jpg';
+const img4 = '/images/products/frontdenim.jpg';
+const img5 = '/images/products/cargo.jpg';
+const img6 = '/images/products/blackmom.jpg';
 
 const FALLBACK_REELS = [
   { id: '1', src: img1, videoUrl: '', label: 'Formal', isVideo: false },

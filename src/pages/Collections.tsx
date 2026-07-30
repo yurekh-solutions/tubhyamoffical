@@ -4,15 +4,15 @@ import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Check, Mail } from 'lucide-react';
 import { useState } from 'react';
-// Premium Collection Images
-import formal1 from '@/assets/formals/brownbelt1.png';
-import formal2 from '@/assets/formals/belt-formal-beige1.jpeg';
-import formal3 from '@/assets/formals/olive-formal-belt.jpeg';
-import formal4 from '@/assets/formals/formal-8.jpeg';
-import jeans1 from '@/assets/products/jeans-3.jpg';
-import jeans2 from '@/assets/products/jeans-33.jpg';
-import track1 from '@/assets/Tracks/olivecomfort3.png';
-import track2 from '@/assets/Tracks/olivecomfort.png';
+// Premium Collection Images (optimized JPGs from public/)
+const formal1 = '/images/products/brownbelt1.jpg';
+const formal2 = '/images/products/belt-formal-beige1.jpg';
+const formal3 = '/images/products/olive-formal-belt.jpg';
+const formal4 = '/images/products/formal-8.jpg';
+const jeans1 = '/images/products/jeans-3.jpg';
+const jeans2 = '/images/products/jeans-33.jpg';
+const track1 = '/images/products/olivecomfort3.jpg';
+const track2 = '/images/products/olivecomfort.jpg';
 
 const collections = [
   {
