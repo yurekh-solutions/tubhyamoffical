@@ -1,0 +1,7 @@
+feat: use AINOS embed widget for blog section
+
+- Replaced custom blog rendering with AINOS embed script
+- Loads https://ainos-ywu0.onrender.com/embed.js dynamically
+- Simple div with data-limit="6" for AINOS to populate
+- Removed backend proxy and RSS parsing logic
+- Cleaner integration, AINOS handles all rendering
