@@ -16,7 +16,7 @@ import ShopTheLook from '@/components/ShopTheLook';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
-const BACKEND_URL = 'https://tubhyamoffical.onrender.com';
+const AINOS_RSS_URL = 'https://ainos-ywu0.onrender.com/api/blog-rss';
 
 const Index = () => {
   const { isLight } = useTheme();
@@ -26,13 +26,23 @@ const Index = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/blogs`);
-        const data = await response.json();
-        if (data.success) {
-          setBlogs(data.blogs.slice(0, 6));
-        }
+        const response = await fetch(AINOS_RSS_URL);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'text/xml');
+        const items = xml.querySelectorAll('item');
+        
+        const blogData = Array.from(items).slice(0, 6).map(item => ({
+          title: item.querySelector('title')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
+          link: item.querySelector('link')?.textContent || '',
+          pubDate: item.querySelector('pubDate')?.textContent || '',
+          description: item.querySelector('description')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
+          categories: Array.from(item.querySelectorAll('category')).map(c => c.textContent).slice(0, 3),
+        }));
+        
+        setBlogs(blogData);
       } catch (error) {
-        console.error('Failed to fetch blogs:', error);
+        console.error('Failed to fetch AINOS blogs:', error);
       } finally {
         setLoading(false);
       }
@@ -143,38 +153,39 @@ const Index = () => {
             </div>
           ) : blogs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {blogs.map((blog) => {
+              {blogs.map((blog, idx) => {
                 return (
-                  <Link 
-                    key={blog._id} 
-                    to={`/blog/${blog.slug}`}
+                  <a 
+                    key={idx} 
+                    href={blog.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="group block rounded-2xl overflow-hidden glass-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   >
                     <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
                       <BookOpen className="w-12 h-12 text-primary/30" />
                     </div>
                     <div className="p-5">
-                      {blog.category && (
+                      {blog.categories && blog.categories.length > 0 && (
                         <span className="inline-block text-xs font-medium text-primary mb-2 uppercase tracking-wide">
-                          {blog.category}
+                          {blog.categories[0]}
                         </span>
                       )}
                       <h3 className="font-heading text-lg font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                         {blog.title}
                       </h3>
-                      {blog.excerpt && (
+                      {blog.description && (
                         <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
-                          {blog.excerpt}
+                          {blog.description}
                         </p>
                       )}
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        {blog.readTime && <span>{blog.readTime} min read</span>}
-                        {blog.publishedAt && (
-                          <span>• {new Date(blog.publishedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        {blog.pubDate && (
+                          <span>{new Date(blog.pubDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         )}
                       </div>
                     </div>
-                  </Link>
+                  </a>
                 );
               })}
             </div>
