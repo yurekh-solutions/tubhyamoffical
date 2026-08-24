@@ -225,8 +225,8 @@ const BlogDetail = () => {
     return { content: html, heroImage };
   }, [blog, getBestImages]);
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
-  const formatShort = (d: string) => new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formatDate = () => new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+  const formatShort = () => new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const handleShare = async () => {
     const url = `https://www.tubhyam.in/blog/${blog?.slug}`;
@@ -382,7 +382,7 @@ const BlogDetail = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontWeight: 600, color: isLight ? '#6B5B4E' : '#B0A090' }}>Tubhyam</span>
             </div>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={14} /> {formatDate(blog.publishedAt)}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={14} /> {formatDate()}</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> {blog.readTime} min read</span>
             <button onClick={handleShare} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: isLight ? '1px solid rgba(46,26,14,0.15)' : '1px solid rgba(255,211,172,0.15)', borderRadius: 50, padding: '6px 14px', color: isLight ? '#8A7D70' : '#8A7D70', cursor: 'pointer', fontSize: 12, transition: 'border-color 0.2s' }}>
               <Share2 size={13} /> Share

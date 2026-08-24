@@ -1,0 +1,5 @@
+fix: blog cards show current dynamic date
+
+- Blog.tsx and BlogDetail.tsx now use new Date() instead of stored publishedAt
+- All blog cards always display today's date dynamically
+- Format: "Aug 24, 2026" on cards, "August 24, 2026" on detail pages

@@ -137,9 +137,8 @@ const Blog = () => {
     });
   }, [blogPosts, selectedCategory, searchTerm]);
 
-  const formatShort = (d: string) => {
-    try { return new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }); }
-    catch { return ''; }
+  const formatShort = () => {
+    return new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const getProductImage = useMemo(() => {
@@ -442,7 +441,7 @@ const Blog = () => {
                         </p>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.08)', paddingTop: 12 }}>
                           <span style={{ fontSize: 11, color: isLight ? '#8A7D70' : '#6A6058', display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Calendar size={11} /> {formatShort(post.publishedAt)}
+                            <Calendar size={11} /> {formatShort()}
                           </span>
                           <span style={{ fontSize: 11, color: isLight ? '#E8652B' : '#FFD3AC', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, letterSpacing: 0.5 }}>
                             READ MORE <ArrowRight size={12} />
