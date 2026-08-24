@@ -32,14 +32,21 @@ const Index = () => {
         const xml = parser.parseFromString(text, 'text/xml');
         const items = xml.querySelectorAll('item');
         
-        const blogData = Array.from(items).slice(0, 6).map(item => ({
-          title: item.querySelector('title')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
-          link: item.querySelector('link')?.textContent || '',
-          pubDate: item.querySelector('pubDate')?.textContent || '',
-          description: item.querySelector('description')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
-          categories: Array.from(item.querySelectorAll('category')).map(c => c.textContent).slice(0, 3),
-        }));
+        const blogData = Array.from(items).slice(0, 6).map(item => {
+          const rawLink = item.querySelector('link')?.textContent || '';
+          // Ensure link is absolute (AINOS blogs are external)
+          const link = rawLink.startsWith('http') ? rawLink : `https://ainos.vercel.app${rawLink.startsWith('/') ? rawLink : `/blog/${rawLink}`}`;
+          
+          return {
+            title: item.querySelector('title')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
+            link,
+            pubDate: item.querySelector('pubDate')?.textContent || '',
+            description: item.querySelector('description')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
+            categories: Array.from(item.querySelectorAll('category')).map(c => c.textContent).slice(0, 3),
+          };
+        });
         
+        console.log('AINOS blogs loaded:', blogData.map(b => ({ title: b.title, link: b.link })));
         setBlogs(blogData);
       } catch (error) {
         console.error('Failed to fetch AINOS blogs:', error);

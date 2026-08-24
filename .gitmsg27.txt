@@ -1,0 +1,7 @@
+feat: show AINOS blogs on homepage instead of Tubhyam backend blogs
+
+- Fetch from AINOS RSS feed (https://ainos-ywu0.onrender.com/api/blog-rss)
+- Parse XML and display 6 latest AINOS blog articles
+- Cards link to external AINOS blog URLs (open in new tab)
+- Show title, description, category, and publish date
+- Clean gradient placeholder with book icon (no images)

@@ -87,6 +87,29 @@ const BlogDetail = () => {
           }
         } catch { /* silent */ }
       } else {
+        // Blog not found in Tubhyam backend - check if it's an AINOS blog
+        try {
+          const rssResponse = await fetch('https://ainos-ywu0.onrender.com/api/blog-rss');
+          const rssText = await rssResponse.text();
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(rssText, 'text/xml');
+          const items = xml.querySelectorAll('item');
+          
+          // Find matching blog by slug in the link URL
+          const ainosBlog = Array.from(items).find(item => {
+            const link = item.querySelector('link')?.textContent || '';
+            return link.includes(`/${slug}`);
+          });
+          
+          if (ainosBlog) {
+            // Redirect to external AINOS blog
+            const ainosLink = ainosBlog.querySelector('link')?.textContent || '';
+            window.location.href = ainosLink;
+            return;
+          }
+        } catch {
+          // AINOS RSS fetch failed, show error
+        }
         setError('Blog post not found');
       }
     } catch (err) {
