@@ -25,7 +25,50 @@ const Index = () => {
     script.src = 'https://ainos-ywu0.onrender.com/embed.js';
     script.async = true;
     document.body.appendChild(script);
+
+    // Watch for AINOS widget render and update dates dynamically
+    const updateDates = () => {
+      const blogDiv = document.getElementById('ainos-blog');
+      if (!blogDiv) return;
+      
+      // Find all date elements in AINOS blog cards
+      const dateElements = blogDiv.querySelectorAll('.ainos-blog-date, [class*="date"], [class*="time"]');
+      const now = new Date();
+      const formatted = now.toLocaleDateString('en-IN', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      const timeFormatted = now.toLocaleTimeString('en-IN', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      
+      dateElements.forEach(el => {
+        const text = el.textContent || '';
+        if (text.includes('min read') || text.match(/\d{4}/)) {
+          el.textContent = `${formatted}  ${timeFormatted}`;
+        }
+      });
+    };
+
+    // Run after AINOS renders (delayed)
+    const timer1 = setTimeout(updateDates, 2000);
+    const timer2 = setTimeout(updateDates, 5000);
+
+    // Also use MutationObserver for dynamic updates
+    const observer = new MutationObserver(() => {
+      setTimeout(updateDates, 500);
+    });
+    const blogDiv = document.getElementById('ainos-blog');
+    if (blogDiv) {
+      observer.observe(blogDiv, { childList: true, subtree: true });
+    }
+
     return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      observer.disconnect();
       if (document.body.contains(script)) {
         document.body.removeChild(script);
       }

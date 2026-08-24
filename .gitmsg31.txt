@@ -1,0 +1,6 @@
+fix: show current dynamic date/time on AINOS blog cards
+
+- Added MutationObserver to watch for AINOS widget render
+- Updates date elements with current date and time
+- Shows format: "August 24, 2026  16:16" instead of static RSS dates
+- Runs after 2s and 5s delays, plus on DOM mutations
