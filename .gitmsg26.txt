@@ -1,0 +1,6 @@
+fix: remove broken blog images from homepage cards
+
+- Blog cards now show clean gradient placeholder with book icon
+- Removed image loading logic since AINOS blogs have broken image paths
+- Images will be fixed later via batch-refresh-images endpoint
+- Add AINOS embed script to index.html

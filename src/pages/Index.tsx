@@ -13,26 +13,31 @@ import TrustBadges from '@/components/TrustBadges';
 import SaleBanner from '@/components/SaleBanner';
 import EmailPopup from '@/components/EmailPopup';
 import ShopTheLook from '@/components/ShopTheLook';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
-const AINOS_BLOG_URL = 'https://ainos-ywu0.onrender.com';
+const BACKEND_URL = 'https://tubhyamoffical.onrender.com';
 
 const Index = () => {
   const { isLight } = useTheme();
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load AINOS embed script
-    const script = document.createElement('script');
-    script.src = `${AINOS_BLOG_URL}/embed.js`;
-    script.async = true;
-    document.body.appendChild(script);
-    
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
+    const fetchBlogs = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/blogs`);
+        const data = await response.json();
+        if (data.success) {
+          setBlogs(data.blogs.slice(0, 6));
+        }
+      } catch (error) {
+        console.error('Failed to fetch blogs:', error);
+      } finally {
+        setLoading(false);
       }
     };
+    fetchBlogs();
   }, []);
 
   return (
@@ -120,7 +125,7 @@ const Index = () => {
       {/* Testimonials */}
       <TestimonialsSlider />
 
-      {/* AINOS Blog Embed Widget - Test Section */}
+      {/* AINOS Blog Section */}
       <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.06)' : '1px solid rgba(255,211,172,0.06)', padding: '36px 0' }}>
         <div className="container mx-auto px-4">
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
@@ -131,7 +136,53 @@ const Index = () => {
               AI-generated fashion articles from AINOS
             </p>
           </div>
-          <div id="ainos-blog" data-limit="3" data-style="grid"></div>
+          
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent"></div>
+            </div>
+          ) : blogs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {blogs.map((blog) => {
+                return (
+                  <Link 
+                    key={blog._id} 
+                    to={`/blog/${blog.slug}`}
+                    className="group block rounded-2xl overflow-hidden glass-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  >
+                    <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                      <BookOpen className="w-12 h-12 text-primary/30" />
+                    </div>
+                    <div className="p-5">
+                      {blog.category && (
+                        <span className="inline-block text-xs font-medium text-primary mb-2 uppercase tracking-wide">
+                          {blog.category}
+                        </span>
+                      )}
+                      <h3 className="font-heading text-lg font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                        {blog.title}
+                      </h3>
+                      {blog.excerpt && (
+                        <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
+                          {blog.excerpt}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        {blog.readTime && <span>{blog.readTime} min read</span>}
+                        {blog.publishedAt && (
+                          <span>• {new Date(blog.publishedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>No blog articles available yet.</p>
+            </div>
+          )}
         </div>
       </section>
 

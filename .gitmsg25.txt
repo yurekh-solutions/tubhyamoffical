@@ -1,0 +1,5 @@
+fix: add express-rate-limit to root package.json for Render deployment
+
+- Render runs npm install from repo root, not server/
+- express-rate-limit was only in server/package.json, causing MODULE_NOT_FOUND on deploy
+- Added to root dependencies to match server/package.json version
