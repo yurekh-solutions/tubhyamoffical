@@ -6,16 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { api } from '@/config/api';
 import { toast } from 'sonner';
-import ainosImg from '@/assets/ainos.jpeg';
 
 type Lang = 'en' | 'hi' | 'mr';
 
 const LANG_LABELS: Record<Lang, string> = { en: 'English', hi: 'हिंदी', mr: 'मराठी' };
 
 const GREETINGS: Record<Lang, string> = {
-  en: "Hi! I'm ainos, Tubhyam's AI blog assistant. Ask me about fashion trends, styling tips, outfit ideas, or anything you'd like to read about!",
-  hi: "नमस्ते! मैं ainos हूँ, Tubhyam की AI ब्लॉग असिस्टेंट। मुझसे फैशन ट्रेंड्स, स्टाइलिंग टिप्स, आउटफिट आइडियाज़ या कुछ भी पूछें!",
-  mr: "नमस्कार! मी ainos आहे, Tubhyam ची AI ब्लॉग असिस्टंट. मला फॅशन ट्रेंड्स, स्टाइलिंग टिप्स, आउटफिट आयडियाज किंवा काहीही विचारा!"
+  en: "Hi! I'm Yurekh AI, Tubhyam's assistant. Ask me about fashion trends, styling tips, outfit ideas, or anything you'd like to read about!",
+  hi: "नमस्ते! मैं Yurekh AI हूँ, Tubhyam की असिस्टेंट। मुझसे फैशन ट्रेंड्स, स्टाइलिंग टिप्स, आउटफिट आइडियाज़ या कुछ भी पूछें!",
+  mr: "नमस्कार! मी Yurekh AI आहे, Tubhyam ची असिस्टंट. मला फॅशन ट्रेंड्स, स्टाइलिंग टिप्स, आउटफिट आयडियाज किंवा काहीही विचारा!"
 };
 
 const QUICK_ACTIONS: Record<Lang, { label: string; message: string }[]> = {
@@ -380,10 +379,12 @@ const AIChatWidget = () => {
           <CardHeader className="bg-primary text-primary-foreground p-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img src={ainosImg} alt="AINOS" className="w-10 h-10 rounded-full object-cover border-2 border-primary-foreground/30" style={{ objectPosition: 'center 70%' }} />
+                <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5" />
+                </div>
                 <div>
-                  <CardTitle className="text-lg">ainos</CardTitle>
-                  <p className="text-xs text-primary-foreground/80">AI Blog Assistant</p>
+                  <CardTitle className="text-lg">Yurekh AI</CardTitle>
+                  <p className="text-xs text-primary-foreground/80">AI Assistant</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -423,7 +424,9 @@ const AIChatWidget = () => {
                   className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {message.role === 'assistant' && (
-                    <img src={ainosImg} alt="AINOS" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-primary/30" style={{ objectPosition: 'center 70%' }} />
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <MessageCircle className="w-4 h-4 text-primary" />
+                    </div>
                   )}
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
@@ -455,8 +458,8 @@ const AIChatWidget = () => {
               ))}
               {isLoading && (
                 <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-primary/30">
-                  <img src={ainosImg} alt="AINOS" className="w-full h-full object-cover" style={{ objectPosition: 'center 70%' }} />
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-4 h-4 text-primary" />
                 </div>
                   <div className="bg-muted rounded-2xl px-4 py-3">
                     <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -527,7 +530,7 @@ const AIChatWidget = () => {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Powered by ainos • <a href="https://wa.me/917039382706" className="underline">WhatsApp Support</a> • {LANG_LABELS[lang]}
+              Powered by Yurekh AI • <a href="https://wa.me/917039382706" className="underline">WhatsApp Support</a> • {LANG_LABELS[lang]}
             </p>
           </div>
         </Card>

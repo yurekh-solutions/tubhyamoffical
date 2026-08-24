@@ -6,7 +6,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import { api } from '@/config/api';
-import ainosImg from '@/assets/ainos.jpeg';
 import { useTheme } from '@/context/ThemeContext';
 
 interface BlogPost {
@@ -87,20 +86,6 @@ const BlogDetail = () => {
           }
         } catch { /* silent */ }
       } else {
-        // Blog not found in Tubhyam backend - check if it's an AINOS blog
-        try {
-          const rssResponse = await fetch('https://tubhyamoffical.onrender.com/api/blogs/ainos-rss');
-          const rssData = await rssResponse.json();
-          if (rssData.success && rssData.blogs) {
-            const ainosBlog = rssData.blogs.find((b: { link?: string }) => b.link && b.link.includes(`/${slug}`));
-            if (ainosBlog) {
-              window.location.href = ainosBlog.link;
-              return;
-            }
-          }
-        } catch {
-          // AINOS RSS proxy failed, show error
-        }
         setError('Blog post not found');
       }
     } catch (err) {
@@ -268,7 +253,6 @@ const BlogDetail = () => {
         <Navbar />
         <div style={{ minHeight: '100vh', background: isLight ? '#F5F0E8' : '#0F0B09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
-            <img src={ainosImg} alt="AINOS" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 70%', margin: '0 auto 12px', border: '2px solid rgba(255,211,172,0.2)' }} />
             <Loader2 size={28} className="animate-spin" style={{ color: '#8A7D70' }} />
           </div>
         </div>
@@ -396,8 +380,7 @@ const BlogDetail = () => {
           {/* Meta bar */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: isLight ? '#8A7D70' : '#8A7D70', marginBottom: 32, flexWrap: 'wrap', paddingBottom: 24, borderBottom: isLight ? '1px solid rgba(46,26,14,0.1)' : '1px solid rgba(255,211,172,0.1)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <img src={ainosImg} alt="AINOS" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 70%', border: '1.5px solid rgba(255,211,172,0.2)' }} />
-              <span style={{ fontWeight: 600, color: isLight ? '#6B5B4E' : '#B0A090' }}>AINOS</span>
+              <span style={{ fontWeight: 600, color: isLight ? '#6B5B4E' : '#B0A090' }}>Tubhyam</span>
             </div>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={14} /> {formatDate(blog.publishedAt)}</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> {blog.readTime} min read</span>

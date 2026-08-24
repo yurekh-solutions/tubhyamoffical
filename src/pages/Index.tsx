@@ -2,7 +2,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
-import { Phone, Truck, Shield, RefreshCw,Award, Heart, Gem , Video, Sparkles, ShoppingBag, ArrowRight, BookOpen, Star } from 'lucide-react';
+import { Phone, Truck, Shield, RefreshCw,Award, Heart, Gem , Video, Sparkles, ShoppingBag, ArrowRight, Star } from 'lucide-react';
 import Hero from '@/components/Hero';
 import Categories from '@/components/Categories';
 import FeaturedProducts from '@/components/FeaturedProducts';
@@ -13,70 +13,8 @@ import TrustBadges from '@/components/TrustBadges';
 import SaleBanner from '@/components/SaleBanner';
 import EmailPopup from '@/components/EmailPopup';
 import ShopTheLook from '@/components/ShopTheLook';
-import { useEffect, useState } from 'react';
-import { useTheme } from '@/context/ThemeContext';
 
 const Index = () => {
-  const { isLight } = useTheme();
-
-  useEffect(() => {
-    // Load AINOS embed script
-    const script = document.createElement('script');
-    script.src = 'https://ainos-ywu0.onrender.com/embed.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    // Watch for AINOS widget render and update dates dynamically
-    const updateDates = () => {
-      const blogDiv = document.getElementById('ainos-blog');
-      if (!blogDiv) return;
-      
-      const now = new Date();
-      const formatted = now.toLocaleDateString('en-IN', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      });
-      const timeFormatted = now.toLocaleTimeString('en-IN', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-      const newDateTime = `${formatted} ${timeFormatted}`;
-      
-      // Find all blog cards
-      const cards = blogDiv.querySelectorAll('.ainos-blog-card, article');
-      cards.forEach(card => {
-        // Find the date container (usually at the bottom of the card)
-        const dateContainer = card.querySelector('.ainos-blog-date');
-        if (dateContainer && !dateContainer.textContent.includes(newDateTime)) {
-          dateContainer.textContent = newDateTime;
-        }
-      });
-    };
-
-    // Run after AINOS renders (delayed)
-    const timer1 = setTimeout(updateDates, 2000);
-    const timer2 = setTimeout(updateDates, 5000);
-
-    // Also use MutationObserver for dynamic updates
-    const observer = new MutationObserver(() => {
-      setTimeout(updateDates, 500);
-    });
-    const blogDiv = document.getElementById('ainos-blog');
-    if (blogDiv) {
-      observer.observe(blogDiv, { childList: true, subtree: true });
-    }
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      observer.disconnect();
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
-  }, []);
-
   return (
     <div className="min-h-screen">
       <SEO
@@ -161,21 +99,6 @@ const Index = () => {
 
       {/* Testimonials */}
       <TestimonialsSlider />
-
-      {/* AINOS Blog Section */}
-      <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.06)' : '1px solid rgba(255,211,172,0.06)', padding: '36px 0' }}>
-        <div className="container mx-auto px-4">
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>
-              Powered by AINOS AI Blog Agent
-            </h2>
-            <p style={{ color: isLight ? '#4A3228' : '#8A7D70', fontSize: 13 }}>
-              AI-generated fashion articles from AINOS
-            </p>
-          </div>
-          <div id="ainos-blog" data-limit="6"></div>
-        </div>
-      </section>
 
       {/* Style Quiz */}
       {/* <StyleQuiz /> */}

@@ -1,0 +1,8 @@
+refactor: remove all AINOS references, rebrand to Yurekh AI
+
+- Removed ainos.jpeg imports from BlogDetail, Blog, AIChatWidget
+- Removed AINOS RSS proxy endpoint from backend blogs.js
+- Removed AINOS redirect logic from BlogDetail
+- Replaced AINOS branding with Yurekh AI in chat widget
+- Replaced AINOS branding with Tubhyam in blog pages
+- Removed "Powered by AINOS" badges

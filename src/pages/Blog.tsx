@@ -6,7 +6,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import { api } from '@/config/api';
-import ainosImg from '@/assets/ainos.jpeg';
 import { useTheme } from '@/context/ThemeContext';
 
 type ProductImageMap = Record<string, string[]>;
@@ -284,10 +283,6 @@ const Blog = () => {
           <div style={{ position: 'absolute', inset: 0, background: isLight ? 'radial-gradient(ellipse at top, rgba(232,101,43,0.06) 0%, transparent 60%)' : 'radial-gradient(ellipse at top, rgba(255,211,172,0.06) 0%, transparent 60%)' }} />
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <img src={ainosImg} alt="AINOS" style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', objectPosition: 'center 70%', border: isLight ? '2px solid rgba(232,101,43,0.3)' : '2px solid rgba(255,211,172,0.3)' }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: isLight ? '#E8652B' : '#FFD3AC', letterSpacing: 2, textTransform: 'uppercase' }}>Powered by AINOS</span>
-              </div>
               <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(30px, 5vw, 46px)', fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.15, margin: '0 0 10px' }}>
                 The Style <span style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>Journal</span>
               </h1>
@@ -472,7 +467,7 @@ const Blog = () => {
                   Welcome to Tubhyam's Style Journal — expert fashion advice, styling guides, and trend reports for Indian women. From <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>wide-leg jeans</strong> and <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>formal pants</strong> to <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>palazzo styling</strong> and <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>ethnic fusion looks</strong>.
                 </p>
                 <p style={{ fontSize: 13, color: isLight ? '#4A3228' : '#B0A090', lineHeight: 1.7 }}>
-                  New articles published weekly by <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>AINOS</strong>.
+                  New articles published weekly by <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>Tubhyam</strong>.
                 </p>
               </div>
             </div>
