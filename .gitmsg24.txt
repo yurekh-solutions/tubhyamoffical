@@ -1,0 +1,6 @@
+feat: add AINOS AI blog embed widget to homepage
+
+- Load AINOS embed script from https://ainos-ywu0.onrender.com/embed.js
+- Add test section after Testimonials showing 3 AI-generated blog articles in grid
+- Theme-aware styling (dark brown heading in light theme, cream in dark theme)
+- Script cleanup on unmount

@@ -13,8 +13,28 @@ import TrustBadges from '@/components/TrustBadges';
 import SaleBanner from '@/components/SaleBanner';
 import EmailPopup from '@/components/EmailPopup';
 import ShopTheLook from '@/components/ShopTheLook';
+import { useEffect } from 'react';
+import { useTheme } from '@/context/ThemeContext';
+
+const AINOS_BLOG_URL = 'https://ainos-ywu0.onrender.com';
 
 const Index = () => {
+  const { isLight } = useTheme();
+
+  useEffect(() => {
+    // Load AINOS embed script
+    const script = document.createElement('script');
+    script.src = `${AINOS_BLOG_URL}/embed.js`;
+    script.async = true;
+    document.body.appendChild(script);
+    
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen">
       <SEO
@@ -99,6 +119,21 @@ const Index = () => {
 
       {/* Testimonials */}
       <TestimonialsSlider />
+
+      {/* AINOS Blog Embed Widget - Test Section */}
+      <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.06)' : '1px solid rgba(255,211,172,0.06)', padding: '36px 0' }}>
+        <div className="container mx-auto px-4">
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>
+              Powered by AINOS AI Blog Agent
+            </h2>
+            <p style={{ color: isLight ? '#4A3228' : '#8A7D70', fontSize: 13 }}>
+              AI-generated fashion articles from AINOS
+            </p>
+          </div>
+          <div id="ainos-blog" data-limit="3" data-style="grid"></div>
+        </div>
+      </section>
 
       {/* Style Quiz */}
       {/* <StyleQuiz /> */}
