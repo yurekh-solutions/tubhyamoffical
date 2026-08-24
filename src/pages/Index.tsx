@@ -31,8 +31,6 @@ const Index = () => {
       const blogDiv = document.getElementById('ainos-blog');
       if (!blogDiv) return;
       
-      // Find all date elements in AINOS blog cards
-      const dateElements = blogDiv.querySelectorAll('.ainos-blog-date, [class*="date"], [class*="time"]');
       const now = new Date();
       const formatted = now.toLocaleDateString('en-IN', { 
         year: 'numeric', 
@@ -43,11 +41,15 @@ const Index = () => {
         hour: '2-digit', 
         minute: '2-digit' 
       });
+      const newDateTime = `${formatted} ${timeFormatted}`;
       
-      dateElements.forEach(el => {
-        const text = el.textContent || '';
-        if (text.includes('min read') || text.match(/\d{4}/)) {
-          el.textContent = `${formatted}  ${timeFormatted}`;
+      // Find all blog cards
+      const cards = blogDiv.querySelectorAll('.ainos-blog-card, article');
+      cards.forEach(card => {
+        // Find the date container (usually at the bottom of the card)
+        const dateContainer = card.querySelector('.ainos-blog-date');
+        if (dateContainer && !dateContainer.textContent.includes(newDateTime)) {
+          dateContainer.textContent = newDateTime;
         }
       });
     };

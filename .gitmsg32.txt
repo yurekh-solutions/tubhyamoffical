@@ -1,0 +1,5 @@
+fix: prevent duplicate date display on AINOS blog cards
+
+- Changed selector to target .ainos-blog-date container specifically
+- Added check to avoid updating if date already matches current time
+- Now shows date only once per card instead of twice
