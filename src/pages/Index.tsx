@@ -16,7 +16,8 @@ import ShopTheLook from '@/components/ShopTheLook';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 
-const AINOS_RSS_URL = 'https://ainos-ywu0.onrender.com/api/blog-rss';
+const BACKEND_URL = 'https://tubhyamoffical.onrender.com';
+const AINOS_RSS_PROXY = `${BACKEND_URL}/api/blogs/ainos-rss`;
 
 const Index = () => {
   const { isLight } = useTheme();
@@ -26,28 +27,11 @@ const Index = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch(AINOS_RSS_URL);
-        const text = await response.text();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, 'text/xml');
-        const items = xml.querySelectorAll('item');
-        
-        const blogData = Array.from(items).slice(0, 6).map(item => {
-          const rawLink = item.querySelector('link')?.textContent || '';
-          // Ensure link is absolute (AINOS blogs are external)
-          const link = rawLink.startsWith('http') ? rawLink : `https://ainos.vercel.app${rawLink.startsWith('/') ? rawLink : `/blog/${rawLink}`}`;
-          
-          return {
-            title: item.querySelector('title')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
-            link,
-            pubDate: item.querySelector('pubDate')?.textContent || '',
-            description: item.querySelector('description')?.textContent?.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1') || '',
-            categories: Array.from(item.querySelectorAll('category')).map(c => c.textContent).slice(0, 3),
-          };
-        });
-        
-        console.log('AINOS blogs loaded:', blogData.map(b => ({ title: b.title, link: b.link })));
-        setBlogs(blogData);
+        const response = await fetch(AINOS_RSS_PROXY);
+        const data = await response.json();
+        if (data.success && data.blogs) {
+          setBlogs(data.blogs.slice(0, 6));
+        }
       } catch (error) {
         console.error('Failed to fetch AINOS blogs:', error);
       } finally {

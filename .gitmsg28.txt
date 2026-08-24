@@ -1,0 +1,6 @@
+fix: redirect AINOS blogs to external URLs when not found in Tubhyam backend
+
+- BlogDetail.tsx now checks AINOS RSS feed when blog slug not found locally
+- If slug matches an AINOS blog, redirects to ainos.vercel.app/blog/{slug}
+- Homepage AINOS cards ensure absolute URLs for external links
+- Added console logging for debugging AINOS blog links

@@ -1,0 +1,6 @@
+fix: add AINOS RSS proxy to backend to fix CORS issues
+
+- Added /api/blogs/ainos-rss endpoint that fetches AINOS RSS server-side
+- Frontend now fetches from Tubhyam backend instead of direct AINOS URL
+- Fixes CORS error blocking blog fetch on production
+- BlogDetail.tsx also uses proxy for AINOS blog redirect

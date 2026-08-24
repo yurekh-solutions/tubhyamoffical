@@ -89,26 +89,17 @@ const BlogDetail = () => {
       } else {
         // Blog not found in Tubhyam backend - check if it's an AINOS blog
         try {
-          const rssResponse = await fetch('https://ainos-ywu0.onrender.com/api/blog-rss');
-          const rssText = await rssResponse.text();
-          const parser = new DOMParser();
-          const xml = parser.parseFromString(rssText, 'text/xml');
-          const items = xml.querySelectorAll('item');
-          
-          // Find matching blog by slug in the link URL
-          const ainosBlog = Array.from(items).find(item => {
-            const link = item.querySelector('link')?.textContent || '';
-            return link.includes(`/${slug}`);
-          });
-          
-          if (ainosBlog) {
-            // Redirect to external AINOS blog
-            const ainosLink = ainosBlog.querySelector('link')?.textContent || '';
-            window.location.href = ainosLink;
-            return;
+          const rssResponse = await fetch('https://tubhyamoffical.onrender.com/api/blogs/ainos-rss');
+          const rssData = await rssResponse.json();
+          if (rssData.success && rssData.blogs) {
+            const ainosBlog = rssData.blogs.find((b: { link?: string }) => b.link && b.link.includes(`/${slug}`));
+            if (ainosBlog) {
+              window.location.href = ainosBlog.link;
+              return;
+            }
           }
         } catch {
-          // AINOS RSS fetch failed, show error
+          // AINOS RSS proxy failed, show error
         }
         setError('Blog post not found');
       }

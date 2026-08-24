@@ -855,6 +855,43 @@ router.get('/product-images', async (req, res) => {
   }
 });
 
+// GET /ainos-rss — Proxy AINOS RSS feed to avoid CORS issues
+router.get('/ainos-rss', async (req, res) => {
+  try {
+    const { data } = await axios.get('https://ainos-ywu0.onrender.com/api/blog-rss', {
+      timeout: 10000,
+      headers: { 'Accept': 'application/rss+xml, application/xml, text/xml' }
+    });
+    const parser = new (require('xml2js').Parser)();
+    // Simple regex-based parsing since xml2js might not be installed
+    const items = [];
+    const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+    let match;
+    while ((match = itemRegex.exec(data)) !== null) {
+      const itemXml = match[1];
+      const getTag = (tag) => {
+        const m = itemXml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`));
+        return m ? m[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').trim() : '';
+      };
+      const cats = [];
+      const catRegex = /<category>([\s\S]*?)<\/category>/g;
+      let catMatch;
+      while ((catMatch = catRegex.exec(itemXml)) !== null) cats.push(catMatch[1]);
+      items.push({
+        title: getTag('title'),
+        link: getTag('link'),
+        pubDate: getTag('pubDate'),
+        description: getTag('description'),
+        categories: cats.slice(0, 3),
+      });
+    }
+    res.json({ success: true, blogs: items });
+  } catch (error) {
+    console.error('AINOS RSS proxy error:', error.message);
+    res.status(502).json({ success: false, message: 'Failed to fetch AINOS blogs' });
+  }
+});
+
 router.get('/:slug', async (req, res) => {
   try {
     const blog = await Blog.findOne({ slug: req.params.slug, status: 'published' }).select(INTERNAL_FIELDS);
