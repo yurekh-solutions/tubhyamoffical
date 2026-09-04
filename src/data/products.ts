@@ -30,9 +30,37 @@ export interface Product {
   rating?: number;
   reviewCount?: number;
   careInstructions?: string[];
+
+  // AI-generated model photos for "Try it on" feature
+  tryOnImages?: string[];
 }
 
 export const products: Product[] = [
+  // BROWN CORD SET - with AI Try-On images
+  {
+    id: "cord-set-001",
+    name: "Brown Contrast Lace-edged 2pc Co-ords",
+    category: "formal",
+    price: 1197,
+    originalPrice: 1699,
+    image: '/images/products/brown-cordset-1.jpg',
+    images: ['/images/products/brown-cordset-1.jpg', '/images/products/brownlace.jpg', '/images/products/brownlace1.jpg'],
+    tryOnImages: [
+      '/images/products/brown-cordset-model.jpg',
+    ],
+    imageCaptions: {
+      '/images/products/brown-cordset-1.jpg': 'Full set view - Brown lace top with wide-leg pants.',
+      '/images/products/brownlace.jpg': 'Lace top detail.',
+      '/images/products/brownlace1.jpg': 'Side view.',
+    },
+    description: "Elegant brown 2-piece co-ord set featuring a contrast lace-edged corset top and wide-leg trousers with belt. Perfect for evening wear and special occasions. Premium fabric with intricate lace detailing.",
+    sizes: ["XS", "S", "M", "L", "XL"],
+    colors: ["Brown"],
+    material: "Premium Polyester Blend with Lace",
+    inStock: true,
+    isNew: true,
+    isBestSeller: false,
+  },
   // TEST PRODUCT - ₹1 for payment testing
   {
     id: "test-001",

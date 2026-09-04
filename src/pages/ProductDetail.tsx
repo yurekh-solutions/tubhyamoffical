@@ -160,6 +160,8 @@ const ProductDetail = () => {
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showSizeError, setShowSizeError] = useState(false);
+  const [showTryOnModal, setShowTryOnModal] = useState(false);
+  const [selectedTryOnImage, setSelectedTryOnImage] = useState(0);
   const navigate = useNavigate();
   const [userReviews, setUserReviews] = useState<{name:string;location:string;rating:number;date:string;comment:string}[]>(() =>
     id ? getStoredReviews(id) : []
@@ -698,6 +700,23 @@ const ProductDetail = () => {
 
             {/* Action buttons */}
             <div className="space-y-3 pt-2">
+              {/* Try it on button - only show if product has tryOnImages */}
+              {product.tryOnImages && product.tryOnImages.length > 0 && (
+                <button
+                  onClick={() => {
+                    setSelectedTryOnImage(0);
+                    setShowTryOnModal(true);
+                  }}
+                  className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold transition-all text-sm ${
+                    isLight
+                      ? 'bg-gradient-to-r from-[#FFD3AC] to-[#ffcd94] text-[#1A1410] hover:shadow-lg active:scale-[0.98]'
+                      : 'glass-card bg-gradient-to-r from-[#FFD3AC]/20 to-[#ffcd94]/20 text-[#FFD3AC] hover:from-[#FFD3AC]/30 hover:to-[#ffcd94]/30 active:scale-[0.98] shadow-lg shadow-[#FFD3AC]/10'
+                  }`}
+                >
+                  <Sparkles size={18} />
+                  Try it on
+                </button>
+              )}
               <div className="flex gap-3">
                 <button
                   onClick={() => toggleWishlist(product)}
@@ -1118,6 +1137,71 @@ const ProductDetail = () => {
             ))}
           </div>
         </section>
+      )}
+
+      {/* Try it on Modal */}
+      {showTryOnModal && product.tryOnImages && product.tryOnImages.length > 0 && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowTryOnModal(false)}>
+          <div className="relative max-w-4xl w-full max-h-[90vh] bg-white dark:bg-[#1A1410] rounded-2xl overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {/* Close button */}
+            <button
+              onClick={() => setShowTryOnModal(false)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Image gallery */}
+            <div className="relative h-[70vh] overflow-hidden">
+              <img
+                src={product.tryOnImages[selectedTryOnImage]}
+                alt={`${product.name} - AI Model Try On`}
+                className="w-full h-full object-contain bg-gray-100 dark:bg-[#0F0D0B]"
+              />
+
+              {/* Navigation arrows */}
+              {product.tryOnImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setSelectedTryOnImage((prev) => (prev === 0 ? product.tryOnImages!.length - 1 : prev - 1))}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button
+                    onClick={() => setSelectedTryOnImage((prev) => (prev === product.tryOnImages!.length - 1 ? 0 : prev + 1))}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronLeft size={24} className="rotate-180" />
+                  </button>
+                </>
+              )}
+
+              {/* Image counter */}
+              {product.tryOnImages.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm">
+                  {selectedTryOnImage + 1} / {product.tryOnImages.length}
+                </div>
+              )}
+            </div>
+
+            {/* Info bar */}
+            <div className="p-4 border-t border-gray-200 dark:border-[#2E241F]">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm truncate">{product.name}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">AI Generated Model Photos</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-lg">{product.price.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <Footer />
