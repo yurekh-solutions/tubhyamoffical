@@ -36,6 +36,7 @@ const Lookbook = () => {
   const [feed, setFeed] = useState<InstagramPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -147,10 +148,11 @@ const Lookbook = () => {
                   >
                     <div className={`aspect-[3/4] ${index === 0 ? 'sm:aspect-auto sm:h-full' : ''}`}>
                       <img
-                        src={post.image}
+                        src={brokenImages.has(post.id) ? '/placeholder.svg' : post.image}
                         alt={post.caption}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         loading="lazy"
+                        onError={() => setBrokenImages(prev => new Set(prev).add(post.id))}
                       />
                     </div>
 

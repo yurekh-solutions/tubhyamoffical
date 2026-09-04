@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -30,7 +30,9 @@ import {
   Star,
   MessageCircle,
   X,
+  Sparkles,
 } from 'lucide-react';
+
 
 /* ------------------------------------------------------------------ */
 /*  Static helpers                                                     */
@@ -158,6 +160,7 @@ const ProductDetail = () => {
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showSizeError, setShowSizeError] = useState(false);
+  const navigate = useNavigate();
   const [userReviews, setUserReviews] = useState<{name:string;location:string;rating:number;date:string;comment:string}[]>(() =>
     id ? getStoredReviews(id) : []
   );
@@ -679,6 +682,19 @@ const ProductDetail = () => {
                 </span>
               </div>
             </div>
+
+            {/* Try On button */}
+            <button
+              onClick={() => navigate('/try-on')}
+              className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold transition-all text-sm ${
+                isLight
+                  ? 'border-2 border-[#8B5E3C] text-[#8B5E3C] hover:bg-[#8B5E3C]/5 active:scale-[0.98]'
+                  : 'glass-card bg-gradient-to-r from-[#8B5E3C]/10 via-[#A0714D]/10 to-[#C9A882]/10 border border-[#8B5E3C]/30 text-[#FFD3AC] hover:from-[#8B5E3C]/20 hover:via-[#A0714D]/20 hover:to-[#C9A882]/20 active:scale-[0.98] shadow-lg shadow-[#8B5E3C]/10'
+              }`}
+            >
+              <Sparkles size={18} />
+              AI Virtual Try-On
+            </button>
 
             {/* Action buttons */}
             <div className="space-y-3 pt-2">

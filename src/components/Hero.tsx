@@ -37,6 +37,7 @@ const Hero = () => {
   const [paused, setPaused] = useState(false);
   const [reels, setReels] = useState<ReelItem[]>(FALLBACK_REELS);
   const [loaded, setLoaded] = useState(false);
+  const [brokenReels, setBrokenReels] = useState<Set<string>>(new Set());
   const fetchedRef = useRef(false);
 
   // Fetch live Instagram reels from backend
@@ -76,7 +77,14 @@ const Hero = () => {
           }));
 
           if (liveReels.length > 0) {
-            setReels(liveReels);
+            // Pre-test first image to check if CDN is alive
+            const testImg = new Image();
+            testImg.onload = () => setReels(liveReels);
+            testImg.onerror = () => {
+              console.log('Instagram CDN images blocked (403), keeping fallback reels');
+              setReels(FALLBACK_REELS);
+            };
+            testImg.src = liveReels[0].src;
           }
         }
       } catch (err) {
@@ -239,10 +247,11 @@ const Hero = () => {
                     ) : (
                       // Inactive cards: show thumbnail image
                       <img
-                        src={reel.src}
+                        src={brokenReels.has(reel.id) ? img1 : reel.src}
                         alt={reel.label}
                         className="w-full h-full object-cover"
                         loading="lazy"
+                        onError={() => setBrokenReels(prev => new Set(prev).add(reel.id))}
                       />
                     )}
 

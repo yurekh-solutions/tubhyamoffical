@@ -2,7 +2,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
-import { Phone, Truck, Shield, RefreshCw,Award, Heart, Gem , Video, Sparkles, ShoppingBag, ArrowRight, Star } from 'lucide-react';
+import { Phone, Truck, Shield, RefreshCw,Award, Gem , Video, ShoppingBag } from 'lucide-react';
 import Hero from '@/components/Hero';
 import Categories from '@/components/Categories';
 import FeaturedProducts from '@/components/FeaturedProducts';

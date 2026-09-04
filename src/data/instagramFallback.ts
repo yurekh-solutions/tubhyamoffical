@@ -89,24 +89,24 @@ export const instagramFallbackPosts: InstagramFallbackPost[] = [
 ];
 
 /** 
- * Use the Tubhyam logo or a product image as the fallback thumbnail.
+ * Map each fallback post to a real product image.
  * This ensures the grid always has visual content even without the API.
  */
+const fallbackImages = [
+  '/images/products/beggyplatedkoreanfront.jpg',
+  '/images/products/blackstraight.jpg',
+  '/images/products/frontdenim.jpg',
+  '/images/products/brownbelt.jpg',
+  '/images/products/cargo.jpg',
+  '/images/products/blackmom.jpg',
+  '/images/products/beige-formal.jpg',
+  '/images/products/olivecomfort.jpg',
+  '/images/products/track-1.jpg',
+  '/images/products/belt-formal-beige.jpg',
+  '/images/products/brown-formal.jpg',
+  '/images/products/jeans-1.jpg',
+];
+
 export const getFallbackImage = (index: number): string => {
-  // Cycle through different gradient backgrounds for variety
-  const gradients = [
-    'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-    'linear-gradient(135deg, #2d3436 0%, #636e72 50%, #b2bec3 100%)',
-    'linear-gradient(135deg, #1e272e 0%, #485460 50%, #808e9b 100%)',
-    'linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2980b9 100%)',
-  ];
-  // Return a data URI for a simple SVG placeholder
-  // In production, replace with actual product images
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
-    <rect width="400" height="400" fill="%231a1a2e"/>
-    <text x="200" y="180" text-anchor="middle" fill="%23c9a84c" font-size="24" font-weight="bold" font-family="sans-serif">TUBHYAM</text>
-    <text x="200" y="220" text-anchor="middle" fill="%23999" font-size="13" font-family="sans-serif">@tubhyamofficial</text>
-    <text x="200" y="250" text-anchor="middle" fill="%23666" font-size="11" font-family="sans-serif">Tap to view on Instagram</text>
-  </svg>`;
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  return fallbackImages[index % fallbackImages.length];
 };
