@@ -57,15 +57,15 @@ export const products: Product[] = [
     tryOnBodyVariants: [
       {
         bodyType: 'slim',
-        images: ['/images/products/brown-cordset-model.jpg']
+        images: ['/images/products/brown-cordset-1.jpg']
       },
       {
         bodyType: 'average',
-        images: ['/images/products/brown-cordset-model.jpg'] // Will add average body type photo
+        images: ['/images/products/brownlace.jpg']
       },
       {
         bodyType: 'plus-size',
-        images: ['/images/products/brown-cordset-model.jpg'] // Will add plus-size body type photo
+        images: ['/images/products/brownlace1.jpg']
       }
     ],
     imageCaptions: {
