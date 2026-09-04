@@ -62,6 +62,61 @@ const AI_AVATARS = [
   { id: 'dark', label: 'Deep', skin: '#8B5E3C', img: '/images/avatar-dark.png' },
 ];
 
+// Available colors for try-on (with hex values for tinting)
+const TRYON_COLORS = [
+  { id: 'original', label: 'Original', hex: null },
+  { id: 'black', label: 'Black', hex: '#1a1a1a' },
+  { id: 'navy', label: 'Navy', hex: '#1e3a5f' },
+  { id: 'beige', label: 'Beige', hex: '#c9a882' },
+  { id: 'grey', label: 'Grey', hex: '#6b6b6b' },
+  { id: 'olive', label: 'Olive', hex: '#556b2f' },
+  { id: 'brown', label: 'Brown', hex: '#5c4033' },
+  { id: 'white', label: 'White', hex: '#f5f5f5' },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Color tinting function                                             */
+/* ------------------------------------------------------------------ */
+const applyColorTint = (sourceCanvas: HTMLCanvasElement, colorHex: string): HTMLCanvasElement => {
+  const canvas = document.createElement('canvas');
+  canvas.width = sourceCanvas.width;
+  canvas.height = sourceCanvas.height;
+  const ctx = canvas.getContext('2d')!;
+
+  // Draw original
+  ctx.drawImage(sourceCanvas, 0, 0);
+
+  // Get image data
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+
+  // Parse target color
+  const r = parseInt(colorHex.slice(1, 3), 16);
+  const g = parseInt(colorHex.slice(3, 5), 16);
+  const b = parseInt(colorHex.slice(5, 7), 16);
+
+  // Apply color tint while preserving luminosity
+  for (let i = 0; i < data.length; i += 4) {
+    const pixelR = data[i];
+    const pixelG = data[i + 1];
+    const pixelB = data[i + 2];
+    const alpha = data[i + 3];
+
+    if (alpha > 0) {
+      // Calculate luminosity
+      const luminosity = (pixelR * 0.299 + pixelG * 0.587 + pixelB * 0.114) / 255;
+
+      // Blend with target color based on luminosity
+      data[i] = Math.round(r * luminosity + pixelR * (1 - luminosity) * 0.3);
+      data[i + 1] = Math.round(g * luminosity + pixelG * (1 - luminosity) * 0.3);
+      data[i + 2] = Math.round(b * luminosity + pixelB * (1 - luminosity) * 0.3);
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+};
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
@@ -76,6 +131,7 @@ const AIVirtualTryOn = ({
   const { isLight } = useTheme();
 
   const [selectedProduct, setSelectedProduct] = useState(STORE_PRODUCTS[0]);
+  const [selectedColor, setSelectedColor] = useState<string>('original');
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
@@ -244,6 +300,29 @@ const AIVirtualTryOn = ({
     const gImg = new Image(); gImg.crossOrigin = 'anonymous'; gImg.src = selectedProduct.img;
     await new Promise<void>((res, rej) => { gImg.onload = () => res(); gImg.onerror = () => rej(new Error('fail')); });
 
+    // === APPLY COLOR TINT IF SELECTED ===
+    let productImgToUse = gImg;
+    if (selectedColor !== 'original') {
+      const colorOption = TRYON_COLORS.find(c => c.id === selectedColor);
+      if (colorOption?.hex) {
+        // Create temp canvas for product image
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = gImg.width;
+        tempCanvas.height = gImg.height;
+        const tempCtx = tempCanvas.getContext('2d')!;
+        tempCtx.drawImage(gImg, 0, 0);
+
+        // Apply color tint
+        const tintedCanvas = applyColorTint(tempCanvas, colorOption.hex);
+
+        // Create new image from tinted canvas
+        const tintedImg = new Image();
+        tintedImg.src = tintedCanvas.toDataURL();
+        await new Promise<void>((res, rej) => { tintedImg.onload = () => res(); tintedImg.onerror = () => rej(new Error('fail')); });
+        productImgToUse = tintedImg;
+      }
+    }
+
     // === REALISTIC PANTS OVERLAY ===
     // Instead of rectangle paste, create body-shaped mask with smooth edges
 
@@ -257,17 +336,17 @@ const AIVirtualTryOn = ({
     const pCtx = pantsCanvas.getContext('2d')!;
 
     // Extract pants region from product image (bottom 70%, skip top torso)
-    const pCropY = Math.round(gImg.height * 0.28);
-    const pCropH = gImg.height - pCropY;
-    const pCropX = Math.round(gImg.width * 0.08);
-    const pCropW = gImg.width - pCropX * 2;
+    const pCropY = Math.round(productImgToUse.height * 0.28);
+    const pCropH = productImgToUse.height - pCropY;
+    const pCropX = Math.round(productImgToUse.width * 0.08);
+    const pCropW = productImgToUse.width - pCropX * 2;
 
     // Draw product pants onto the pants canvas, scaled to body region
     const gx = tL * W;
     const gy = tT * H;
     const gw = (tR - tL) * W;
     const gh = (tB - tT) * H;
-    pCtx.drawImage(gImg, pCropX, pCropY, pCropW, pCropH, gx, gy, gw, gh);
+    pCtx.drawImage(productImgToUse, pCropX, pCropY, pCropW, pCropH, gx, gy, gw, gh);
 
     // Create body-shaped mask using MediaPipe landmarks
     const maskCanvas = document.createElement('canvas');
@@ -398,6 +477,7 @@ const AIVirtualTryOn = ({
 
   const handleTryOn = (product: typeof STORE_PRODUCTS[0]) => {
     setSelectedProduct(product);
+    setSelectedColor('original'); // Reset to original color
     if (userPhoto) processPhoto(userPhoto);
   };
 
@@ -411,6 +491,7 @@ const AIVirtualTryOn = ({
   const handleReset = () => {
     setUserPhoto(null); setResultImage(null); setError(null); setDetecting(false); setShowComparison(false);
     setSelectedAvatar(null);
+    setSelectedColor('original');
     const v = videoRef.current;
     if (v?.srcObject) { const s = v.srcObject as MediaStream; s.getTracks().forEach(t => t.stop()); v.srcObject = null; }
   };
@@ -685,6 +766,37 @@ const AIVirtualTryOn = ({
                           </div>
                         </div>
                       </div>
+
+                      {/* Color selector */}
+                      {resultImage && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: T.textMuted }}>Change Color</p>
+                          <div className="flex flex-wrap gap-2">
+                            {TRYON_COLORS.map(color => (
+                              <button
+                                key={color.id}
+                                onClick={() => {
+                                  setSelectedColor(color.id);
+                                  if (userPhoto) processPhoto(userPhoto);
+                                }}
+                                className="relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110"
+                                style={{
+                                  background: color.id === 'original' ? `url(${selectedProduct.img}) center/cover` : color.hex || '#fff',
+                                  borderColor: selectedColor === color.id ? T.accent : T.border,
+                                  boxShadow: selectedColor === color.id ? `0 0 0 2px ${T.accent}` : 'none',
+                                }}
+                                title={color.label}
+                              >
+                                {selectedColor === color.id && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <Check size={12} className={color.id === 'original' || color.hex === '#f5f5f5' ? 'text-gray-800' : 'text-white'} />
+                                  </div>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Action buttons */}
                       <div className="flex gap-2.5">
