@@ -60,6 +60,7 @@ const AIVirtualTryOn = ({
   const [selectedColor, setSelectedColor] = useState<string>('original');
   const [selectedBodyType, setSelectedBodyType] = useState<'slim' | 'average' | 'plus-size'>('slim');
   const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'formal' | 'jeans' | 'track'>('all');
 
   // Get full product data with tryOnBodyVariants
   const fullProduct = allProducts.find(p => p.id === selectedProduct.id);
@@ -90,8 +91,6 @@ const AIVirtualTryOn = ({
   const filteredProducts = STORE_PRODUCTS.filter(p => 
     activeTab === 'all' || p.category === activeTab
   );
-
-  const [activeTab, setActiveTab] = useState<'all' | 'formal' | 'jeans' | 'track'>('all');
 
   return (
     <div className={`min-h-screen ${standalone ? 'pt-20' : ''}`} style={{ background: T.bg }}>
