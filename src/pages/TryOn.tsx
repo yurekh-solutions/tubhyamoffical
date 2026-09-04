@@ -8,10 +8,10 @@ import { useTheme } from '@/context/ThemeContext';
 import { products as allProducts } from '@/data/products';
 
 /* ------------------------------------------------------------------ */
-/*  Products with AI try-on photos only                                */
+/*  All products - show all, but only enable try-on for those with AI photos */
 /* ------------------------------------------------------------------ */
 const TRYON_PRODUCTS = allProducts
-  .filter(p => p.tryOnBodyVariants && p.tryOnBodyVariants.length > 0)
+  .filter(p => p.id !== 'test-001')
   .map(p => ({
     id: p.id,
     name: p.name,
@@ -19,7 +19,7 @@ const TRYON_PRODUCTS = allProducts
     image: p.image,
     category: p.category,
     badge: p.isBestSeller ? 'Bestseller' : p.isNew ? 'New' : '',
-    tryOnBodyVariants: p.tryOnBodyVariants!,
+    tryOnBodyVariants: p.tryOnBodyVariants || null,
   }));
 
 /* ------------------------------------------------------------------ */
@@ -118,9 +118,15 @@ const TryOn = () => {
                       alt={`${selectedProduct?.name} - ${selectedBodyType} body type`}
                       className="w-full h-full object-cover"
                     />
-                  ) : (
+                  ) : selectedProduct?.tryOnBodyVariants ? (
                     <div className="w-full h-full flex items-center justify-center" style={{ color: T.textMuted }}>
-                      <p className="text-sm">No AI photo available</p>
+                      <p className="text-sm">No photo for this body type</p>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center" style={{ color: T.textMuted }}>
+                      <Sparkles size={48} className="mb-4 opacity-30" />
+                      <p className="text-lg font-semibold mb-2">AI Photos Coming Soon</p>
+                      <p className="text-sm">This product doesn't have AI model photos yet</p>
                     </div>
                   )}
 
@@ -143,7 +149,7 @@ const TryOn = () => {
                 </div>
 
                 {/* Controls */}
-                {selectedProduct && (
+                {selectedProduct?.tryOnBodyVariants && (
                   <div className="p-4 space-y-4">
                     {/* Body Type Selector */}
                     <div className="space-y-2">
