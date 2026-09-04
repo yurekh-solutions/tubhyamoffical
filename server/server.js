@@ -17,6 +17,7 @@ const paymentRoutes = require('./routes/payment');
 const chatRoutes = require('./routes/chat');
 const blogRoutes = require('./routes/blogs');
 const otpRoutes = require('./routes/otp');
+const tryonRoutes = require('./routes/tryon');
 
 // Services
 const { syncInstagramPosts } = require('./services/instagramSync');
@@ -106,6 +107,7 @@ app.use('/api/payment', sensitiveLimiter, paymentRoutes);
 app.use('/api/chat', sensitiveLimiter, chatRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/otp', sensitiveLimiter, otpRoutes);
+app.use('/api/try-on', tryonRoutes);
 
 // Health check (minimal info exposure)
 app.get('/api/health', (req, res) => {
