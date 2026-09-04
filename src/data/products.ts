@@ -33,6 +33,12 @@ export interface Product {
 
   // AI-generated model photos for "Try it on" feature
   tryOnImages?: string[];
+
+  // Body type variants for try-on (slim, average, plus-size)
+  tryOnBodyVariants?: {
+    bodyType: 'slim' | 'average' | 'plus-size';
+    images: string[];
+  }[];
 }
 
 export const products: Product[] = [
@@ -47,6 +53,20 @@ export const products: Product[] = [
     images: ['/images/products/brown-cordset-1.jpg', '/images/products/brownlace.jpg', '/images/products/brownlace1.jpg'],
     tryOnImages: [
       '/images/products/brown-cordset-model.jpg',
+    ],
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/brown-cordset-model.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/brown-cordset-model.jpg'] // Will add average body type photo
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/brown-cordset-model.jpg'] // Will add plus-size body type photo
+      }
     ],
     imageCaptions: {
       '/images/products/brown-cordset-1.jpg': 'Full set view - Brown lace top with wide-leg pants.',

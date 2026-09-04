@@ -132,6 +132,7 @@ const AIVirtualTryOn = ({
 
   const [selectedProduct, setSelectedProduct] = useState(STORE_PRODUCTS[0]);
   const [selectedColor, setSelectedColor] = useState<string>('original');
+    const [selectedBodyType, setSelectedBodyType] = useState<'slim' | 'average' | 'plus-size'>('slim');
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
@@ -143,6 +144,20 @@ const AIVirtualTryOn = ({
   const [showComparison, setShowComparison] = useState(false);
   const [uploadMode, setUploadMode] = useState<'photo' | 'avatar'>('photo');
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+
+  // Get full product data with tryOnBodyVariants
+  const fullProduct = allProducts.find(p => p.id === selectedProduct.id);
+
+  // Update result image when product or body type changes
+  useEffect(() => {
+    if (fullProduct?.tryOnBodyVariants) {
+      const variant = fullProduct.tryOnBodyVariants.find(v => v.bodyType === selectedBodyType);
+      if (variant && variant.images.length > 0) {
+        // Show pre-generated AI model photo
+        setResultImage(variant.images[0]);
+      }
+    }
+  }, [selectedProduct.id, selectedBodyType, fullProduct]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -766,6 +781,33 @@ const AIVirtualTryOn = ({
                           </div>
                         </div>
                       </div>
+
+                      {/* Body type selector */}
+                      {resultImage && selectedProduct && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: T.textMuted }}>Body Type</p>
+                          <div className="flex gap-2">
+                            {(['slim', 'average', 'plus-size'] as const).map(bodyType => (
+                              <button
+                                key={bodyType}
+                                onClick={() => setSelectedBodyType(bodyType)}
+                                className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+                                  selectedBodyType === bodyType
+                                    ? 'text-white shadow-md'
+                                    : 'border-2 hover:scale-105'
+                                }`}
+                                style={{
+                                  background: selectedBodyType === bodyType ? T.gradient : T.surfaceAlt,
+                                  borderColor: selectedBodyType === bodyType ? T.accent : T.border,
+                                  color: selectedBodyType === bodyType ? 'white' : T.text,
+                                }}
+                              >
+                                {bodyType === 'slim' ? 'Slim' : bodyType === 'average' ? 'Average' : 'Plus Size'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Color selector */}
                       {resultImage && (
