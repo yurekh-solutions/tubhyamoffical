@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type { ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Check, ShoppingBag } from 'lucide-react';
+import { Sparkles, Check, ShoppingBag, Upload, Camera, Loader2, AlertCircle, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { useTheme } from '@/context/ThemeContext';
 import { products as allProducts } from '@/data/products';
+import { checkTryOnService, generateTryOn, generateAiModel } from '@/services/tryOnApi';
 
 /* ------------------------------------------------------------------ */
 /*  All products - show all, but only enable try-on for those with AI photos */
@@ -32,6 +34,15 @@ const BODY_TYPES = [
 ];
 
 /* ------------------------------------------------------------------ */
+/*  Skin tones (used for AI model generation)                          */
+/* ------------------------------------------------------------------ */
+const SKIN_TONES = [
+  { id: 'fair', label: 'Fair' },
+  { id: 'medium', label: 'Medium' },
+  { id: 'dark', label: 'Dusky' },
+];
+
+/* ------------------------------------------------------------------ */
 /*  Colors                                                             */
 /* ------------------------------------------------------------------ */
 const COLORS = [
@@ -55,10 +66,90 @@ const TryOn = () => {
   const [selectedColor, setSelectedColor] = useState('original');
   const [activeCategory, setActiveCategory] = useState<'all' | 'formal' | 'jeans' | 'track'>('all');
 
-  const selectedProduct = TRYON_PRODUCTS.find(p => p.id === selectedProductId);
+  /* ---- AI "Your Photo" mode state ---- */
+  const [tryOnMode, setTryOnMode] = useState<'ai-model' | 'your-photo'>('ai-model');
+  const [uploadedPhoto, setUploadedPhoto] = useState<File | null>(null);
+  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState('');
+  const [generatedImage, setGeneratedImage] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState('');
+  const [serviceOnline, setServiceOnline] = useState<boolean | null>(null);
+  const [selectedSkinTone, setSelectedSkinTone] = useState('medium');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiGeneratedImage, setAiGeneratedImage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check AI service health on mount
+  useEffect(() => {
+    let cancelled = false;
+    checkTryOnService().then(ok => { if (!cancelled) setServiceOnline(ok); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Revoke object URLs when replaced or on unmount
+  useEffect(() => {
+    return () => {
+      if (uploadedPhotoUrl) URL.revokeObjectURL(uploadedPhotoUrl);
+      if (generatedImage) URL.revokeObjectURL(generatedImage);
+      if (aiGeneratedImage) URL.revokeObjectURL(aiGeneratedImage);
+    };
+  }, [uploadedPhotoUrl, generatedImage, aiGeneratedImage]);
+
+  const selectedProduct = TRYON_PRODUCTS.find(p => p.id === selectedProductId) || TRYON_PRODUCTS[0];
+
+  const handlePhotoSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setGenerateError('Please upload an image file (JPG or PNG)');
+      return;
+    }
+    setUploadedPhoto(file);
+    setUploadedPhotoUrl(URL.createObjectURL(file));
+    setGeneratedImage('');
+    setGenerateError('');
+  };
+
+  const handleGenerate = async () => {
+    if (!uploadedPhoto || !selectedProduct || isGenerating) return;
+    setIsGenerating(true);
+    setGenerateError('');
+    setGeneratedImage('');
+    try {
+      const resultUrl = await generateTryOn({
+        personFile: uploadedPhoto,
+        garmentUrl: selectedProduct.image,
+        bodyType: selectedBodyType,
+      });
+      setGeneratedImage(resultUrl);
+    } catch (err: unknown) {
+      setGenerateError(err instanceof Error ? err.message : 'AI generation failed. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateAiModel = async () => {
+    if (!selectedProduct || aiGenerating) return;
+    setAiGenerating(true);
+    setGenerateError('');
+    setAiGeneratedImage('');
+    try {
+      const resultUrl = await generateAiModel({
+        garmentUrl: selectedProduct.image,
+        bodyType: selectedBodyType,
+        skinTone: selectedSkinTone,
+      });
+      setAiGeneratedImage(resultUrl);
+    } catch (err: unknown) {
+      setGenerateError(err instanceof Error ? err.message : 'AI generation failed. Please try again.');
+    } finally {
+      setAiGenerating(false);
+    }
+  };
 
   // Get current image based on body type
-  const currentVariant = selectedProduct?.tryOnBodyVariants.find(v => v.bodyType === selectedBodyType);
+  const currentVariant = selectedProduct?.tryOnBodyVariants?.find(v => v.bodyType === selectedBodyType);
   const currentImage = currentVariant?.images[0] || null;
 
   // Filter products by category
@@ -78,6 +169,19 @@ const TryOn = () => {
     accent:      '#8B5E3C',
     gradient:    'linear-gradient(135deg, #8B5E3C 0%, #A0714D 40%, #C9A882 100%)',
   };
+
+  // Guard - agar koi product nahi hai toh early return
+  if (!selectedProduct) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen pt-20 flex items-center justify-center">
+          <p className="text-lg text-gray-500">No products available</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -110,47 +214,181 @@ const TryOn = () => {
             {/* Left Panel - AI Model Display */}
             <div className="space-y-4">
               <div className="rounded-2xl overflow-hidden shadow-2xl sticky top-24" style={{ background: T.surface }}>
+                {/* Mode Tabs: AI Models vs Your Photo */}
+                <div className="flex gap-2 p-3" style={{ borderBottom: `1px solid ${T.border}` }}>
+                  {([
+                    { id: 'ai-model' as const, label: '✨ AI Models' },
+                    { id: 'your-photo' as const, label: '📸 Your Photo' },
+                  ]).map(mode => (
+                    <button
+                      key={mode.id}
+                      onClick={() => { setTryOnMode(mode.id); setGenerateError(''); }}
+                      className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${
+                        tryOnMode === mode.id ? 'text-white shadow-md' : 'border'
+                      }`}
+                      style={{
+                        background: tryOnMode === mode.id ? T.gradient : T.surfaceAlt,
+                        borderColor: tryOnMode === mode.id ? T.accent : T.border,
+                        color: tryOnMode === mode.id ? 'white' : T.text,
+                      }}
+                    >
+                      {mode.label}
+                    </button>
+                  ))}
+                </div>
+
                 {/* Image Display */}
                 <div className="relative aspect-[3/4] bg-gray-100">
-                  {currentImage ? (
-                    <img
-                      src={currentImage}
-                      alt={`${selectedProduct?.name} - ${selectedBodyType} body type`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : selectedProduct?.tryOnBodyVariants ? (
-                    <div className="w-full h-full flex items-center justify-center" style={{ color: T.textMuted }}>
-                      <p className="text-sm">No photo for this body type</p>
-                    </div>
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center" style={{ color: T.textMuted }}>
-                      <Sparkles size={48} className="mb-4 opacity-30" />
-                      <p className="text-lg font-semibold mb-2">AI Photos Coming Soon</p>
-                      <p className="text-sm">This product doesn't have AI model photos yet</p>
-                    </div>
-                  )}
-
-                  {/* Product Info Overlay */}
-                  {currentImage && selectedProduct && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
-                      <div className="flex items-center gap-3">
-                        <img src={selectedProduct.image} alt={selectedProduct.name} className="w-12 h-12 rounded-lg object-cover" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-white truncate">{selectedProduct.name}</p>
-                          <p className="text-[11px] text-white/60">₹{selectedProduct.price.toLocaleString('en-IN')}</p>
-                        </div>
-                        <Link to={`/product/${selectedProduct.id}`} className="px-3.5 py-2 rounded-xl text-[11px] font-bold text-white transition-all hover:scale-105 flex items-center gap-1" style={{ background: T.gradient }}>
-                          <ShoppingBag size={12} />
-                          Buy Now
-                        </Link>
+                  {tryOnMode === 'your-photo' ? (
+                    /* ---------- YOUR PHOTO MODE ---------- */
+                    isGenerating ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center" style={{ color: T.textMuted }}>
+                        <Loader2 size={48} className="mb-4 animate-spin" style={{ color: T.accent }} />
+                        <p className="text-base font-semibold mb-1" style={{ color: T.text }}>AI is dressing you up...</p>
+                        <p className="text-xs">{selectedProduct.name}</p>
+                        <p className="text-[11px] mt-3 opacity-70">First generation may take 1–2 minutes (model loading)</p>
                       </div>
-                    </div>
+                    ) : generatedImage ? (
+                      <>
+                        <img src={generatedImage} alt={`${selectedProduct.name} try-on result`} className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => setGeneratedImage('')}
+                          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-white shadow-lg"
+                          style={{ background: 'rgba(0,0,0,0.6)' }}
+                          title="Clear result"
+                        >
+                          <X size={14} />
+                        </button>
+                        <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-white truncate">{selectedProduct.name}</p>
+                              <p className="text-[11px] text-white/60">₹{selectedProduct.price.toLocaleString('en-IN')}</p>
+                            </div>
+                            <Link to={`/product/${selectedProduct.id}`} className="px-3.5 py-2 rounded-xl text-[11px] font-bold text-white transition-all hover:scale-105 flex items-center gap-1" style={{ background: T.gradient }}>
+                              <ShoppingBag size={12} />
+                              Buy Now
+                            </Link>
+                          </div>
+                        </div>
+                      </>
+                    ) : uploadedPhotoUrl ? (
+                      <>
+                        <img src={uploadedPhotoUrl} alt="Your photo preview" className="w-full h-full object-cover" />
+                        <div className="absolute bottom-0 left-0 right-0 p-3" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
+                          <button
+                            onClick={handleGenerate}
+                            disabled={serviceOnline === false}
+                            className="w-full py-3 rounded-xl text-xs font-bold text-white transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            style={{ background: T.gradient }}
+                          >
+                            <Sparkles size={14} />
+                            Generate AI Try-On
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full h-full flex flex-col items-center justify-center p-8 text-center transition-all"
+                        style={{ color: T.textMuted }}
+                      >
+                        <Upload size={40} className="mb-4 opacity-40" />
+                        <p className="text-base font-semibold mb-1" style={{ color: T.text }}>Upload Your Photo</p>
+                        <p className="text-xs mb-4">Front-facing photo works best</p>
+                        <span className="px-4 py-2 rounded-lg text-xs font-semibold text-white flex items-center gap-2" style={{ background: T.gradient }}>
+                          <Camera size={12} />
+                          Choose Photo
+                        </span>
+                      </button>
+                    )
+                  ) : (
+                    /* ---------- AI MODEL MODE ---------- */
+                    <>
+                      {aiGenerating ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center" style={{ color: T.textMuted }}>
+                          <Loader2 size={48} className="mb-4 animate-spin" style={{ color: T.accent }} />
+                          <p className="text-base font-semibold mb-1" style={{ color: T.text }}>AI is creating your model...</p>
+                          <p className="text-xs">{selectedProduct.name}</p>
+                          <p className="text-[11px] mt-3 opacity-70">First generation may take 1–2 minutes (model loading)</p>
+                        </div>
+                      ) : aiGeneratedImage ? (
+                        <img
+                          src={aiGeneratedImage}
+                          alt={`${selectedProduct?.name} - ${selectedBodyType} body type, ${selectedSkinTone} skin tone`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : currentImage ? (
+                        <img
+                          src={currentImage}
+                          alt={`${selectedProduct?.name} - ${selectedBodyType} body type`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : selectedProduct?.tryOnBodyVariants ? (
+                        <div className="w-full h-full flex items-center justify-center" style={{ color: T.textMuted }}>
+                          <p className="text-sm">No photo for this body type</p>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center" style={{ color: T.textMuted }}>
+                          <Sparkles size={48} className="mb-4 opacity-30" />
+                          <p className="text-lg font-semibold mb-2" style={{ color: T.text }}>Generate AI Model</p>
+                          <p className="text-sm mb-5">See this product on an AI model with your chosen body type & skin tone</p>
+                          <button
+                            onClick={handleGenerateAiModel}
+                            disabled={serviceOnline === false}
+                            className="px-5 py-2.5 rounded-xl text-xs font-bold text-white transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            style={{ background: T.gradient }}
+                          >
+                            <Sparkles size={14} />
+                            Generate AI Photo
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Product Info Overlay */}
+                      {(currentImage || aiGeneratedImage) && selectedProduct && (
+                        <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
+                          <div className="flex items-center gap-3">
+                            <img src={selectedProduct.image} alt={selectedProduct.name} className="w-12 h-12 rounded-lg object-cover" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-white truncate">{selectedProduct.name}</p>
+                              <p className="text-[11px] text-white/60">₹{selectedProduct.price.toLocaleString('en-IN')}</p>
+                            </div>
+                            <Link to={`/product/${selectedProduct.id}`} className="px-3.5 py-2 rounded-xl text-[11px] font-bold text-white transition-all hover:scale-105 flex items-center gap-1" style={{ background: T.gradient }}>
+                              <ShoppingBag size={12} />
+                              Buy Now
+                            </Link>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
+                {/* Error banner */}
+                {generateError && (
+                  <div className="mx-3 mt-3 p-3 rounded-lg flex items-start gap-2 text-xs" style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', color: '#dc2626' }}>
+                    <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p>{generateError}</p>
+                      {serviceOnline === false && (
+                        <p className="mt-1 opacity-80">AI service is not running. Start it from ai-tryon-service/start.bat</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoSelect}
+                />
+
                 {/* Controls */}
-                {selectedProduct?.tryOnBodyVariants && (
-                  <div className="p-4 space-y-4">
+                <div className="p-4 space-y-4">
                     {/* Body Type Selector */}
                     <div className="space-y-2">
                       <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: T.textMuted }}>Body Type</p>
@@ -177,7 +415,35 @@ const TryOn = () => {
                       </div>
                     </div>
 
-                    {/* Color Selector */}
+                    {/* Skin Tone Selector (AI model generation) */}
+                    {tryOnMode === 'ai-model' && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: T.textMuted }}>Skin Tone</p>
+                      <div className="flex gap-2">
+                        {SKIN_TONES.map(tone => (
+                          <button
+                            key={tone.id}
+                            onClick={() => setSelectedSkinTone(tone.id)}
+                            className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-all ${
+                              selectedSkinTone === tone.id
+                                ? 'text-white shadow-md scale-105'
+                                : 'border-2 hover:scale-105'
+                            }`}
+                            style={{
+                              background: selectedSkinTone === tone.id ? T.gradient : T.surfaceAlt,
+                              borderColor: selectedSkinTone === tone.id ? T.accent : T.border,
+                              color: selectedSkinTone === tone.id ? 'white' : T.text,
+                            }}
+                          >
+                            {tone.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    )}
+
+                    {/* Color Selector (pre-generated photos only) */}
+                    {tryOnMode === 'ai-model' && selectedProduct?.tryOnBodyVariants && (
                     <div className="space-y-2">
                       <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: T.textMuted }}>Change Color</p>
                       <div className="flex flex-wrap gap-2">
@@ -202,8 +468,8 @@ const TryOn = () => {
                         ))}
                       </div>
                     </div>
+                    )}
                   </div>
-                )}
               </div>
             </div>
 
@@ -243,6 +509,9 @@ const TryOn = () => {
                         setSelectedProductId(product.id);
                         setSelectedBodyType('slim');
                         setSelectedColor('original');
+                        setGeneratedImage('');
+                        setAiGeneratedImage('');
+                        setGenerateError('');
                       }}
                       className={`rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.02] text-left ${
                         selectedProductId === product.id ? 'shadow-lg scale-[1.02]' : ''

@@ -39,3 +39,12 @@ check_images.cjs
 
 # WhatsApp auth session
 .wwebjs_auth/
+
+# AI Try-On Service
+ai-tryon-service/venv/
+ai-tryon-service/__pycache__/
+ai-tryon-service/*.pyc
+ai-tryon-service/test_result*.png
+
+# Hugging Face cache
+.cache/huggingface/

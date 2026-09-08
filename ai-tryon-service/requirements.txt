@@ -1,0 +1,28 @@
+# Tubhyam AI Try-On Service dependencies
+#
+# IMPORTANT: torch & torchvision are installed SEPARATELY with the CUDA build
+# (they are NOT listed here to avoid pip downgrading them to the CPU wheel):
+#   venv\Scripts\python.exe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+# Then install the rest:
+#   venv\Scripts\python.exe -m pip install -r requirements.txt
+
+# Diffusion stack (compatible with torch 2.7.x)
+diffusers>=0.25.0
+transformers>=4.36.0
+accelerate>=0.25.0
+safetensors>=0.4.1
+huggingface-hub>=0.20.0
+
+# Image processing
+Pillow>=10.0.0
+opencv-python>=4.9.0.80
+numpy>=1.26.3
+
+# Web framework
+fastapi>=0.109.0
+uvicorn>=0.27.0
+python-multipart>=0.0.6
+
+# Utilities
+requests>=2.31.0
+tqdm>=4.66.1

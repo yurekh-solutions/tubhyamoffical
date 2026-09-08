@@ -9,6 +9,18 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
+      // The local AI service generates an image and can take minutes on the
+      // first request. Send Try-On traffic directly to it in development so a
+      // stale Express process cannot reset or 404 the request. Production still
+      // uses the relative /api path through the Express/Vercel proxy.
+      '/api/try-on': {
+        // Explicit IPv4 avoids Windows resolving localhost to an unavailable
+        // IPv6 listener while the FastAPI server is bound to 0.0.0.0.
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        timeout: 300000,
+        proxyTimeout: 300000,
+      },
       // Catch-all API proxy to local backend
       '/api': {
         target: 'http://localhost:5000',
