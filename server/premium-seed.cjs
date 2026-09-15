@@ -27,7 +27,6 @@ var KEYWORD_SCENES = {
   'formal': 'neck-down crop of woman in tailored formal pants with blazer, modern office',
   'casual': 'neck-down crop of woman in relaxed jeans and top with sneakers, outdoor cafe',
   'fabric': 'neck-down crop of woman touching premium fabric texture, design studio with swatches',
-  'budget': 'neck-down crop of woman holding shopping bags with stylish outfit, city street',
   'shoe': 'neck-down crop of woman feet in stylish heels with outfit visible, boutique floor',
   'jewelry': 'neck-down crop of woman hands wearing bangles and rings with outfit, soft lighting',
   'travel': 'neck-down crop of woman in travel-ready outfit with tote and sunglasses, airport lounge',
@@ -127,7 +126,7 @@ var ARTICLE_CONFIGS = [
     category: 'Wardrobe Guide',
     targetKeyword: 'wardrobe essentials',
     secondaryKeywords: ['must have wardrobe items', 'basic wardrobe for women', 'capsule wardrobe India'],
-    promptExtra: 'List 15 specific items with why each is essential. Cover: white shirt, little black dress, jeans, formal pants, ethnic kurta, blazer, sneakers, heels, handbag, watch, etc. Include budget tips.',
+    promptExtra: 'List 15 specific items with why each is essential. Cover: white shirt, little black dress, jeans, formal pants, ethnic kurta, blazer, sneakers, heels, handbag, watch, etc. Include styling tips.',
   },
   {
     seedTitle: 'What to Wear Where: Complete Occasion Dressing Guide',

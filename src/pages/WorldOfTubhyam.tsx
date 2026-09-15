@@ -504,7 +504,7 @@ const WorldOfTubhyam = () => {
               </AnimatedSection>
               <AnimatedSection delay={300}>
                 <p className="font-semibold text-lg sm:text-xl" style={{ color: '#FFF5EB' }}>
-                  Because every woman — regardless of size, skin tone, or budget — deserves to feel extraordinary.
+                  Because every woman — regardless of size or skin tone — deserves to feel extraordinary.
                 </p>
               </AnimatedSection>
             </div>
