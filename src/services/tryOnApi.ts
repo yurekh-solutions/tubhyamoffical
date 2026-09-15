@@ -127,6 +127,13 @@ export interface AiModelOptions {
   signal?: AbortSignal;
 }
 
+export interface MultiGarmentOptions {
+  garmentUrls: string[];   // 1–3 garment images
+  bodyType: TryOnBodyType;
+  skinTone?: string;
+  signal?: AbortSignal;
+}
+
 /**
  * Generate an AI fashion model (body type + skin tone controlled) wearing
  * the given garment. Used for products without pre-generated try-on photos.
@@ -165,6 +172,73 @@ export async function generateAiModel({
         const err = await res.json();
         if (err?.detail) detail = err.detail;
       } catch { /* ignore parse errors */ }
+      throw new Error(detail);
+    }
+
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
+  } catch (err: unknown) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      if (signal?.aborted) throw err;
+      throw new Error('AI generation timed out after 3 minutes. Try again.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+    if (signal) signal.removeEventListener('abort', onCallerAbort);
+  }
+}
+
+/**
+ * Generate an AI model wearing multiple garments (layering: top + bottom + outerwear).
+ * Sends all garment images to the multi-garment endpoint.
+ * Falls back to single-garment /ai-model if only one URL is provided.
+ */
+export async function generateMultiGarment({
+  garmentUrls,
+  bodyType,
+  skinTone = 'medium',
+  signal,
+}: MultiGarmentOptions): Promise<string> {
+  // Single garment — use the existing endpoint
+  if (garmentUrls.length <= 1) {
+    return generateAiModel({
+      garmentUrl: garmentUrls[0],
+      bodyType,
+      skinTone,
+      signal,
+    });
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), TRYON_TIMEOUT_MS);
+  const onCallerAbort = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) controller.abort();
+    else signal.addEventListener('abort', onCallerAbort);
+  }
+
+  try {
+    const formData = new FormData();
+    for (let i = 0; i < garmentUrls.length; i++) {
+      const file = await urlToFile(garmentUrls[i], `garment_${i}.jpg`);
+      formData.append('garment_images', file);
+    }
+    formData.append('body_type', bodyType);
+    formData.append('skin_tone', skinTone);
+
+    const res = await fetch(`${TRYON_BASE_URL}/api/try-on/multi-garment`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      let detail = `HTTP ${res.status}`;
+      try {
+        const err = await res.json();
+        if (err?.detail) detail = err.detail;
+      } catch { /* ignore */ }
       throw new Error(detail);
     }
 

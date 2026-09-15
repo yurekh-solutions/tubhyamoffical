@@ -116,6 +116,20 @@ export const products: Product[] = [
     colors: ["Olive Green"],
     material: "Cotton Blend Fabric",
     inStock: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/pt-004-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/pt-004-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/pt-004-plus-size.jpg']
+      },
+    ]
   },
 {
   id: "pt-005",
@@ -130,7 +144,21 @@ export const products: Product[] = [
   colors: ["Black"],
   material: "Soft Cotton Blend",
   inStock: true,
-},
+  tryOnBodyVariants: [
+    {
+      bodyType: 'slim',
+      images: ['/images/products/pt-005-slim.jpg']
+    },
+    {
+      bodyType: 'average',
+      images: ['/images/products/pt-005-average.jpg']
+    },
+    {
+      bodyType: 'plus-size',
+      images: ['/images/products/pt-005-plus-size.jpg']
+    },
+  ]
+  },
 
 
   {
@@ -147,6 +175,20 @@ export const products: Product[] = [
     material: "Premium Polyester Blend",
     inStock: true,
     isBestSeller: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/fp-001-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/fp-001-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/fp-001-plus-size.jpg']
+      },
+    ]
   },
   {
     id: "fp-002",
@@ -161,6 +203,20 @@ export const products: Product[] = [
     material: "Cotton Blend",
     inStock: true,
     isNew: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/fp-002-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/fp-002-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/fp-002-plus-size.jpg']
+      },
+    ]
   },
   {
     id: "fp-003",
@@ -175,6 +231,20 @@ export const products: Product[] = [
     colors: ["Navy Blue"],
     material: "Wool Blend",
     inStock: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/fp-003-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/fp-003-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/fp-003-plus-size.jpg']
+      },
+    ]
   },
  
   {
@@ -189,6 +259,20 @@ export const products: Product[] = [
     colors: ["Light Wash"],
     material: "Premium Cotton Denim",
     inStock: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/jn-003-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/jn-003-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/jn-003-plus-size.jpg']
+      },
+    ]
   },
   {
     id: "jn-004",
@@ -203,6 +287,20 @@ export const products: Product[] = [
     material: "Premium Denim",
     inStock: true,
     isNew: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/jn-004-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/jn-004-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/jn-004-plus-size.jpg']
+      },
+    ]
   },
   {
     id: "jn-005",
@@ -218,6 +316,20 @@ export const products: Product[] = [
     material: "100% Cotton Denim",
     inStock: true,
     isBestSeller: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/jn-005-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/jn-005-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/jn-005-plus-size.jpg']
+      },
+    ]
   },
  
   {
@@ -233,6 +345,20 @@ export const products: Product[] = [
     material: "Premium Cotton Blend",
     inStock: true,
     isNew: true,
+    tryOnBodyVariants: [
+      {
+        bodyType: 'slim',
+        images: ['/images/products/tp-002-slim.jpg']
+      },
+      {
+        bodyType: 'average',
+        images: ['/images/products/tp-002-average.jpg']
+      },
+      {
+        bodyType: 'plus-size',
+        images: ['/images/products/tp-002-plus-size.jpg']
+      },
+    ]
   },
   {
     id: "tp-005",

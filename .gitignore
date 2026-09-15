@@ -32,8 +32,8 @@ inventory-app-main/
 .vercel
 
 # Temp files
-.gitmsg.txt
-.gitmsg2.txt
+.gitmsg*.txt
+.commit-msg*.txt
 __deployed_*.js
 check_images.cjs
 
@@ -44,7 +44,11 @@ check_images.cjs
 ai-tryon-service/venv/
 ai-tryon-service/__pycache__/
 ai-tryon-service/*.pyc
+ai-tryon-service/test*.png
 ai-tryon-service/test_result*.png
+ai-tryon-service/base_model*.jpg
+ai-tryon-service/batch_progress.json
+ai-tryon-service/*.bat
 
 # Hugging Face cache
 .cache/huggingface/

@@ -126,7 +126,7 @@ def _move_to_device(pipe):
 def _configure_low_vram(pipe):
     if LOW_VRAM:
         pipe.enable_attention_slicing()
-        pipe.enable_vae_slicing()
+        # enable_vae_slicing() removed in newer diffusers versions
     return pipe
 
 
@@ -160,9 +160,9 @@ def get_txt2img_pipe():
                 safety_checker=None,
                 requires_safety_checker=False,
             )
-            _configure_low_vram(pipe)
 
-            # Garment conditioning
+            # Garment conditioning MUST be loaded before any attention slicing,
+            # otherwise SlicedAttnProcessor causes IP-Adapter loading to fail.
             pipe.load_ip_adapter(IP_ADAPTER_REPO, subfolder="models", weight_name=IP_ADAPTER_WEIGHT)
 
             _activate_new_pipeline(pipe)
@@ -392,6 +392,70 @@ async def batch_ai_model_try_on(
             results.append({"garment": garment_upload.filename, "error": str(e)})
 
     return {"results": results}
+
+
+@app.post("/api/try-on/multi-garment")
+async def multi_garment_try_on(
+    garment_images: list[UploadFile] = File(...),
+    body_type: str = Form("average"),
+    skin_tone: str = Form("medium"),
+):
+    """
+    Fitting Room multi-garment layering: generates a single AI model photo
+    wearing all uploaded garments combined (top + bottom + outerwear).
+
+    With SD1.5 + IP-Adapter we condition on the *primary* (first) garment
+    image and weave the remaining pieces into the text prompt so the model
+    composes a cohesive layered look.
+    """
+    try:
+        if len(garment_images) == 0:
+            raise HTTPException(status_code=400, detail="At least one garment image is required")
+
+        pipe = get_txt2img_pipe()
+
+        # Read all garments — primary drives IP-Adapter, rest steer the prompt
+        garments = []
+        garment_labels = []
+        for g in garment_images[:3]:  # cap at 3
+            garments.append(_read_image(g, size=(512, 512)))
+            garment_labels.append(g.filename or "garment")
+
+        primary = garments[0]
+
+        # Build a layered prompt that mentions every piece
+        body = BODY_PROMPTS.get(body_type, BODY_PROMPTS["average"])
+        skin = SKIN_PROMPTS.get(skin_tone, SKIN_PROMPTS["medium"])
+        pieces = ", ".join(garment_labels)
+        prompt = (
+            f"full body fashion photography of a beautiful indian woman, {body}, {skin}, "
+            f"wearing {pieces}, layered outfit, standing pose, front facing, "
+            f"professional studio lighting, fashion magazine quality, "
+            f"photorealistic, highly detailed fabric, elegant, 8k"
+        )
+
+        pipe.set_ip_adapter_scale(0.9)
+        result = pipe(
+            prompt=prompt,
+            negative_prompt=NEGATIVE_PROMPT,
+            ip_adapter_image=primary,
+            num_inference_steps=28,
+            guidance_scale=7.5,
+            height=768,
+            width=512,
+        ).images[0]
+
+        return _png_response(result, {
+            "X-Body-Type": body_type,
+            "X-Skin-Tone": skin_tone,
+            "X-Device": str(DEVICE),
+            "X-Garment-Count": str(len(garments)),
+        })
+    except HTTPException:
+        raise
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Multi-garment generation failed: {e}")
 
 
 if __name__ == "__main__":

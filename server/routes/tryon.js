@@ -48,6 +48,7 @@ async function forward(res, path, formData, timeoutMs) {
   if (response.headers['x-body-type']) res.set('X-Body-Type', response.headers['x-body-type']);
   if (response.headers['x-skin-tone']) res.set('X-Skin-Tone', response.headers['x-skin-tone']);
   if (response.headers['x-device']) res.set('X-Device', response.headers['x-device']);
+  if (response.headers['x-garment-count']) res.set('X-Garment-Count', response.headers['x-garment-count']);
   return res.send(Buffer.from(response.data));
 }
 
@@ -172,6 +173,39 @@ router.post('/batch', upload.any(), async (req, res) => {
     res.json(response.data);
   } catch (error) {
     tryOnError(res, error, 'Batch try-on');
+  }
+});
+
+/**
+ * POST /api/try-on/multi-garment
+ * Fitting Room layering — multiple garments -> single AI model photo (returns PNG)
+ */
+router.post('/multi-garment', upload.any(), async (req, res) => {
+  try {
+    const garments = Array.isArray(req.files)
+      ? req.files.filter(f => ['garment_images', 'garmentImages', 'garment_image'].includes(f.fieldname))
+      : [];
+
+    if (garments.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one garment_images file is required'
+      });
+    }
+
+    const formData = new FormData();
+    garments.forEach((img, index) => {
+      formData.append('garment_images', img.buffer, {
+        filename: `garment_${index}.png`,
+        contentType: img.mimetype
+      });
+    });
+    formData.append('body_type', req.body.body_type || 'average');
+    formData.append('skin_tone', req.body.skin_tone || 'medium');
+
+    await forward(res, '/api/try-on/multi-garment', formData, GEN_TIMEOUT_MS);
+  } catch (error) {
+    tryOnError(res, error, 'Multi-garment try-on');
   }
 });
 

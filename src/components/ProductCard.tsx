@@ -19,10 +19,6 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
   const hasMultipleImages = product.images && product.images.length > 1;
   const currentImage = showSecondImage && hasMultipleImages ? product.images[1] : product.image;
 
-  // Quick Add now takes the user INTO the product detail page first,
-  // so they can browse images, description, and pick their own size.
-  // No item is added to the bag until the user selects a size on the
-  // detail page — prevents wrong-size cart entries.
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();

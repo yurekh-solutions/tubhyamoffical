@@ -11,9 +11,27 @@ const { fetchPublicProfile } = require('../services/instagramSync');
 router.get('/posts', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 12;
+    
+    // Fetch more posts to account for duplicates, then deduplicate by permalink
+    const fetchLimit = Math.min(limit * 3, 150);
     let posts = await InstagramPost.find()
       .sort({ timestamp: -1 })
-      .limit(Math.min(limit, 50));
+      .limit(fetchLimit);
+
+    // Deduplicate by shortcode (extract from permalink)
+    // Same content can appear as both /p/SHORTCODE/ and /reel/SHORTCODE/
+    const seen = new Set();
+    posts = posts.filter(post => {
+      // Extract shortcode from permalink (e.g., "DcQh1YFoIzv" from "/p/DcQh1YFoIzv/" or "/reel/DcQh1YFoIzv/")
+      const match = post.permalink?.match(/\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/);
+      const shortcode = match ? match[1] : post.postId;
+      
+      if (seen.has(shortcode)) {
+        return false;
+      }
+      seen.add(shortcode);
+      return true;
+    }).slice(0, limit);
 
     // If DB is empty, try to fetch from public profile
     if (posts.length === 0) {
