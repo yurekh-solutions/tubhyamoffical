@@ -18,9 +18,12 @@ export default {
       },
     },
     extend: {
+      screens: {
+        'xs': '480px',
+      },
       fontFamily: {
-        heading: ['Cormorant Garamond', 'Georgia', 'serif'],
-        body: ['Montserrat', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        heading: ['Playfair Display', 'Cormorant Garamond', 'Georgia', 'serif'],
+        body: ['Inter', 'Montserrat', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -148,8 +151,11 @@ export default {
       },
       boxShadow: {
         elegant: "0 10px 40px -10px hsl(var(--primary) / 0.2)",
-        glass: "0 8px 32px 0 hsl(25 15% 5% / 0.4)",
+        glass: "0 2px 12px 0 hsl(20 25% 15% / 0.04)",
         glow: "0 0 60px hsl(var(--primary) / 0.15)",
+        'soft': "0 1px 6px rgba(46, 36, 31, 0.04)",
+        'medium': "0 4px 16px rgba(46, 36, 31, 0.06)",
+        'large': "0 8px 24px rgba(46, 36, 31, 0.08)",
       },
     },
   },
