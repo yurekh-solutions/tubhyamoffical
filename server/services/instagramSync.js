@@ -5,7 +5,7 @@ const INSTAGRAM_API_BASE = 'https://graph.instagram.com';
 const INSTAGRAM_USERNAME = 'tubhyamofficial';
 
 /**
- * Scrape Instagram public profile page for posts
+ * Scrape Instagram public profile page for REELS only
  * Uses Instagram's public web API (no token needed)
  */
 const fetchPublicProfile = async (limit = 12) => {
@@ -19,53 +19,63 @@ const fetchPublicProfile = async (limit = 12) => {
   };
 
   try {
-    // Try Instagram's internal API endpoint for user feed
+    // Try Instagram's reels endpoint specifically
     const response = await axios.get(
-      `https://www.instagram.com/api/v1/feed/user/${INSTAGRAM_USERNAME}/username/`,
+      `https://www.instagram.com/api/v1/clips/user/`,
       {
-        params: { count: limit },
+        params: { 
+          target_user_id: INSTAGRAM_USERNAME,
+          count: limit 
+        },
         headers,
         timeout: 15000
       }
     );
 
     const items = response.data?.items || [];
-    return items.map(item => ({
-      id: item.id || item.pk,
-      caption: item.caption?.text || '',
-      mediaUrl: item.image_versions2?.candidates?.[0]?.url || item.carousel_media?.[0]?.image_versions2?.candidates?.[0]?.url || '',
-      permalink: `https://www.instagram.com/p/${item.code}/`,
-      mediaType: item.media_type === 2 || item.is_video ? 'VIDEO' : 'IMAGE',
-      thumbnailUrl: item.image_versions2?.candidates?.[0]?.url || '',
-      likeCount: item.like_count || 0,
-      timestamp: new Date(item.taken_at * 1000),
-    }));
+    return items
+      .filter(item => item.media_type === 2 || item.is_video) // Only videos/reels
+      .slice(0, limit)
+      .map(item => ({
+        id: item.id || item.pk,
+        caption: item.caption?.text || '',
+        mediaUrl: item.image_versions2?.candidates?.[0]?.url || '',
+        permalink: `https://www.instagram.com/reel/${item.code}/`,
+        mediaType: 'REEL',
+        thumbnailUrl: item.image_versions2?.candidates?.[0]?.url || '',
+        likeCount: item.like_count || 0,
+        timestamp: new Date(item.taken_at * 1000),
+      }));
   } catch (err) {
-    console.error('Public profile scrape failed, trying fallback...');
+    console.error('Reels scrape failed, trying user feed...', err.message);
     
-    // Fallback: try the ?__a=1 JSON endpoint
+    // Fallback: try user feed and filter for reels
     try {
-      const fallbackRes = await axios.get(
-        `https://www.instagram.com/${INSTAGRAM_USERNAME}/?__a=1&__d=1`,
-        { headers: { ...headers, 'X-Requested-With': undefined }, timeout: 15000 }
+      const response = await axios.get(
+        `https://www.instagram.com/api/v1/feed/user/${INSTAGRAM_USERNAME}/username/`,
+        {
+          params: { count: limit * 2 },
+          headers,
+          timeout: 15000
+        }
       );
-      const user = fallbackRes.data?.graphql?.user;
-      const edges = user?.edge_owner_to_timeline_media?.edges || [];
-      return edges.slice(0, limit).map(edge => {
-        const node = edge.node;
-        return {
-          id: node.id,
-          caption: node.edge_media_to_caption?.edges?.[0]?.node?.text || '',
-          mediaUrl: node.display_url || node.thumbnail_src || '',
-          permalink: `https://www.instagram.com/p/${node.shortcode}/`,
-          mediaType: node.is_video ? 'VIDEO' : 'IMAGE',
-          thumbnailUrl: node.thumbnail_src || node.display_url || '',
-          likeCount: node.edge_liked_by?.count || 0,
-          timestamp: new Date(node.taken_at_timestamp * 1000),
-        };
-      });
-    } catch (fallbackErr) {
-      console.error('All Instagram fetch methods failed:', fallbackErr.message);
+
+      const items = response.data?.items || [];
+      return items
+        .filter(item => item.media_type === 2 || item.is_video) // Only videos/reels
+        .slice(0, limit)
+        .map(item => ({
+          id: item.id || item.pk,
+          caption: item.caption?.text || '',
+          mediaUrl: item.image_versions2?.candidates?.[0]?.url || '',
+          permalink: `https://www.instagram.com/reel/${item.code}/`,
+          mediaType: 'REEL',
+          thumbnailUrl: item.image_versions2?.candidates?.[0]?.url || '',
+          likeCount: item.like_count || 0,
+          timestamp: new Date(item.taken_at * 1000),
+        }));
+    } catch (feedErr) {
+      console.error('User feed also failed:', feedErr.message);
       return [];
     }
   }

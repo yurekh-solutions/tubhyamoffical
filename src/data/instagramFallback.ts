@@ -97,7 +97,6 @@ const fallbackImages = [
   '/images/products/blackstraight.jpg',
   '/images/products/frontdenim.jpg',
   '/images/products/brownbelt.jpg',
-  '/images/products/cargo.jpg',
   '/images/products/blackmom.jpg',
   '/images/products/beige-formal.jpg',
   '/images/products/olivecomfort.jpg',

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const InstagramPost = require('../models/InstagramPost');
-const { fetchPublicProfile } = require('../services/instagramSync');
+const { fetchPublicProfile, syncFromPublicProfile } = require('../services/instagramSync');
 
 /**
  * GET /api/instagram/posts
@@ -116,6 +116,34 @@ router.get('/posts/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch Instagram post'
+    });
+  }
+});
+
+/**
+ * POST /api/instagram/sync
+ * Force re-sync Instagram posts (clears old data and fetches fresh)
+ */
+router.post('/sync', async (req, res) => {
+  try {
+    // Clear old posts
+    await InstagramPost.deleteMany({});
+    console.log('Cleared old Instagram posts');
+    
+    // Fetch fresh posts from public profile
+    const result = await syncFromPublicProfile();
+    
+    res.json({
+      success: true,
+      message: 'Instagram posts re-synced',
+      ...result
+    });
+  } catch (error) {
+    console.error('Sync error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to sync Instagram posts',
+      error: error.message
     });
   }
 });

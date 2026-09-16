@@ -34,7 +34,7 @@ import AdminOrders from "./pages/AdminOrders";
 import BlogDetail from "./pages/BlogDetail";
 import TrackOrder from "./pages/TrackOrder";
 import Orders from "./pages/Orders";
-import TryOn from "./pages/TryOn";
+import StyleStudio from "./pages/StyleStudio";
 import Store from "./pages/Store";
 import NotFound from "./pages/NotFound";
 import AIChatWidget from "./components/AIChatWidget";
@@ -88,7 +88,7 @@ const App = () => (
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/track-order" element={<TrackOrder />} />
               <Route path="/orders" element={<Orders />} />
-              <Route path="/try-on" element={<TryOn />} />
+              <Route path="/style-studio" element={<StyleStudio />} />
               <Route path="/store" element={<Store />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

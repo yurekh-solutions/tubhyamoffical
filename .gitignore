@@ -49,6 +49,18 @@ ai-tryon-service/test_result*.png
 ai-tryon-service/base_model*.jpg
 ai-tryon-service/batch_progress.json
 ai-tryon-service/*.bat
+ai-tryon-service/*.ipynb
+ai-tryon-service/*.txt
+ai-tryon-service/*.md
+ai-tryon-service/*.py
 
 # Hugging Face cache
 .cache/huggingface/
+
+# Temp docs and assets
+*.zip
+FIX_*.md
+GARMENT_*.md
+HOW_TO_*.md
+IMPLEMENTATION_*.md
+SYSTEM_*.md

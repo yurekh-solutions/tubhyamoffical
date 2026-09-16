@@ -62,7 +62,7 @@ const Navbar = () => {
                 <span>WHATSAPP +91 70393 82706</span>
               </a>
               <span className="text-white/30">•</span>
-              <span>FREE SHIPPING ON ALL ORDERS</span>
+              <span>PAN INDIA DELIVERY</span>
               <span className="text-white/30">•</span>
               <a href="https://www.instagram.com/tubhyamofficial/" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-1 hover:text-pink-300 transition-colors">

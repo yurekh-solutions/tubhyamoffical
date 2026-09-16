@@ -683,9 +683,9 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Try On button */}
+            {/* Style Studio button */}
             <button
-              onClick={() => navigate('/try-on')}
+              onClick={() => navigate(`/style-studio?product=${product.id}`)}
               className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold transition-all text-sm ${
                 isLight
                   ? 'border-2 border-[#8B5E3C] text-[#8B5E3C] hover:bg-[#8B5E3C]/5 active:scale-[0.98]'
@@ -693,25 +693,11 @@ const ProductDetail = () => {
               }`}
             >
               <Sparkles size={18} />
-              AI Virtual Try-On
+              Style Studio
             </button>
 
             {/* Action buttons */}
             <div className="space-y-3 pt-2">
-              {/* Try it on button - only show if product has tryOnImages */}
-              {product.tryOnImages && product.tryOnImages.length > 0 && (
-                <button
-                  onClick={() => navigate(`/try-on?product=${product.id}`)}
-                  className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold transition-all text-sm ${
-                    isLight
-                      ? 'bg-gradient-to-r from-[#FFD3AC] to-[#ffcd94] text-[#1A1410] hover:shadow-lg active:scale-[0.98]'
-                      : 'glass-card bg-gradient-to-r from-[#FFD3AC]/20 to-[#ffcd94]/20 text-[#FFD3AC] hover:from-[#FFD3AC]/30 hover:to-[#ffcd94]/30 active:scale-[0.98] shadow-lg shadow-[#FFD3AC]/10'
-                  }`}
-                >
-                  <Sparkles size={18} />
-                  Try it on
-                </button>
-              )}
               <div className="flex gap-3">
                 <button
                   onClick={() => toggleWishlist(product)}
