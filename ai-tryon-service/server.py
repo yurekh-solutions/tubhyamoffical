@@ -72,25 +72,52 @@ BODY_PROMPTS = {
 }
 
 SKIN_PROMPTS = {
-    "fair": "fair skin tone",
+    # keys match the base-plate skin tokens so the batch matrix and the
+    # frontend modelId convention ({skin}-{size}) stay aligned
+    "fair": "fair light skin tone",
+    "light": "fair light skin tone",
     "medium": "medium wheatish skin tone",
+    "wheatish": "wheatish tan skin tone",
+    "tan": "wheatish tan skin tone",
+    "dusky": "dusky deep brown skin tone",
+    "honey": "honey dusky skin tone",
+    "deep": "deep dark brown skin tone",
     "dark": "dusky deep skin tone",
+}
+
+# UI size ladder -> body descriptors so generated models actually differ
+# per selected size (XXS..5XL), matching the mannequin plate matrix.
+SIZE_PROMPTS = {
+    "xxs": "extra extra small petite body, very slim narrow frame",
+    "xs": "extra small petite slim body",
+    "s": "small slim body",
+    "m": "medium average body, natural healthy figure",
+    "l": "large body, fuller natural figure",
+    "xl": "extra large body, curvy fuller figure",
+    "xxl": "double extra large plus size body, heavyset curvy figure",
+    "xxxl": "triple extra large plus size body, heavyset full figure",
+    "4xl": "very plus size body, heavyset broad figure",
+    "5xl": "maximum plus size body, very heavyset full figure",
 }
 
 NEGATIVE_PROMPT = (
     "deformed, distorted, disfigured, bad anatomy, extra limbs, missing limbs, "
     "mutation, mutated hands, extra fingers, poorly drawn face, blurry, "
-    "low quality, worst quality, watermark, signature, text, cropped, "
-    "out of frame, jpeg artifacts"
+    "low quality, worst quality, watermark, signature, text, "
+    "out of frame, jpeg artifacts, "
+    "visible face, eyes, nose, lips, head, portrait"
 )
 
 
-def _build_model_prompt(body_type: str, skin_tone: str) -> str:
-    body = BODY_PROMPTS.get(body_type, BODY_PROMPTS["average"])
+def _build_model_prompt(body_type: str, skin_tone: str, size: str = "") -> str:
+    # Size drives the body when provided (UI size ladder); body_type is the legacy fallback
+    body = SIZE_PROMPTS.get(size, "") or BODY_PROMPTS.get(body_type, BODY_PROMPTS["average"])
     skin = SKIN_PROMPTS.get(skin_tone, SKIN_PROMPTS["medium"])
     return (
-        f"full body fashion photography of a beautiful indian woman, {body}, {skin}, "
-        f"wearing the exact outfit shown in the reference image, standing pose, "
+        f"full length fashion photography of a beautiful indian woman, entire body "
+        f"from neck to feet in frame, standing full length, feet on the floor, "
+        f"no face visible, head above the frame, {body}, {skin}, "
+        f"wearing the exact outfit shown in the reference image, "
         f"front facing, professional studio lighting, fashion magazine quality, "
         f"photorealistic, highly detailed fabric, elegant, 8k"
     )
@@ -268,6 +295,7 @@ async def ai_model_try_on(
     garment_image: UploadFile = File(...),
     body_type: str = Form("average"),
     skin_tone: str = Form("medium"),
+    size: str = Form(""),
     seed: int = Form(-1),
 ):
     """
@@ -285,7 +313,7 @@ async def ai_model_try_on(
 
         pipe.set_ip_adapter_scale(0.9)
         result = pipe(
-            prompt=_build_model_prompt(body_type, skin_tone),
+            prompt=_build_model_prompt(body_type, skin_tone, size),
             negative_prompt=NEGATIVE_PROMPT,
             ip_adapter_image=garment,
             num_inference_steps=28,
@@ -298,6 +326,7 @@ async def ai_model_try_on(
         return _png_response(result, {
             "X-Body-Type": body_type,
             "X-Skin-Tone": skin_tone,
+            "X-Size": size,
             "X-Device": str(DEVICE),
         })
     except HTTPException:

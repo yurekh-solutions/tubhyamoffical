@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import { getTryOnAssets } from '@/data/tryonResolver';
+import { getTryOnAssets, getTryOnImageCandidates } from '@/data/tryonResolver';
 import type { Product } from '@/data/products';
 import type { BodyShape, SkinTone } from '@/data/styleStudioModels';
 import Mannequin from '@/components/StyleStudio/Mannequin';
@@ -18,7 +18,10 @@ interface TryOnViewerProps {
  * Right-hand preview for the Style Studio.
  *
  * Simple layout:
- *   TOP (large)  — actual product photo (real garment from catalog)
+ *   TOP (large)  — try-on photo resolved SIZE + TONE wise:
+ *                  1. VTON composite {productId}__{skin}-{size}.jpg
+ *                  2. per-body variant photo (model wearing product)
+ *                  3. flat catalog photo
  *   BOTTOM (small) — mannequin plate as body reference (size + skin)
  *
  * No AI generation, no sign-in, no overlay. Works instantly.
@@ -38,15 +41,45 @@ const TryOnViewer = ({
     [product, bodyShape, skinTone, size]
   );
 
+  // Size+tone-aware try-on photo cascade. The composite candidate changes with
+  // BOTH size and skin tone; missing files fall back to the body variant, then
+  // the flat catalog photo.
+  const candidates = useMemo(
+    () => getTryOnImageCandidates(product, bodyShape, skinTone, size),
+    [product, bodyShape, skinTone, size]
+  );
+  const candidateKey = candidates.join('|');
+  const [candidateIdx, setCandidateIdx] = useState(0);
+
   const [plateLoaded, setPlateLoaded] = useState(false);
   const [plateFailed, setPlateFailed] = useState(false);
   const [productLoaded, setProductLoaded] = useState(false);
 
+  const productImgRef = useRef<HTMLImageElement>(null);
+  const plateImgRef = useRef<HTMLImageElement>(null);
+
+  // New selection: restart the cascade from the composite candidate.
   useEffect(() => {
+    setCandidateIdx(0);
     setPlateLoaded(false);
     setPlateFailed(false);
     setProductLoaded(false);
-  }, [assets.plateUrl, product.image]);
+
+    // A cached image can finish loading BEFORE this effect runs, so onLoad
+    // never fires again and the image would stay stuck at opacity 0.
+    // Un-hide anything that is already complete.
+    if (productImgRef.current?.complete) setProductLoaded(true);
+    if (plateImgRef.current?.complete) setPlateLoaded(true);
+  }, [candidateKey, assets.plateUrl]);
+
+  // Cascade step: current candidate 404'd — advance to the next candidate.
+  useEffect(() => {
+    setProductLoaded(false);
+    if (productImgRef.current?.complete) setProductLoaded(true);
+  }, [candidateIdx]);
+
+  // Clamp guards the render between a selection change and the reset effect.
+  const tryOnImage = candidates[Math.min(candidateIdx, candidates.length - 1)];
 
   const surface = isLight ? '#FFFFFF' : '#1C1714';
   const shimmer = isLight ? '#F0E7DB' : '#241E18';
@@ -86,11 +119,12 @@ const TryOnViewer = ({
                 aria-hidden
               />
             )}
-            {product.image ? (
+            {tryOnImage ? (
               <img
-                key={product.image}
-                src={product.image}
-                alt={product.name}
+                ref={productImgRef}
+                key={`${candidateKey}-${candidateIdx}`}
+                src={tryOnImage}
+                alt={`${product.name} tried on by model (${bodyShape}, size ${size}, ${skinTone} skin)`}
                 className="block transition-opacity duration-300"
                 style={{
                   opacity: productLoaded ? 1 : 0,
@@ -101,7 +135,13 @@ const TryOnViewer = ({
                 }}
                 loading="eager"
                 onLoad={() => setProductLoaded(true)}
-                onError={() => setProductLoaded(true)}
+                onError={() => {
+                  if (candidateIdx < candidates.length - 1) {
+                    setCandidateIdx(candidateIdx + 1);
+                  } else {
+                    setProductLoaded(true); // exhausted — show final candidate state
+                  }
+                }}
               />
             ) : (
               <p className="text-xs py-8" style={{ color: isLight ? '#9B8E82' : 'rgba(255,211,172,0.4)' }}>
@@ -124,6 +164,7 @@ const TryOnViewer = ({
                 />
               )}
               <img
+                ref={plateImgRef}
                 key={assets.plateUrl}
                 src={assets.plateUrl}
                 alt={`${bodyShape} ${skinTone} mannequin, size ${size}`}
