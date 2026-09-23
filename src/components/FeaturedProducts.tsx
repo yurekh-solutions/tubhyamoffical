@@ -1,34 +1,16 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import ProductCard from './ProductCard';
-import PageLoader from './PageLoader';
-import { getBestSellers, getNewArrivals, Product } from '@/data/products';
+import { getBestSellersSync, getNewArrivalsSync, Product } from '@/data/products';
 
 interface FeaturedProductsProps {
   type?: 'bestsellers' | 'new';
 }
 
 const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      try {
-        const data = type === 'bestsellers'
-          ? await getBestSellers()
-          : await getNewArrivals();
-        if (!cancelled) setAllProducts(data);
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    };
-    fetchProducts();
-    return () => { cancelled = true; };
-  }, [type]);
+  // Static-first: initialize with sync data instantly, no loading flash
+  const allProducts: Product[] =
+    type === 'bestsellers' ? getBestSellersSync() : getNewArrivalsSync();
   
   // Filter and prioritize: Formal, Jeans, Track. Exclude Joggers.
   const filteredProducts = allProducts.filter(p => !p.name.toLowerCase().includes('jogger'));
@@ -67,22 +49,18 @@ const FeaturedProducts = ({ type = 'bestsellers' }: FeaturedProductsProps) => {
           </Link>
         </div>
 
-        {/* Products Grid */}
-        {isLoading ? (
-          <PageLoader message={`Loading ${type === 'bestsellers' ? 'best sellers' : 'new arrivals'}`} minHeight="300px" />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {displayProducts.map((product, index) => (
-              <div
-                key={product.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Products Grid — rendered instantly, no loader */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {displayProducts.map((product, index) => (
+            <div
+              key={product.id}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <ProductCard product={product} priority={index < 4} />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
