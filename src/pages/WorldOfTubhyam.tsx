@@ -8,9 +8,8 @@ import SEO from '@/components/SEO';
 
 /* ── Images (faceless — clothing/body shots) ── */
 const heroImg = '/images/products/brownbelt1.jpg';
-const storyImg1 = '/images/products/belt-formal-beige1.jpg';
-const storyImg2 = '/images/products/olive-formal-belt.jpg';
-const storyImg3 = '/images/products/blackstraight.jpg';
+const storyImg1 = '/images/products/cord-set-002-wine.jpg';
+const storyImg2 = '/images/products/cord-set-003-olive.jpg';
 
 const categoryImages = [
   '/images/products/blackstraight.jpg',
@@ -244,30 +243,20 @@ const WorldOfTubhyam = () => {
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-12 gap-8 md:gap-6 items-center">
 
-              {/* LEFT — 3 overlapping images */}
+              {/* LEFT — 2 clean images side by side */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.7 }}
-                className="md:col-span-5 relative"
+                className="md:col-span-5"
               >
-                <div className="relative h-[320px] sm:h-[380px]">
-                  <div className="absolute left-0 top-0 w-[55%] h-[75%] overflow-hidden rounded-lg shadow-lg z-10">
-                    <img src={storyImg1} alt="" className="w-full h-full object-cover object-[center_30%]" />
+                <div className="flex gap-3 h-[340px] sm:h-[400px]">
+                  <div className="w-1/2 h-full overflow-hidden rounded-xl shadow-md">
+                    <img src={storyImg1} alt="" className="w-full h-full object-cover object-[center_20%]" />
                   </div>
-                  <div className="absolute left-[30%] top-[10%] w-[55%] h-[75%] overflow-hidden rounded-lg shadow-lg z-20">
-                    <img src={storyImg2} alt="" className="w-full h-full object-cover object-[center_30%]" />
-                  </div>
-                  <div className="absolute left-[15%] bottom-0 w-[50%] h-[55%] overflow-hidden rounded-lg shadow-lg z-30">
-                    <img src={storyImg3} alt="" className="w-full h-full object-cover object-[center_30%]" />
-                  </div>
-                  {/* Decorative leaf */}
-                  <div className="absolute -right-4 -bottom-4 z-0 opacity-20">
-                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                      <path d="M10 70C10 70 20 30 50 10C50 10 40 50 10 70Z" fill="#8B5E3C" opacity="0.3"/>
-                      <path d="M10 70C10 70 30 50 70 40C70 40 50 60 10 70Z" fill="#8B5E3C" opacity="0.2"/>
-                    </svg>
+                  <div className="w-1/2 h-full overflow-hidden rounded-xl shadow-md mt-8">
+                    <img src={storyImg2} alt="" className="w-full h-full object-cover object-[center_20%]" />
                   </div>
                 </div>
               </motion.div>
