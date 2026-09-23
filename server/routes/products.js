@@ -151,27 +151,18 @@ router.get('/', async (req, res) => {
   }
 });
 
-/**
- * Fisher-Yates shuffle for random product variety on each page load.
- */
-function shuffleArray(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 // GET /api/products/featured/bestsellers
 router.get('/featured/bestsellers', async (req, res) => {
   try {
     const { data } = await axios.get(`${INVENTORY_API}/api/products`, { timeout: 10000 });
     const rawProducts = Array.isArray(data) ? data : [];
     const deduped = deduplicateRawProducts(rawProducts);
-    const products = shuffleArray(
-      deduped.filter(p => (p.currentStock || 0) > 30)
-    )
+    const products = deduped
+      .filter(p => (p.currentStock || 0) > 30)
+      .sort((a, b) => {
+        if (a.isBestSeller !== b.isBestSeller) return b.isBestSeller ? 1 : -1;
+        return a.name.localeCompare(b.name);
+      })
       .slice(0, 8)
       .map(mapProduct);
     res.json({ success: true, products });
@@ -186,7 +177,11 @@ router.get('/featured/new-arrivals', async (req, res) => {
     const { data } = await axios.get(`${INVENTORY_API}/api/products`, { timeout: 10000 });
     const rawProducts = Array.isArray(data) ? data : [];
     const deduped = deduplicateRawProducts(rawProducts);
-    const products = shuffleArray(deduped)
+    const products = deduped
+      .sort((a, b) => {
+        if (a.isNew !== b.isNew) return b.isNew ? 1 : -1;
+        return a.name.localeCompare(b.name);
+      })
       .slice(0, 8)
       .map(mapProduct);
     res.json({ success: true, products });

@@ -24,7 +24,7 @@ const Lookbook = () => {
         all.push({ id: `${p.id}-${i}`, image: img, url: `/product/${p.id}`, name: p.name || '' });
       });
     });
-    setImages(all.sort(() => 0.5 - Math.random()).slice(0, 9));
+    setImages(all.sort((a, b) => a.name.localeCompare(b.name)).slice(0, 9));
   }, []);
 
   return (

@@ -12,8 +12,11 @@ const ShopTheLook = () => {
   const allLookProducts = products
     .filter(p => p.category === 'formal' && p.images.length > 0 && !excludedIds.includes(p.id));
 
-  // Shuffle products on every refresh so different products appear each time
-  const lookProducts = [...allLookProducts].sort(() => Math.random() - 0.5);
+  // Stable sort: bestsellers first, then by name for consistent ordering
+  const lookProducts = [...allLookProducts].sort((a, b) => {
+    if (a.isBestSeller !== b.isBestSeller) return b.isBestSeller ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  });
 
   useEffect(() => {
     if (!isAutoPlaying) return;
