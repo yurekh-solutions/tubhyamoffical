@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Sparkles, Check, AlertCircle } from 'lucide-react';
+import { Mail, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -41,11 +41,6 @@ const NewsletterSection = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Luxury Icon */}
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 mb-8 animate-pulse">
-            <Sparkles className="w-10 h-10 text-primary" />
-          </div>
-
           <h2 className="font-heading text-4xl md:text-5xl font-semibold mb-4">
             Join the <span className="text-gradient-gold">Exclusive Circle</span>
           </h2>

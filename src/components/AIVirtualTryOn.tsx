@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { products as allProducts } from '@/data/products';
 
@@ -60,7 +60,7 @@ const AIVirtualTryOn = ({
   const [selectedColor, setSelectedColor] = useState<string>('original');
   const [selectedBodyType, setSelectedBodyType] = useState<'slim' | 'average' | 'plus-size'>('slim');
   const [currentImage, setCurrentImage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'all' | 'formal' | 'jeans' | 'track'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'formal' | 'jeans' | 'track' | 'dresses' | 'coords'>('all');
 
   // Get full product data with tryOnBodyVariants
   const fullProduct = allProducts.find(p => p.id === selectedProduct.id);
@@ -194,7 +194,7 @@ const AIVirtualTryOn = ({
           <div className="space-y-4">
             {/* Category Tabs */}
             <div className="flex gap-2 overflow-x-auto pb-2">
-              {(['all', 'formal', 'jeans', 'track'] as const).map(tab => (
+              {(['all', 'formal', 'jeans', 'track', 'dresses', 'coords'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}

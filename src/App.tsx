@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
@@ -34,7 +34,8 @@ import AdminOrders from "./pages/AdminOrders";
 import BlogDetail from "./pages/BlogDetail";
 import TrackOrder from "./pages/TrackOrder";
 import Orders from "./pages/Orders";
-import StyleStudio from "./pages/StyleStudio";
+// Style Studio hidden from the storefront — uncomment import + route to relaunch
+// import StyleStudio from "./pages/StyleStudio";
 import Store from "./pages/Store";
 import NotFound from "./pages/NotFound";
 import AIChatWidget from "./components/AIChatWidget";
@@ -42,6 +43,14 @@ import CartSidebar from "./components/CartSidebar";
 import AddToBagSheet from "./components/AddToBagSheet";
 
 const queryClient = new QueryClient();
+
+// Legacy /products redirect — keeps the query string so old
+// bookmarks like /products?category=jeans still land on the
+// filtered shop page.
+const LegacyProductsRedirect = () => {
+  const { search } = useLocation();
+  return <Navigate to={`/shop${search}`} replace />;
+};
 
 const App = () => (
   <ThemeProvider>
@@ -64,7 +73,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/world-of-tubhyam" element={<WorldOfTubhyam />} />
               <Route path="/shop" element={<Products />} />
-              <Route path="/products" element={<Navigate to="/shop" replace />} />
+              <Route path="/products" element={<LegacyProductsRedirect />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
@@ -88,7 +97,7 @@ const App = () => (
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/track-order" element={<TrackOrder />} />
               <Route path="/orders" element={<Orders />} />
-              <Route path="/style-studio" element={<StyleStudio />} />
+              {/* Style Studio route hidden — re-enable together with its import above */}
               <Route path="/store" element={<Store />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

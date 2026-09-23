@@ -26,10 +26,13 @@ const BODY_SHAPES: { value: 'slim' | 'average' | 'plus-size'; label: string }[] 
   { value: 'plus-size', label: 'Plus Size' },
 ];
 
-const GARMENT_TYPES: { value: 'formal' | 'jeans' | 'track'; label: string }[] = [
+const GARMENT_TYPES: { value: 'formal' | 'jeans' | 'track' | 'dresses' | 'coords' | 'tops'; label: string }[] = [
   { value: 'formal', label: 'Formal' },
   { value: 'jeans', label: 'Jeans' },
   { value: 'track', label: 'Track' },
+  { value: 'dresses', label: 'Dresses' },
+  { value: 'coords', label: 'Co-ords' },
+  { value: 'tops', label: 'Tops' },
 ];
 
 const CATEGORIES: { value: string; label: string }[] = [
@@ -99,7 +102,7 @@ const StyleStudio = () => {
   const [size, setSize] = useState('M');
   const [skinTone, setSkinTone] = useState<SkinTone>('Medium');
   const [bodyShape, setBodyShape] = useState<'slim' | 'average' | 'plus-size'>('average');
-  const [garmentType, setGarmentType] = useState<'formal' | 'jeans' | 'track'>(initialProduct.category);
+  const [garmentType, setGarmentType] = useState<'formal' | 'jeans' | 'track' | 'dresses' | 'coords' | 'tops'>(initialProduct.category);
 
   // Product browser state
   const [categoryFilter, setCategoryFilter] = useState<string>(

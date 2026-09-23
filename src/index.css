@@ -176,12 +176,12 @@
     line-height: 1.2;
   }
 
-  h1 { font-size: 2.5rem; font-weight: 600; }
-  h2 { font-size: 2rem; font-weight: 600; }
-  h3 { font-size: 1.5rem; font-weight: 600; }
-  h4 { font-size: 1.25rem; font-weight: 600; }
-  h5 { font-size: 1.125rem; font-weight: 600; }
-  h6 { font-size: 1rem; font-weight: 600; }
+  h1 { font-size: 2.5rem; font-weight: 500; }
+  h2 { font-size: 2rem; font-weight: 500; }
+  h3 { font-size: 1.5rem; font-weight: 500; }
+  h4 { font-size: 1.25rem; font-weight: 500; }
+  h5 { font-size: 1.125rem; font-weight: 500; }
+  h6 { font-size: 1rem; font-weight: 500; }
 }
 
 @layer components {
@@ -671,4 +671,15 @@ html {
 
 .dark .testimonial-card::before {
   color: hsl(32 100% 79%);
+}
+
+/* ── Elegant serif headings ──────────────────────────────────────────────
+   Playfair Display turns bulky above weight 500 at display sizes, so every
+   .font-heading weight utility (semibold / bold / extrabold / black) is
+   capped to medium (500) for a refined, non-bulky editorial look. */
+.font-heading.font-semibold,
+.font-heading.font-bold,
+.font-heading.font-extrabold,
+.font-heading.font-black {
+  font-weight: 500;
 }

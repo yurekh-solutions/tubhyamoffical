@@ -11,7 +11,7 @@ interface TryOnViewerProps {
   skinTone: SkinTone;
   size: string;
   garmentColor: string;
-  garmentType: 'formal' | 'jeans' | 'track';
+  garmentType: 'formal' | 'jeans' | 'track' | 'dresses' | 'coords' | 'tops';
 }
 
 /**

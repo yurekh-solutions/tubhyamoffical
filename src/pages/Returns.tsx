@@ -39,7 +39,7 @@ const Returns = () => {
             </div>
             <div className="glass-card p-6 text-center">
               <Package size={32} className="mx-auto text-primary mb-4" />
-              <h3 className="font-medium mb-1">Free Exchanges</h3>
+              <h3 className="font-medium mb-1">Complimentary Exchanges</h3>
               <p className="text-sm text-muted-foreground">Size not right? We'll swap it</p>
             </div>
             <div className="glass-card p-6 text-center">
@@ -124,7 +124,7 @@ const Returns = () => {
             <div className="space-y-4">
               <h2 className="font-heading text-2xl font-semibold">Exchanges</h2>
               <p className="text-muted-foreground leading-relaxed">
-                We offer free size exchanges! If you need a different size, simply contact us on 
+                We offer complimentary size exchanges! If you need a different size, simply contact us on 
                 WhatsApp with your order details. Exchange is subject to product availability. 
                 If the desired size is unavailable, a full refund will be processed.
               </p>

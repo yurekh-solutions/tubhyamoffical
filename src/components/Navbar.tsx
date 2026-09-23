@@ -332,6 +332,8 @@ const Navbar = () => {
                     { name: 'Formal', emoji: '👔', path: '/shop?category=formal' },
                     { name: 'Jeans', emoji: '👖', path: '/shop?category=jeans' },
                     { name: 'Track Pants', emoji: '🏃', path: '/shop?category=track' },
+                    { name: 'Dresses', emoji: '✨', path: '/shop?category=dresses' },
+                    { name: 'Co-ord Sets', emoji: '👚', path: '/shop?category=coords' },
                     { name: 'All Products', emoji: '🛍️', path: '/shop' },
                   ].map((cat) => (
                     <Link

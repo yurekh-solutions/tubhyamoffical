@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingBag, Star } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '@/data/products';
 import { useTheme } from '@/context/ThemeContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -25,12 +25,6 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
     navigate(`/product/${product.id}`);
   };
 
-  // Deterministic per-product review count (2, 3, or 4) — same seed as
-  // ProductDetail.tsx so the card and detail page agree on the count.
-  const reviewSeed = product.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const reviewCount = 2 + (reviewSeed % 3);
-  const rating = 4 + ((reviewSeed % 10) / 10); // 4.0 – 4.9
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -41,150 +35,103 @@ const ProductCard = ({ product, priority = false }: ProductCardProps) => {
 
   return (
     <Link to={`/product/${product.id}`} className="group block h-full" onMouseEnter={() => hasMultipleImages && setShowSecondImage(true)} onMouseLeave={() => hasMultipleImages && setShowSecondImage(false)}>
-      <div className={`h-full rounded-2xl md:rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 ${
-        isLight
-          ? 'bg-white border border-gray-200 hover:border-primary/30'
-          : 'glass-card border border-white/10 hover:border-primary/30'
-      }`}>
+      <div className="h-full">
         {/* Image Container */}
-        <div className="relative aspect-[3/4] overflow-hidden">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-xl md:rounded-2xl">
           <div className="product-image-zoom absolute inset-0 w-full h-full">
             <OptimizedImage
               src={currentImage}
               alt={product.name}
-              containerClassName="absolute inset-0 w-full h-full bg-background"
-              className="transition-transform duration-700 group-hover:scale-105"
+              containerClassName="absolute inset-0 w-full h-full"
+              className="transition-transform duration-700 ease-out group-hover:scale-105"
               aspectRatio="3/4"
               priority={priority}
             />
           </div>
           
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {/* Subtle hover overlay */}
+          <div className={`absolute inset-0 transition-opacity duration-500 ${
+            isLight ? 'bg-black/0 group-hover:bg-black/10' : 'bg-black/0 group-hover:bg-black/20'
+          } opacity-0 group-hover:opacity-100`} />
           
-          {/* Badges — compact single row */}
-          <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 max-w-[75%]">
+          {/* Badges — compact, refined */}
+          <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1">
             {product.originalPrice && (
-              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-full font-bold leading-tight ${
+              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-md font-medium leading-tight ${
                 isLight
-                  ? 'text-white bg-[#E8652B]'
-                  : 'bg-[#8B5E3C] text-white'
+                  ? 'text-white bg-[#2E241F]/80'
+                  : 'bg-white/90 text-[#2E241F]'
               }`}>
                 {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
               </span>
             )}
             {product.isBestSeller && (
-              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-full font-semibold leading-tight ${
-                isLight ? 'bg-[#8b5e3c] text-white' : 'bg-[#5C3D2E] text-[#FFD3AC]'
+              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-md font-medium leading-tight ${
+                isLight ? 'bg-[#8b5e3c]/90 text-white' : 'bg-white/90 text-[#5C3D2E]'
               }`}>
                 Bestseller
               </span>
             )}
             {product.isNew && (
-              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-full font-semibold leading-tight ${
-                isLight ? 'bg-[#2E1A0E] text-white' : 'bg-[#3B2A1A] text-white/90'
+              <span className={`text-[9px] md:text-[10px] px-2 py-0.5 rounded-md font-medium leading-tight ${
+                isLight ? 'bg-[#2E1A0E]/80 text-white' : 'bg-[#2E241F] text-white/90'
               }`}>
                 New
               </span>
             )}
           </div>
 
-          {/* Quick Actions */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+          {/* Wishlist */}
+          <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
             <button 
-              className={`p-2.5 backdrop-blur-xl border rounded-full transition-all duration-300 hover:scale-110 shadow-lg ${
+              className={`p-2 rounded-full transition-all duration-300 ${
                 isInWishlist(product.id)
-                  ? 'bg-red-500 text-white border-red-500 hover:bg-red-600'
+                  ? 'bg-red-500 text-white hover:bg-red-600 shadow-md'
                   : isLight
-                    ? 'bg-white text-[#2A1A0E] border-gray-200 hover:bg-primary hover:text-white hover:border-primary'
-                    : 'glass-card text-white border-white/20 hover:bg-primary hover:text-white hover:border-primary'
+                    ? 'bg-white/90 text-[#2A1A0E] hover:bg-white shadow-md'
+                    : 'bg-white/90 text-[#2A1A0E] hover:bg-white shadow-md'
               }`}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product); }}
             >
-              <Heart size={18} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
+              <Heart size={15} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
             </button>
           </div>
 
-          {/* Quick Add Button — takes the user to the product detail
-              page where they pick their size before adding to bag. */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
+          {/* Quick Add — slides up on hover */}
+          <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-3 group-hover:translate-y-0">
             <button
               onClick={handleQuickAdd}
-              className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-semibold text-sm border transition-all duration-300 hover:scale-105 shadow-xl ${
+              className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-medium text-xs transition-all duration-300 ${
                 isLight
-                  ? 'bg-white text-foreground border-gray-200 hover:bg-gray-50'
-                  : 'glass-card backdrop-blur-xl bg-white/90 text-foreground border-white/30 hover:bg-white'
+                  ? 'bg-white/95 text-[#2E241F] hover:bg-white shadow-lg'
+                  : 'bg-white/95 text-[#2E241F] hover:bg-white shadow-lg'
               }`}
             >
-              <ShoppingBag size={18} />
+              <ShoppingBag size={14} />
               Quick Add
             </button>
           </div>
         </div>
 
-        {/* Product Info */}
-        <div className={`space-y-2 md:space-y-2.5 ${
-          isLight ? 'p-2.5 sm:p-4' : 'p-3 md:p-5 bg-gradient-to-b from-background/50 to-background backdrop-blur-sm'
-        }`}>
-          <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest font-semibold">
-            {product.category}
-          </p>
-          <h3 className="font-heading text-xs sm:text-sm md:text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">
+        {/* Product Info — clean, minimal */}
+        <div className="pt-3 pb-1 space-y-1">
+          <h3 className={`font-heading text-[13px] md:text-sm leading-snug line-clamp-1 transition-colors duration-300 ${
+            isLight ? 'text-[#2E241F] group-hover:text-[#8b5e3c]' : 'text-white/85 group-hover:text-white'
+          }`}>
             {product.name}
           </h3>
-          {product.description && (
-            <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-              {product.description}
-            </p>
-          )}
-          <div className="flex items-center gap-2.5">
-            <span className="font-bold text-lg text-primary">
+          <div className="flex items-center gap-2">
+            <span className={`text-sm font-medium ${
+              isLight ? 'text-[#5A4E42]' : 'text-white/60'
+            }`}>
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className={`text-xs line-through ${
+                isLight ? 'text-[#9B8E82]' : 'text-white/30'
+              }`}>
                 {formatPrice(product.originalPrice)}
               </span>
-            )}
-          </div>
-
-          {/* Dynamic per-product rating + review count */}
-          <div className="flex items-center gap-1.5 pt-0.5">
-            <div className="flex items-center gap-0.5">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  size={11}
-                  className={
-                    star <= Math.round(rating)
-                      ? 'fill-amber-400 text-amber-400'
-                      : isLight
-                        ? 'text-gray-300'
-                        : 'text-gray-600'
-                  }
-                />
-              ))}
-            </div>
-            <span className={`text-[10px] sm:text-xs font-medium ${isLight ? 'text-[#4A3228]' : 'text-foreground'}`}>
-              {rating.toFixed(1)}
-            </span>
-            <span className="text-[10px] sm:text-xs text-muted-foreground">
-              ({reviewCount})
-            </span>
-          </div>
-          
-          {/* Colors */}
-          <div className="flex items-center gap-2 pt-1 flex-wrap">
-            {product.colors.slice(0, 3).map((color, index) => (
-              <span 
-                key={color}
-                className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full"
-              >
-                {color}
-              </span>
-            ))}
-            {product.colors.length > 3 && (
-              <span className="text-xs text-muted-foreground">+{product.colors.length - 3}</span>
             )}
           </div>
         </div>

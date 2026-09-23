@@ -8,7 +8,7 @@ import { products } from '@/data/products';
 import { useTheme } from '@/context/ThemeContext';
 import { useWishlist } from '@/context/WishlistContext';
 import {
-  Sparkles, Heart, Star, Search, ShoppingBag, X,
+  Wand2, Heart, Star, Search, ShoppingBag, X,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -45,12 +45,15 @@ const STORE_PRODUCTS = products
     };
   });
 
-type Category = 'all' | 'formal' | 'jeans' | 'track';
+type Category = 'all' | 'formal' | 'jeans' | 'track' | 'dresses' | 'coords' | 'tops';
 const TABS: { key: Category; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'formal', label: 'Formal' },
   { key: 'jeans', label: 'Jeans' },
   { key: 'track', label: 'Track' },
+  { key: 'dresses', label: 'Dresses' },
+  { key: 'coords', label: 'Co-ords' },
+  { key: 'tops', label: 'Tops' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -85,7 +88,7 @@ const Store = () => {
     <>
       <SEO
         title="Store | Tubhyam — Shop Premium Pants Online"
-        description="Browse Tubhyam's full collection of premium women's pants — formal trousers, denim jeans, track pants & more. AI Virtual Try-On available on every product."
+        description="Browse Tubhyam's full collection of premium women's fashion — formal trousers, denim jeans, track pants, dresses & polished co-ord sets. AI Virtual Try-On available on every product."
         keywords="tubhyam store, shop pants online, formal pants store, jeans store, track pants, virtual try on, women's pants India"
         url="https://www.tubhyam.in/store"
         breadcrumbItems={[{ name: 'Store', url: 'https://www.tubhyam.in/store' }]}
@@ -100,7 +103,7 @@ const Store = () => {
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: T.gradient }}>
-                <Sparkles size={15} className="text-white" />
+                <ShoppingBag size={15} className="text-white" />
               </div>
               <span className="font-heading text-sm font-bold tracking-wider" style={{ color: T.text }}>STORE</span>
             </div>
@@ -275,7 +278,7 @@ const Store = () => {
                           color: isLight ? '#FFFFFF' : '#FFD3AC',
                         }}
                       >
-                        <Sparkles size={12} />
+                        <Wand2 size={12} />
                         Try On
                       </button>
                     </div>

@@ -2,7 +2,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Check, Mail } from 'lucide-react';
+import { ArrowRight, Gem, Check, Mail } from 'lucide-react';
 import { useState } from 'react';
 // Premium Collection Images (optimized JPGs from public/)
 const formal1 = '/images/products/brownbelt1.jpg';
@@ -13,6 +13,12 @@ const jeans1 = '/images/products/jeans-3.jpg';
 const jeans2 = '/images/products/jeans-33.jpg';
 const track1 = '/images/products/olivecomfort3.jpg';
 const track2 = '/images/products/olivecomfort.jpg';
+const dress1 = '/images/products/dr-001.jpg';
+const dress2 = '/images/products/dr-007.jpg';
+const coords1 = '/images/products/cord-set-002-wine.jpg';
+const coords2 = '/images/products/cord-set-003-black.jpg';
+const tops1 = '/images/products/tops-001-a.jpg';
+const tops2 = '/images/products/tops-005-a.jpg';
 
 const collections = [
   {
@@ -41,6 +47,33 @@ const collections = [
     images: [track1, track2],
     link: '/shop?category=track',
     badge: 'Trending'
+  },
+  {
+    id: 'dresses',
+    title: 'Dress Edit',
+    subtitle: 'Effortless Elegance',
+    description: 'Sleek bodycon maxis, satin slips and romantic tiered silhouettes — dresses crafted to make every occasion unforgettable.',
+    images: [dress1, dress2],
+    link: '/shop?category=dresses',
+    badge: 'Just Dropped'
+  },
+  {
+    id: 'coords',
+    title: 'The Co-ord Edit',
+    subtitle: 'Two-Piece Polish',
+    description: 'Sleeveless vests and flowing wide-leg pants in one polished pair — wear them together or style them apart. Sharp tailoring for workdays, dinners and celebrations.',
+    images: [coords1, coords2],
+    link: '/shop?category=coords',
+    badge: 'New In'
+  },
+  {
+    id: 'tops',
+    title: 'The Top Edit',
+    subtitle: 'Everyday Essentials',
+    description: 'Fitted ribbed knits, crew-neck crop tees and sleek tube tops — the layer-ready essentials that pair with everything.',
+    images: [tops1, tops2],
+    link: '/shop?category=tops',
+    badge: 'New In'
   },
   {
     id: 'premium',
@@ -87,8 +120,8 @@ const Collections = () => {
     <>
       <SEO
         title="Collections | Tubhyam - Premium Women's Fashion Collections"
-        description="Explore Tubhyam's exclusive collections — formal elegance with belt formal pants, wide-leg pants, baggy pleated pants, denim stories with classic jeans, active luxe with cargo pants and track pants, and summer essentials. Premium women's fashion for every occasion."
-        keywords="tubhyam collections, women's formal wear collection, denim jeans collection, cargo pants collection, track pants collection, summer fashion collection, premium women's clothing collections, best women's pants India, new arrivals tubhyam"
+        description="Explore Tubhyam's exclusive collections — formal elegance with belt formal pants, wide-leg pants, baggy pleated pants, denim stories with classic jeans, active luxe with cargo pants and track pants, the dress edit with elegant maxi and midi dresses, the co-ord edit with polished two-piece suits, and summer essentials. Premium women's fashion for every occasion."
+        keywords="tubhyam collections, women's formal wear collection, denim jeans collection, cargo pants collection, track pants collection, women's dresses collection, co-ord sets collection, summer fashion collection, premium women's clothing collections, best women's pants India, new arrivals tubhyam"
         url="https://www.tubhyam.in/collections"
         breadcrumbItems={[{ name: 'Collections', url: 'https://www.tubhyam.in/collections' }]}
       />
@@ -102,7 +135,7 @@ const Collections = () => {
         </div>
         <div className="relative z-10 container mx-auto px-4 text-center py-8 sm:py-12 md:py-14">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 glass-card rounded-full mb-4 sm:mb-6">
-            <Sparkles size={14} className="sm:w-4 sm:h-4 text-primary" />
+            <Gem size={14} className="sm:w-4 sm:h-4 text-primary" />
             <span className="text-xs sm:text-sm">Curated for You</span>
           </div>
           <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6">

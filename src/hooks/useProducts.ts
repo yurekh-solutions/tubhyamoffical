@@ -6,6 +6,8 @@ export type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest' | 'n
 
 interface UseProductsOptions {
   category?: Product['category'] | 'all';
+  /** Dresses subcategory filter ('maxi' | 'midi' | 'short' | 'chiffon') */
+  subcategory?: string;
   searchQuery?: string;
   sortBy?: SortOption;
   priceRange?: [number, number];
@@ -14,6 +16,7 @@ interface UseProductsOptions {
 export const useProducts = (options: UseProductsOptions = {}) => {
   const {
     category = 'all',
+    subcategory = '',
     searchQuery = '',
     sortBy = 'featured',
     priceRange = [0, 10000]
@@ -87,6 +90,11 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       });
     }
 
+    // Filter by subcategory — dresses only (maxi / midi / short / chiffon)
+    if (subcategory) {
+      filtered = filtered.filter(p => p.subcategory === subcategory);
+    }
+
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -123,7 +131,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
     }
 
     return filtered;
-  }, [allProducts, category, searchQuery, sortBy, priceRange]);
+  }, [allProducts, category, subcategory, searchQuery, sortBy, priceRange]);
 
   return {
     products: filteredProducts,

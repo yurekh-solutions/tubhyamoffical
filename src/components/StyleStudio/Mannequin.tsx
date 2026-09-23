@@ -2,7 +2,7 @@ import { useTheme } from '@/context/ThemeContext';
 import type { GarmentVisuals } from '@/data/garmentStyles';
 
 type BodyShape = 'slim' | 'average' | 'plus-size';
-type GarmentType = 'formal' | 'jeans' | 'track';
+type GarmentType = 'formal' | 'jeans' | 'track' | 'dresses' | 'coords' | 'tops';
 type Gender = 'male' | 'female';
 
 interface MannequinProps {

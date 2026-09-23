@@ -7,9 +7,9 @@ const Shipping = () => {
   return (
     <div className="min-h-screen">
       <SEO
-        title="Shipping Policy | Tubhyam - Free Shipping on Orders ₹2000+"
-        description="Tubhyam shipping policy — free shipping on orders above ₹2000 across India. Standard delivery 5-7 business days. Track your order easily. We ship to all major cities in India."
-        keywords="tubhyam shipping policy, free shipping India, women's clothing delivery, online shopping shipping, tubhyam delivery, track order tubhyam, shipping charges tubhyam, delivery time India"
+        title="Shipping Policy | Tubhyam - Complimentary Shipping on Orders ₹2000+"
+        description="Tubhyam shipping policy — complimentary shipping on orders above ₹2000 across India. Standard delivery 5-7 business days. Track your order easily. We ship to all major cities in India."
+        keywords="tubhyam shipping policy, complimentary shipping India, women's clothing delivery, online shopping shipping, tubhyam delivery, track order tubhyam, shipping charges tubhyam, delivery time India"
         url="https://www.tubhyam.in/shipping"
         breadcrumbItems={[{ name: 'Shipping Policy', url: 'https://www.tubhyam.in/shipping' }]}
       />
@@ -55,7 +55,7 @@ const Shipping = () => {
                   <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-full">
                     <Truck size={20} className="text-green-600 dark:text-green-400" />
                   </div>
-                  <h3 className="font-heading text-xl font-semibold text-green-700 dark:text-green-400">FREE Shipping on All Orders</h3>
+                  <h3 className="font-heading text-xl font-semibold text-green-700 dark:text-green-400">Complimentary Shipping on All Orders</h3>
                 </div>
                 <p className="text-muted-foreground">
                   We offer complimentary shipping on every order — no minimum purchase required.

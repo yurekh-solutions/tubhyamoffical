@@ -268,7 +268,7 @@ const BlogDetail = () => {
         <div style={{ minHeight: '100vh', background: isLight ? '#F5F0E8' : '#0F0B09', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontSize: 48, marginBottom: 16 }}>📄</p>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 12 }}>{error || 'Article Not Found'}</h2>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 12 }}>{error || 'Article Not Found'}</h2>
             <Link to="/blog" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: isLight ? '#E8652B' : '#FFD3AC', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}>
               <ArrowLeft size={16} /> Back to Style Journal
             </Link>
@@ -368,7 +368,7 @@ const BlogDetail = () => {
           </div>
 
           {/* Title */}
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.2, margin: '0 0 16px' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.2, margin: '0 0 16px' }}>
             {blog.title}
           </h1>
 
@@ -452,7 +452,7 @@ const BlogDetail = () => {
         {related.length > 0 && (
           <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.08)', padding: '48px 0' }}>
             <div className="container mx-auto px-4">
-              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 24 }}>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 24 }}>
                 More in {blog.category}
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 16 }}>
@@ -466,7 +466,7 @@ const BlogDetail = () => {
                           style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', background: isLight ? '#EDE5D8' : '#151010' }} />
                       </div>
                       <div style={{ padding: 16 }}>
-                        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 15, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                           {post.title}
                         </h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: isLight ? '#8A7D70' : '#8A7D70' }}>
@@ -484,7 +484,7 @@ const BlogDetail = () => {
         {/* ═══ CTA ═══ */}
         <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.08)' : '1px solid rgba(255,211,172,0.08)', padding: '56px 0' }}>
           <div className="container mx-auto px-4" style={{ textAlign: 'center' }}>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 24, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 8 }}>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 24, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 8 }}>
               Love This Guide?
             </h2>
             <p style={{ color: isLight ? '#6B5B4E' : '#8A7D70', fontSize: 15, marginBottom: 24 }}>

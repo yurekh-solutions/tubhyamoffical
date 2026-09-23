@@ -19,7 +19,7 @@ const Index = () => {
     <div className="min-h-screen">
       <SEO
         title="Tubhyam | Premium Women's Pants, Jeans & Formal Wear | Shop Online India"
-        description="Shop premium women's pants at Tubhyam.in — India's destination for formal trousers, wide-leg pants, baggy pleated pants, belt formal pants, cargo pants, track pants, cord sets, lace pants, Korean baggy pants, and classic denim jeans. Free shipping on orders ₹2000+. 15-day easy returns."
+        description="Shop premium women's pants at Tubhyam.in — India's destination for formal trousers, wide-leg pants, baggy pleated pants, belt formal pants, cargo pants, track pants, cord sets, lace pants, Korean baggy pants, and classic denim jeans. Complimentary shipping on orders ₹2000+. 15-day easy returns."
         keywords="tubhyam, tubhyam.in, women's pants, women's jeans, formal trousers, wide leg pants, baggy pleated pants, belt formal pants, cargo pants, track pants, cord set co-ord, lace pants, korean baggy pants, premium women's clothing, Indian fashion, sustainable fashion, online shopping India, buy formal pants online, women's fashion store, office wear women, best formal pants India, affordable premium fashion, designer pants women"
         url="https://www.tubhyam.in"
       />
@@ -49,7 +49,7 @@ const Index = () => {
                 Shop via <span className="text-gradient-gold">Video Call</span>
               </h2>
               <p className="text-muted-foreground mb-8 text-base sm:text-lg max-w-2xl mx-auto">
-                Get a free virtual styling session with our fashion experts. Receive personalized recommendations tailored to your unique taste.
+                Get a virtual styling session with our fashion experts. Receive personalized recommendations tailored to your unique taste.
               </p>
               <Link 
                 to="/video-call"

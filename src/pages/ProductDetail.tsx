@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -30,7 +30,6 @@ import {
   Star,
   MessageCircle,
   X,
-  Sparkles,
 } from 'lucide-react';
 
 
@@ -62,6 +61,13 @@ const colorMap: Record<string, string> = {
   Olive: '#6B7C3E',
   'Olive Green': '#4F6027',
   Sage: '#8FA37E',
+  'Sage Grey': '#9AA08C',
+  'Black (Full Sleeve)': '#1A1A1A',
+  'Black (Half Sleeve)': '#1A1A1A',
+  'Ivory (Full Sleeve)': '#FFFFF0',
+  'Sage Grey (Full Sleeve)': '#9AA08C',
+  'Olive (Half Sleeve)': '#4F6027',
+  'Chocolate Brown (Full Sleeve)': '#4E342E',
   Forest: '#2D6A2E',
   Green: '#3E7B42',
   Beige: '#D9CCBA',
@@ -80,6 +86,30 @@ const colorMap: Record<string, string> = {
   Peacock: '#1F6F78',
   Turquoise: '#3CB5AD',
   Lavender: '#A78BCA',
+  Wine: '#722F37',
+  Burgundy: '#6E1E2B',
+  Red: '#C62828',
+  Rust: '#B7410E',
+  'Butter Yellow': '#F5E6A3',
+  'Lemon Yellow': '#F7EA48',
+  Yellow: '#F1C40F',
+  'Mint Green': '#A8E6CF',
+  'Sky Blue': '#87CEEB',
+  'Powder Blue': '#B0D4E8',
+  'Vintage Blue': '#7E9BB5',
+  'Royal Blue': '#2A52BE',
+  Indigo: '#4B5A8C',
+  'Blush Pink': '#E8B4B8',
+  'Pastel Pink': '#F4C2D7',
+  Pink: '#F48FB1',
+  'Coral Pink': '#F08080',
+  'Hot Pink': '#FF69B4',
+  Fuchsia: '#C2185B',
+  'Dusty Rose': '#D3A0A5',
+  Champagne: '#F0E0C8',
+  Ivory: '#FFFFF0',
+  'Chocolate Brown': '#4E342E',
+  'Espresso Brown': '#4B3621',
   Multiple: 'linear-gradient(135deg,#e74c3c,#f1c40f,#2ecc71)',
 };
 
@@ -160,7 +190,6 @@ const ProductDetail = () => {
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showSizeError, setShowSizeError] = useState(false);
-  const navigate = useNavigate();
   const [userReviews, setUserReviews] = useState<{name:string;location:string;rating:number;date:string;comment:string}[]>(() =>
     id ? getStoredReviews(id) : []
   );
@@ -369,7 +398,7 @@ const ProductDetail = () => {
       {product && (
         <SEO
           title={`${product.name} | Tubhyam`}
-          description={`${product.description} Price: ₹${product.price}. ${product.originalPrice ? `MRP: ₹${product.originalPrice}.` : ''} Available in ${product.colors.join(', ')}. Sizes: ${product.sizes.join(', ')}. ${product.material ? `Material: ${product.material}.` : ''} Free shipping on orders above ₹2000.`}
+          description={`${product.description} Price: ₹${product.price}. ${product.originalPrice ? `MRP: ₹${product.originalPrice}.` : ''} Available in ${product.colors.join(', ')}. Sizes: ${product.sizes.join(', ')}. ${product.material ? `Material: ${product.material}.` : ''} Complimentary shipping on orders above ₹2000.`}
           keywords={`${product.name.toLowerCase()}, ${product.category} pants, ${product.colors.map(c => c.toLowerCase() + ' ' + product.category + ' pants').join(', ')}, ${product.material?.toLowerCase()}, buy ${product.name.toLowerCase()} online, ${product.sizes.map(s => 'size ' + s).join(', ')} ${product.category} pants women`}
           image={product.image ? `https://www.tubhyam.in${product.image}` : undefined}
           url={`https://www.tubhyam.in/product/${product.id}`}
@@ -683,19 +712,6 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Style Studio button */}
-            <button
-              onClick={() => navigate(`/style-studio?product=${product.id}`)}
-              className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold transition-all text-sm ${
-                isLight
-                  ? 'border-2 border-[#8B5E3C] text-[#8B5E3C] hover:bg-[#8B5E3C]/5 active:scale-[0.98]'
-                  : 'glass-card bg-gradient-to-r from-[#8B5E3C]/10 via-[#A0714D]/10 to-[#C9A882]/10 border border-[#8B5E3C]/30 text-[#FFD3AC] hover:from-[#8B5E3C]/20 hover:via-[#A0714D]/20 hover:to-[#C9A882]/20 active:scale-[0.98] shadow-lg shadow-[#8B5E3C]/10'
-              }`}
-            >
-              <Sparkles size={18} />
-              Style Studio
-            </button>
-
             {/* Action buttons */}
             <div className="space-y-3 pt-2">
               <div className="flex gap-3">
@@ -876,7 +892,7 @@ const ProductDetail = () => {
             </AccordionTrigger>
             <AccordionContent>
               <p className="text-muted-foreground mb-3">
-                Free shipping on all orders. Standard delivery in 3-5 business days.
+                Complimentary shipping on all orders. Standard delivery in 3-5 business days.
               </p>
               <p className="text-muted-foreground">
                 Easy 7-day returns. Item must be unused with tags attached.

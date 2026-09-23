@@ -4,60 +4,65 @@ import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
 import { products } from '@/data/products';
 
 const ShopTheLook = () => {
-  const [activeSlide, setActiveSlide] = useState(2); // Start with center item
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
 
-  // Get all formal products with images for the lookbook, excluding specific products
-  const excludedIds = ['fp-005', 'fp-008']; // Olive Sophisticated Pants, Teal Statement Trousers
-  const lookProducts = products
+  // Get formal products with images, excluding specific products
+  const excludedIds = ['fp-005', 'fp-008'];
+  const allLookProducts = products
     .filter(p => p.category === 'formal' && p.images.length > 0 && !excludedIds.includes(p.id));
+
+  // Shuffle products on every refresh so different products appear each time
+  const lookProducts = [...allLookProducts].sort(() => Math.random() - 0.5);
 
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
+
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % lookProducts.length);
-    }, 4000); // Slightly longer interval for better viewing
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, lookProducts.length]);
 
   const handlePrevious = () => {
     setActiveSlide((prev) => (prev - 1 + lookProducts.length) % lookProducts.length);
-    // Reset autoplay after 10 seconds of inactivity
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const handleNext = () => {
     setActiveSlide((prev) => (prev + 1) % lookProducts.length);
-    // Reset autoplay after 10 seconds of inactivity
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const getSlidePosition = (index: number) => {
     const diff = index - activeSlide;
     const total = lookProducts.length;
-    
-    // Calculate circular distance
+
     let position = diff;
     if (diff > total / 2) position = diff - total;
     if (diff < -total / 2) position = diff + total;
-    
+
     return position;
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5 overflow-hidden">
+    <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-primary/5 via-background to-accent/5 overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <p className="text-primary uppercase tracking-widest text-sm mb-4 font-semibold">
+        <div className="text-center mb-12 sm:mb-16">
+          <p className="text-[11px] sm:text-xs font-medium uppercase tracking-[0.25em] mb-3 text-[#8b5e3c]">
             Shop The Look
           </p>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-[#2E241F] tracking-tight" style={{ fontWeight: 900 }}>
             Style Your <span className="text-gradient-gold">Perfect Outfit</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <div className="flex items-center justify-center gap-3 mt-4 text-[#C9A882]">
+            <span className="w-8 h-px bg-current" />
+            <span className="w-1 h-1 rounded-full bg-current" />
+            <span className="w-8 h-px bg-current" />
+          </div>
+          <p className="text-sm sm:text-base mt-4 max-w-lg mx-auto font-light text-[#6B5E52]">
             Discover curated looks featuring our premium collection
           </p>
         </div>
@@ -96,15 +101,13 @@ const ShopTheLook = () => {
                   onMouseEnter={() => setIsAutoPlaying(false)}
                   onMouseLeave={() => setIsAutoPlaying(true)}
                 >
-                  {/* Card */}
-                  <div 
+                  <div
                     className={`relative overflow-hidden rounded-2xl transition-all duration-700 ${
                       isActive
                         ? 'w-64 h-80 sm:w-72 sm:h-96 md:w-80 md:h-[480px]'
                         : 'w-56 h-72 sm:w-64 sm:h-80 md:w-72 md:h-96'
                     }`}
                   >
-                    {/* Image with zoom effect */}
                     <div className="relative w-full h-full overflow-hidden group">
                       <img
                         src={product.image}
@@ -113,30 +116,27 @@ const ShopTheLook = () => {
                           isActive ? 'group-hover:scale-110' : ''
                         }`}
                       />
-                      
-                      {/* Gradient Overlay */}
+
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
-                      {/* Badges */}
+
                       {isActive && (
                         <div className="absolute top-4 left-4 flex flex-col gap-2">
                           {product.isNew && (
-                            <span className="bg-primary text-primary-foreground text-xs px-3 py-1 rounded-full font-medium">
+                            <span className="bg-[#2E241F] text-white/90 text-xs px-3 py-1 rounded-md font-medium">
                               New
                             </span>
                           )}
                           {product.isBestSeller && (
-                            <span className="bg-accent text-accent-foreground text-xs px-3 py-1 rounded-full font-medium">
+                            <span className="bg-[#8B5E3C] text-white text-xs px-3 py-1 rounded-md font-medium">
                               Bestseller
                             </span>
                           )}
                         </div>
                       )}
 
-                      {/* Product Info Overlay - Only on active slide */}
                       {isActive && (
                         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                          <h3 className="font-heading text-lg md:text-xl font-bold text-white mb-1 md:mb-2 line-clamp-2">
+                          <h3 className="font-heading text-lg md:text-xl font-light text-white mb-1 md:mb-2 line-clamp-2">
                             {product.name}
                           </h3>
                           <p className="text-white/80 text-xs md:text-sm mb-3 md:mb-4 line-clamp-1 capitalize">
@@ -153,7 +153,6 @@ const ShopTheLook = () => {
                       )}
                     </div>
 
-                    {/* Border glow for active card */}
                     {isActive && (
                       <div className="absolute inset-0 border-2 border-primary/50 rounded-2xl pointer-events-none" />
                     )}
@@ -178,19 +177,18 @@ const ShopTheLook = () => {
           </button>
         </div>
 
-        {/* Dots Navigation */}
-        <div className="hidden flex justify-center gap-2 mt-8 md:mt-12">
+        {/* Dots Navigation — hidden */}
+        <div className="flex justify-center gap-2 mt-8 md:mt-12 hidden">
           {lookProducts.map((_, index) => (
             <button
               key={index}
               onClick={() => {
                 setActiveSlide(index);
-                // Resume autoplay after 8 seconds
                 setTimeout(() => setIsAutoPlaying(true), 8000);
               }}
               className={`transition-all duration-500 rounded-full ${
                 index === activeSlide
-                  ? 'w-8 md:w-10 h-2 md:h-3 bg-gradient-to-r from-primary to-primary/70'
+                  ? 'w-8 md:w-10 h-2 md:h-3 bg-gradient-to-r from-[#8B5E3C] to-[#8B5E3C]/70'
                   : 'w-2 md:w-3 h-2 md:h-3 bg-muted-foreground/40 hover:bg-muted-foreground/60'
               }`}
               aria-label={`Go to slide ${index + 1}`}

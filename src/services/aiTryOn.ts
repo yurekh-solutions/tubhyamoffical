@@ -137,7 +137,7 @@ export const generateTryOn = async (
   plateUrl: string,
   productUrl: string,
   productName: string,
-  garmentType: 'formal' | 'jeans' | 'track',
+  garmentType: 'formal' | 'jeans' | 'track' | 'dresses' | 'coords' | 'tops',
   onProgress?: (msg: string) => void
 ): Promise<string> => {
   onProgress?.('Combining images...');
@@ -213,7 +213,7 @@ export const getTryOnImage = async (
   plateUrl: string,
   productUrl: string,
   productName: string,
-  garmentType: 'formal' | 'jeans' | 'track',
+  garmentType: 'formal' | 'jeans' | 'track' | 'dresses' | 'coords' | 'tops',
   onProgress?: (msg: string) => void
 ): Promise<string> => {
   // Check cache first

@@ -59,7 +59,7 @@ const Terms = () => {
           <div className="space-y-4">
             <h2 className="font-heading text-2xl font-semibold">4. Shipping & Delivery</h2>
             <ul className="list-disc list-inside text-muted-foreground space-y-2 ml-4">
-              <li>Free shipping on orders above ₹2000</li>
+              <li>Complimentary shipping on orders above ₹2000</li>
               <li>Standard delivery time is 5-7 business days across India</li>
               <li>Express delivery options may be available at additional cost</li>
               <li>Delivery times may vary during peak seasons or due to unforeseen circumstances</li>

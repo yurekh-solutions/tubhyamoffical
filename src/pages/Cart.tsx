@@ -204,7 +204,7 @@ const Cart = () => {
                     </div>
                     <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium text-green-600 text-xs md:text-sm">FREE</span>
+                      <span className="font-medium text-green-600 text-xs md:text-sm">INCLUDED</span>
                     </div>
                     <div className="border-t border-border pt-3 md:pt-4">
                       <div className="flex justify-between items-center">

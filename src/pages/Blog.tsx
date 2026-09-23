@@ -282,7 +282,7 @@ const Blog = () => {
           <div style={{ position: 'absolute', inset: 0, background: isLight ? 'radial-gradient(ellipse at top, rgba(232,101,43,0.06) 0%, transparent 60%)' : 'radial-gradient(ellipse at top, rgba(255,211,172,0.06) 0%, transparent 60%)' }} />
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(30px, 5vw, 46px)', fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.15, margin: '0 0 10px' }}>
+              <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 'clamp(30px, 5vw, 46px)', fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.15, margin: '0 0 10px' }}>
                 The Style <span style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>Journal</span>
               </h1>
               <p style={{ fontSize: 15, color: isLight ? '#4A3228' : '#B0A090', lineHeight: 1.6, maxWidth: 460, margin: '0 auto' }}>
@@ -354,7 +354,7 @@ const Blog = () => {
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,211,172,0.1)', marginBottom: 16 }}>
               <Loader2 size={22} className="animate-spin" style={{ color: isLight ? '#E8652B' : '#FFD3AC' }} />
             </div>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Server is waking up</h2>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Server is waking up</h2>
             <p style={{ color: isLight ? '#6B5B4E' : '#8A7D70', fontSize: 13, marginBottom: 4, maxWidth: 380, margin: '0 auto' }}>Our backend is starting from sleep. Automatically retrying...</p>
             <p style={{ color: isLight ? '#A09080' : '#5A5048', fontSize: 11, marginBottom: 18 }}>Attempt {pollCount + 1} of {MAX_POLLS} · ~{Math.max(0, (MAX_POLLS - pollCount) * 3)}s remaining</p>
             <div style={{ width: 200, height: 4, background: isLight ? '#E0D5C6' : '#1A1410', borderRadius: 2, margin: '0 auto', overflow: 'hidden' }}>
@@ -367,7 +367,7 @@ const Blog = () => {
         {!loading && apiError && blogPosts.length === 0 && pollCount >= MAX_POLLS && (
           <div style={{ padding: '50px 24px', textAlign: 'center' }}>
             <p style={{ fontSize: 36, marginBottom: 10 }}></p>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Still can't reach server</h2>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Still can't reach server</h2>
             <p style={{ color: isLight ? '#6B5B4E' : '#8A7D70', fontSize: 13, marginBottom: 18, maxWidth: 380, margin: '0 auto 18px' }}>We tried for 2 minutes but the server hasn't responded. You can retry manually.</p>
             <button onClick={() => { setPollCount(0); fetchBlogs(true); }} disabled={retrying}
               style={{
@@ -383,7 +383,7 @@ const Blog = () => {
         {!loading && !apiError && filteredPosts.length === 0 && blogPosts.length > 0 && (
           <div style={{ padding: '50px 24px', textAlign: 'center' }}>
             <p style={{ fontSize: 36, marginBottom: 10 }}>🔍</p>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>No articles found</h2>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>No articles found</h2>
             <p style={{ color: isLight ? '#6B5B4E' : '#8A7D70', fontSize: 13 }}>Try a different search or browse categories above.</p>
           </div>
         )}
@@ -392,7 +392,7 @@ const Blog = () => {
         {!loading && !apiError && blogPosts.length === 0 && (
           <div style={{ padding: '50px 24px', textAlign: 'center' }}>
             <p style={{ fontSize: 36, marginBottom: 10 }}>✨</p>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Coming Soon</h2>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Coming Soon</h2>
             <p style={{ color: isLight ? '#6B5B4E' : '#8A7D70', fontSize: 13 }}>Our style editors are crafting amazing guides. Check back soon!</p>
           </div>
         )}
@@ -433,7 +433,7 @@ const Blog = () => {
                             {post.category}
                           </span>
                         )}
-                        <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px' }}>
+                        <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', lineHeight: 1.35, margin: '0 0 8px' }}>
                           {post.title}
                         </h3>
                         <p style={{ fontSize: 13, color: isLight ? '#4A3228' : '#8A7D70', lineHeight: 1.6, margin: '0 0 14px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
@@ -461,7 +461,7 @@ const Blog = () => {
           <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.06)' : '1px solid rgba(255,211,172,0.06)', padding: '36px 0' }}>
             <div className="container mx-auto px-4">
               <div style={{ maxWidth: 600, margin: '0 auto' }}>
-                <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 12 }}>Your Complete Fashion Guide</h2>
+                <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 17, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 12 }}>Your Complete Fashion Guide</h2>
                 <p style={{ fontSize: 13, color: isLight ? '#4A3228' : '#B0A090', lineHeight: 1.7, marginBottom: 8 }}>
                   Welcome to Tubhyam's Style Journal — expert fashion advice, styling guides, and trend reports for Indian women. From <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>wide-leg jeans</strong> and <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>formal pants</strong> to <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>palazzo styling</strong> and <strong style={{ color: isLight ? '#E8652B' : '#FFD3AC' }}>ethnic fusion looks</strong>.
                 </p>
@@ -476,7 +476,7 @@ const Blog = () => {
         {/* CTA */}
         <section style={{ borderTop: isLight ? '1px solid rgba(46,26,14,0.06)' : '1px solid rgba(255,211,172,0.06)', padding: '42px 0' }}>
           <div className="container mx-auto px-4" style={{ textAlign: 'center' }}>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Ready to Elevate Your Style?</h2>
+            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, color: isLight ? '#2E1A0E' : '#F0E6DA', marginBottom: 6 }}>Ready to Elevate Your Style?</h2>
             <p style={{ color: isLight ? '#4A3228' : '#8A7D70', fontSize: 13, marginBottom: 18 }}>Explore Tubhyam's curated collection of premium women's fashion</p>
             <Link to="/shop" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 26px', borderRadius: 50,

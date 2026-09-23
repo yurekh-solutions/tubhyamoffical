@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, X } from 'lucide-react';
+import { BadgePercent, ArrowRight, X } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 
 function getTimeRemaining(endDate: Date) {
@@ -92,7 +92,7 @@ const SaleBanner = () => {
               ? 'bg-[#E8652B] border border-[#E8652B] shadow-lg shadow-[#E8652B]/20'
               : 'bg-white/10 backdrop-blur-md border border-white/15'
           }`}>
-            <Sparkles size={14} className={isLight ? 'text-white' : 'text-[#FFD3AC]'} />
+            <BadgePercent size={14} className={isLight ? 'text-white' : 'text-[#FFD3AC]'} />
             <span className={`text-xs font-bold uppercase tracking-widest ${
               isLight ? 'text-white' : 'text-[#FFD3AC]'
             }`}>

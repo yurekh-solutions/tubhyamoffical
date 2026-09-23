@@ -45,8 +45,8 @@ const AdminOrders = () => {
   const fetchOrders = async () => {
     try {
       // Fetch from inventory app orders endpoint
-      const response = await api.get('/orders');
-      setOrders(response.data?.orders || []);
+      const data = await api.get<{ success?: boolean; orders?: Order[] }>('/orders');
+      setOrders(data?.orders || []);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
       toast.error('Failed to load orders');
@@ -58,31 +58,39 @@ const AdminOrders = () => {
   const createShipment = async (order: Order) => {
     try {
       toast.loading('Creating shipment...');
-      const response = await api.post(`/orders/${order.id}/ship`, {
+      const data = await api.post<{
+        success?: boolean;
+        message?: string;
+        shipment_id?: string;
+        awb_code?: string;
+      }>(`/orders/${order.id}/ship`, {
         customerInfo: order.customerInfo,
         items: order.items,
         amount: order.amount,
         paymentMode: 'upi',
       });
 
-      if (response.data.success) {
-        toast.success(`Shipment created! AWB: ${response.data.awb_code}`);
+      if (data.success) {
+        toast.success(`Shipment created! AWB: ${data.awb_code || data.shipment_id || 'pending'}`);
         fetchOrders(); // Refresh
       } else {
-        toast.error(response.data.message || 'Failed to create shipment');
+        toast.error(data.message || 'Failed to create shipment');
       }
     } catch (error) {
       toast.error('Failed to create shipment');
     }
   };
 
-  const trackShipment = async (awbCode: string) => {
+  const trackShipment = async (awbCode: string, orderId: string) => {
     try {
-      const response = await api.get(`/orders/track?awb=${awbCode}`);
-      if (response.data.success) {
+      const data = await api.get<{
+        success?: boolean;
+        tracking?: { shipment_status?: string };
+      }>(`/orders/${orderId}/track?awb=${awbCode}`);
+      if (data.success) {
         setSelectedOrder({
           ...selectedOrder!,
-          shippingStatus: response.data.tracking?.shipment_status || 'unknown',
+          shippingStatus: data.tracking?.shipment_status || 'unknown',
         });
       }
     } catch (error) {
@@ -385,7 +393,7 @@ const AdminOrders = () => {
                         )}
                       </div>
                       <button
-                        onClick={() => trackShipment(selectedOrder.awbCode!)}
+                        onClick={() => trackShipment(selectedOrder.awbCode!, selectedOrder.id)}
                         className="mt-3 w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
                       >
                         Track Shipment

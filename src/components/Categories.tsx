@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Shirt } from 'lucide-react';
 import { categories, products } from '@/data/products';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 
 const jeans1 = '/images/products/jeans-8.jpg';
 const trousers = '/images/products/trousers.jpg';
+const dress1 = '/images/products/dr-006.jpg';
+const coords1 = '/images/products/cord-set-002-wine.jpg';
 
 const Categories = () => {
   const { isLight } = useTheme();
@@ -13,12 +15,18 @@ const Categories = () => {
     formal: products.filter(p => p.category === 'formal')[0]?.image,
     jeans: jeans1,
     track: trousers,
+    dresses: dress1,
+    coords: coords1,
+    tops: '/images/products/tops-001-a.jpg',
   };
 
   const categoryGradients = {
     formal: 'from-amber-500/20 via-orange-500/10 to-transparent',
     jeans: 'from-blue-500/20 via-indigo-500/10 to-transparent',
     track: 'from-emerald-500/20 via-teal-500/10 to-transparent',
+    dresses: 'from-rose-500/20 via-pink-500/10 to-transparent',
+    coords: 'from-violet-500/20 via-purple-500/10 to-transparent',
+    tops: 'from-sky-500/20 via-cyan-500/10 to-transparent',
   };
 
   return (
@@ -38,19 +46,19 @@ const Categories = () => {
           className="text-center mb-12 sm:mb-16 space-y-4"
         >
           <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-4 border border-primary/20">
-            <Sparkles size={16} className="text-primary" />
+            <Shirt size={16} className="text-primary" />
             <span className="text-xs font-bold uppercase tracking-widest text-primary">Shop by Style</span>
           </div>
           <h2 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold">
             Discover Your <span className="text-gradient-gold">Perfect Style</span>
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
-            Explore our curated collection of premium women's pants designed for every occasion and lifestyle
+            Explore our curated collection of premium women's pants, dresses and co-ord sets, designed for every occasion and lifestyle
           </p>
         </motion.div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7 lg:gap-8">
           {categories.map((category, index) => (
             <motion.div
               key={category.id}
@@ -60,8 +68,8 @@ const Categories = () => {
               transition={{ duration: 0.5, delay: index * 0.15 }}
             >
               <Link
-                to={`/products?category=${category.id}`}
-                className="group relative block h-[450px] sm:h-[500px] overflow-hidden rounded-3xl"
+                to={`/shop?category=${category.id}`}
+                className="group relative block h-[460px] sm:h-[520px] lg:h-[560px] overflow-hidden rounded-3xl"
               >
                 {/* Image Container with Zoom Effect */}
                 <div className="absolute inset-0 overflow-hidden">

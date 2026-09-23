@@ -14,7 +14,7 @@ const TrustBadges = () => {
     },
     {
       icon: Truck,
-      title: 'Free Shipping',
+      title: 'Pan-India Shipping',
       subtitle: 'On all orders across India',
       accentLight: '#3B82F6',
       accentDark: '#93C5FD',

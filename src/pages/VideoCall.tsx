@@ -88,7 +88,7 @@ const VideoCall = () => {
         setLoading(false);
         
         // Send WhatsApp notification
-        const message = `Hi! I've booked a free video styling session with Tubhyam. Please confirm the appointment details with me.`;
+        const message = `Hi! I've booked a video styling session with Tubhyam. Please confirm the appointment details with me.`;
         window.open(
           `https://wa.me/917039382706?text=${encodeURIComponent(message)}`,
           '_blank'
@@ -128,7 +128,7 @@ const VideoCall = () => {
               Shop via Video Call
             </h1>
             <p className="text-lg md:text-xl text-foreground/80 mb-6">
-              Get a free virtual styling session with our fashion experts
+              Get a virtual styling session with our fashion experts
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm md:text-base">
               <div className="flex items-center gap-2 text-foreground/70">

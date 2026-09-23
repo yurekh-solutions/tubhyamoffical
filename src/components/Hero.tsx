@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Instagram } from 'lucide-react';
+import { ArrowRight, Star, Instagram } from 'lucide-react';
 import heroVideo from '@/assets/video.mp4';
 import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/config/api';
@@ -119,7 +119,7 @@ const Hero = () => {
             <div className="max-w-lg mx-auto mt-10 lg:mx-0 space-y-6 lg:space-y-8">
               <div className="flex justify-center lg:justify-start">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ba7336]/20 backdrop-blur-xl border border-[#ba7336]/30 shadow-lg shadow-[#ba7336]/10 animate-fade-in-up">
-                  <Sparkles size={13} className="text-[#8b5e3c]" />
+                  <Star size={13} className="text-[#8b5e3c]" />
                   <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8b5e3c]">
                     New Collection 2026
                   </span>
@@ -273,8 +273,8 @@ const Hero = () => {
             })}
           </div>
 
-          {/* Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30">
+          {/* Dots — hidden */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30 hidden">
             {reels.map((_, i) => (
               <button
                 key={i}
@@ -322,7 +322,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10 flex justify-center">
         <div className="max-w-4xl space-y-8 text-center">
           <div className="inline-flex mt-16 sm:mt-20 items-center gap-2 px-5 py-2.5 rounded-full animate-fade-in-up mx-auto glass-card">
-            <Sparkles size={16} className="text-primary" />
+            <Star size={16} className="text-primary" />
             <span className="text-sm font-semibold tracking-wide">New Collection 2026</span>
           </div>
 

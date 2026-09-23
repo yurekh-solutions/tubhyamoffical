@@ -90,7 +90,7 @@ export default function SizeGuide() {
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30">
                 <Ruler className="w-8 h-8 text-primary" />
               </div>
-              <h1 className="font-display text-4xl md:text-5xl font-medium">
+              <h1 className="font-heading text-4xl md:text-5xl font-medium">
                 Size Guide
               </h1>
               <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
@@ -108,7 +108,7 @@ export default function SizeGuide() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-16"
           >
-            <h2 className="font-display text-2xl md:text-3xl font-medium text-center mb-8">
+            <h2 className="font-heading text-2xl md:text-3xl font-medium text-center mb-8">
               How to Measure
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -121,11 +121,11 @@ export default function SizeGuide() {
                   className="glass-strong p-6 rounded-lg border border-primary/20 hover:border-primary/40 transition-colors"
                 >
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mb-3 border border-primary/30">
-                    <span className="font-display font-semibold text-primary">
+                    <span className="font-heading font-semibold text-primary">
                       {index + 1}
                     </span>
                   </div>
-                  <h3 className="font-display text-lg font-medium text-foreground mb-2">
+                  <h3 className="font-heading text-lg font-medium text-foreground mb-2">
                     {item.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -147,7 +147,7 @@ export default function SizeGuide() {
                 transition={{ delay: chartIndex * 0.1 }}
               >
                 <div className="text-center mb-6">
-                  <h2 className="font-display text-2xl md:text-3xl font-medium">
+                  <h2 className="font-heading text-2xl md:text-3xl font-medium">
                     {chart.title}
                   </h2>
                   <p className="text-muted-foreground mt-2">{chart.description}</p>
@@ -158,19 +158,19 @@ export default function SizeGuide() {
                     <table className="w-full min-w-[600px]">
                       <thead>
                         <tr className="border-b border-primary/30 bg-primary/5">
-                          <th className="px-6 py-4 text-left font-display font-medium text-foreground">
+                          <th className="px-6 py-4 text-left font-heading font-medium text-foreground">
                             Size
                           </th>
-                          <th className="px-6 py-4 text-left font-display font-medium text-foreground">
+                          <th className="px-6 py-4 text-left font-heading font-medium text-foreground">
                             Waist
                           </th>
-                          <th className="px-6 py-4 text-left font-display font-medium text-foreground">
+                          <th className="px-6 py-4 text-left font-heading font-medium text-foreground">
                             Hip
                           </th>
-                          <th className="px-6 py-4 text-left font-display font-medium text-foreground">
+                          <th className="px-6 py-4 text-left font-heading font-medium text-foreground">
                             Inseam
                           </th>
-                          <th className="px-6 py-4 text-left font-display font-medium text-foreground">
+                          <th className="px-6 py-4 text-left font-heading font-medium text-foreground">
                             {key === "jeans" ? "Rise" : "Length"}
                           </th>
                         </tr>
@@ -223,7 +223,7 @@ export default function SizeGuide() {
                   <Info className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-display text-xl font-medium text-foreground mb-3">
+                  <h3 className="font-heading text-xl font-medium text-foreground mb-3">
                     Sizing Tips
                   </h3>
                   <ul className="space-y-2 text-muted-foreground">
