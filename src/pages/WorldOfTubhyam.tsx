@@ -8,7 +8,6 @@ import SEO from '@/components/SEO';
 
 /* ── Images — verified, label-matched ── */
 const heroImg = '/images/products/cord-set-002-wine.jpg';
-const storyImg1 = '/images/products/cord-set-002-wine.jpg';
 const storyImg2 = '/images/products/cord-set-003-olive.jpg';
 
 const categoryImages = [
@@ -253,7 +252,7 @@ const WorldOfTubhyam = () => {
               >
                 <div className="flex gap-3 h-[340px] sm:h-[400px]">
                   <div className="w-1/2 h-full overflow-hidden rounded-xl shadow-md">
-                    <img src={storyImg1} alt="" className="w-full h-full object-cover object-[center_20%]" />
+                    <img src={heroImg} alt="" className="w-full h-full object-cover object-[center_20%]" />
                   </div>
                   <div className="w-1/2 h-full overflow-hidden rounded-xl shadow-md mt-8">
                     <img src={storyImg2} alt="" className="w-full h-full object-cover object-[center_20%]" />
