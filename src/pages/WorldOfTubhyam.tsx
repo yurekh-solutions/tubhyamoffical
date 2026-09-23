@@ -1,588 +1,477 @@
-import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Truck, RotateCcw, ShieldCheck, Award, Heart, Star, Quote, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ScrollToTop from '@/components/ScrollToTop';
 import SEO from '@/components/SEO';
-import { Heart, Users, Palette, Ruler, Sparkles, Award, Shield, Leaf, ArrowRight, Check, Star, ShoppingBag, Gem, Crown, Feather, Quote, TrendingUp, Eye, Zap } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useTheme } from '@/context/ThemeContext';
 
-const heroBg = '/images/products/image.jpg';
+/* ── Images (faceless — clothing/body shots) ── */
+const heroImg = '/images/products/brownbelt1.jpg';
+const storyImg1 = '/images/products/belt-formal-beige1.jpg';
+const storyImg2 = '/images/products/olive-formal-belt.jpg';
+const storyImg3 = '/images/products/blackstraight.jpg';
 
-/* ------------------------------------------------------------------ */
-/*  Scroll-triggered animation hook                                    */
-/* ------------------------------------------------------------------ */
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+const categoryImages = [
+  '/images/products/blackstraight.jpg',
+  '/images/products/blacklacepant.jpg',
+  '/images/products/brownlacepant.jpg',
+  '/images/products/cord-set-002-wine.jpg',
+  '/images/products/belt-formal-beige1.jpg',
+  '/images/products/beggyplatedkoreanfront.jpg',
+];
+const categoryNames = ['Wide-Leg Pants', 'Lace Wide-Leg Pants', 'Lace Statement Pants', 'Co-ord Set', 'Formal Pants', 'Baggy Pleated Pants'];
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); obs.disconnect(); } },
-      { threshold }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
+const trendingImages = [
+  '/images/products/blackstraight.jpg',
+  '/images/products/blacklacepant.jpg',
+  '/images/products/belt-imported.jpg',
+  '/images/products/beggyplatedkoreanfront.jpg',
+  '/images/products/brownbelt1.jpg',
+  '/images/products/blacklacepant2.jpg',
+];
+const trendingNames = ['Wide-Leg Formal Pants', 'Lace Wide-Leg Statement Pants', 'Imported Belt Formal Pants', 'Imported Baggy Pleated Pants', 'Belt Formal Pants', 'Lace Wide-Leg Statement Pants'];
+const trendingPrices = ['₹1,499', '₹1,699', '1,899', '₹1,999', '₹1,799', '₹1,599'];
+const trendingOldPrices = ['₹2,499', '₹2,699', '₹2,899', '₹2,999', '₹2,799', '₹2,599'];
+const trendingBadges = ['Bestseller', 'New', 'Bestseller', 'New', 'Bestseller', '-20% OFF'];
+const trendingRatings = [4.8, 4.9, 4.7, 4.6, 4.8, 4.9];
+const trendingReviews = [124, 89, 156, 73, 112, 97];
 
-  return { ref, isVisible };
-}
-
-/* ------------------------------------------------------------------ */
-/*  Animated Section Wrapper                                           */
-/* ------------------------------------------------------------------ */
-function AnimatedSection({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const { ref, isVisible } = useInView(0.12);
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  FAQ Schema Data                                                    */
-/* ------------------------------------------------------------------ */
-const FAQ_DATA = [
-  {
-    question: 'What makes Tubhyam different from other women\'s fashion brands in India?',
-    answer: 'Tubhyam is India\'s first size-inclusive premium fashion brand designed specifically for Indian body types and skin tones. We offer XS to 5XL with the same quality and attention to fit across every size. Our colors are scientifically curated to complement every Indian complexion — from fair to dusky to deep.',
-  },
-  {
-    question: 'What sizes does Tubhyam offer?',
-    answer: 'Tubhyam offers a true size range from XS to 5XL. Every size is designed with the same care, quality, and attention to fit — not vanity sizing, not "plus size" as an afterthought. We studied over 2,000 Indian women\'s body measurements to create patterns that actually fit.',
-  },
-  {
-    question: 'How does Tubhyam ensure colors look good on all skin tones?',
-    answer: 'We work with color psychologists and dermatologists to create a palette that enhances every Indian skin tone. Each color is tested under different lighting conditions — natural sunlight, office lighting, evening events — to ensure you look radiant everywhere.',
-  },
-  {
-    question: 'What is Tubhyam\'s return and exchange policy?',
-    answer: 'Tubhyam offers a hassle-free 7-day return policy. If the fit isn\'t perfect, we\'ll exchange it. We believe every woman deserves clothes that fit right, and we stand behind our sizing with confidence.',
-  },
-  {
-    question: 'Does Tubhyam ship across India?',
-    answer: 'Yes! Tubhyam ships pan-India with free shipping on orders above ₹999. We accept all major payment methods including UPI, credit/debit cards, and net banking.',
-  },
+const testimonials = [
+  { name: 'Priya Sharma', text: 'Tubhyam finally gave me clothes that fit beautifully and comfortably. The quality is unmatched!', rating: 5, location: 'Mumbai' },
+  { name: 'Ananya Reddy', text: 'The quality, fit and design are just perfect. It\'s rare to find a brand that truly understands all body types.', rating: 5, location: 'Hyderabad' },
+  { name: 'Aditi Mehta', text: 'Finally, an Indian wear brand that celebrates real women. Tubhyam is a breath of fresh air!', rating: 5, location: 'Delhi' },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Page                                                               */
-/* ------------------------------------------------------------------ */
+const ease = [0.16, 1, 0.3, 1] as const;
+
 const WorldOfTubhyam = () => {
-  const { isLight } = useTheme();
-
-  const T = {
-    bg:          isLight ? '#FAF5EF' : '#0F0D0B',
-    surface:     isLight ? '#FFFFFF' : '#1C1714',
-    surfaceAlt:  isLight ? '#F5EDE4' : '#241E18',
-    border:      isLight ? '#E0D5C8' : 'rgba(255,211,172,0.08)',
-    text:        isLight ? '#1A1410' : '#FFF5EB',
-    textSec:     isLight ? '#6B5E52' : 'rgba(255,211,172,0.7)',
-    textMuted:   isLight ? '#9B8E82' : 'rgba(255,211,172,0.35)',
-    accent:      '#8B5E3C',
-    gradient:    'linear-gradient(135deg, #8B5E3C 0%, #A0714D 40%, #C9A882 100%)',
-  };
-
   return (
     <>
       <SEO
-        title="World of Tubhyam | India's Most Inclusive Premium Fashion Brand — XS to 5XL, All Skin Tones"
-        description="Discover why thousands of Indian women trust Tubhyam for premium, size-inclusive fashion. From XS to 5XL, every shade, every body type. Research-backed design, color science for Indian skin tones, and real-woman tested comfort. Shop formal pants, jeans, track pants & more."
-        keywords="inclusive fashion India, all size women clothing XS to 5XL, premium pants all skin tones, size inclusive brand India, body positive fashion Indian women, Tubhyam brand story, women's fashion for every body type, comfortable elegant pants India, diverse fashion brand, affordable premium fashion India, Tubhyam inclusive sizing, fashion for dusky skin tone, plus size fashion India, petite women fashion India"
+        title="World of Tubhyam | India's Most Inclusive Premium Fashion Brand"
+        description="More than fashion — a movement. XXS to 5XL, every skin tone, premium quality. Tubhyam is designed for every Indian woman."
         url="https://www.tubhyam.in/world-of-tubhyam"
         type="website"
-        breadcrumbItems={[
-          { name: 'World of Tubhyam', url: 'https://www.tubhyam.in/world-of-tubhyam' },
-        ]}
+        breadcrumbItems={[{ name: 'World of Tubhyam', url: 'https://www.tubhyam.in/world-of-tubhyam' }]}
       />
 
-      {/* FAQ Schema for AEO */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        "@context": "https://www.schema.org",
-        "@type": "FAQPage",
-        "mainEntity": FAQ_DATA.map(faq => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer,
-          },
-        })),
-      })}} />
-
       <Navbar />
+      <ScrollToTop />
 
-      {/* ================================================================ */}
-      {/*  HERO SECTION                                                    */}
-      {/* ================================================================ */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background with parallax-like feel */}
-        <div className="absolute inset-0" style={{ backgroundImage: `url(${heroBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-        <div className={`absolute inset-0 ${isLight ? 'bg-gradient-to-b from-black/70 via-black/50 to-black/80' : 'bg-gradient-to-b from-black/60 to-black/70'}`} />
+      <main className="bg-white text-[#2E241F]">
 
-        <div className="relative z-20 container mx-auto px-4 text-center">
-          <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-            {/* Badge */}
-            <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-4 animate-fade-in-down ${isLight ? 'bg-white/10 backdrop-blur-md border border-white/25 text-white' : 'glass-card'}`}>
-              <Heart size={15} className={isLight ? 'text-[#E8B882]' : 'text-primary'} fill="currentColor" />
-              <span className="text-xs sm:text-sm font-medium tracking-wide">तुम्हारे लिए — Made For You, With Love</span>
-            </div>
+        {/* ═══════════════════════════════════════════════════════════
+            HERO — Image left + Cream content right
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="relative overflow-hidden">
+          <div className="flex flex-col md:flex-row min-h-[85vh]">
 
-            {/* Headline */}
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold animate-fade-in-up leading-[1.1]">
-              <span className={isLight ? 'text-white' : ''}>Every Woman</span>
-              <br />
-              <span className="text-gradient-animated">Deserves Elegance</span>
-            </h1>
-
-            {/* Subheadline */}
-            <p className={`text-base sm:text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed px-4 animate-fade-in-up ${isLight ? 'text-white/85' : 'text-muted-foreground'}`} style={{ animationDelay: '200ms' }}>
-              Regardless of size. Regardless of skin tone. Because confidence isn't one-size-fits-all,
-              <span className={`block mt-2 font-medium ${isLight ? 'text-white' : 'text-foreground'}`}>and neither should your wardrobe be.</span>
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 pt-4 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-              <Link
-                to="/shop"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm sm:text-base font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                style={{ background: T.gradient }}
-              >
-                <ShoppingBag size={18} />
-                Explore Our Collection
-              </Link>
-              <a
-                href="#our-promise"
-                className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm sm:text-base font-medium transition-all duration-300 hover:scale-105 ${
-                  isLight
-                    ? 'bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20'
-                    : 'glass-card hover:border-primary/30'
-                }`}
-              >
-                <Heart size={18} />
-                Read Our Story
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================ */}
-      {/*  THE TRUTH SECTION                                               */}
-      {/* ================================================================ */}
-      <section id="our-promise" className="py-16 sm:py-20 md:py-24 lg:py-28">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <AnimatedSection>
-              <div className="text-center mb-12 md:mb-16">
-                <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: T.accent }}>Our Truth</p>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style={{ color: T.text }}>
-                  The <span className="text-gradient-animated">Conversation</span> We Need to Have
-                </h2>
-                <div className="section-divider mt-6" />
-              </div>
-            </AnimatedSection>
-
-            <div className="space-y-8 text-base sm:text-lg md:text-xl leading-relaxed" style={{ color: T.textSec }}>
-              <AnimatedSection>
-                <p className="text-center max-w-3xl mx-auto">
-                  <span className="font-semibold block mb-2" style={{ color: T.text }}>Did you know?</span>
-                  Research shows that <span className="font-semibold" style={{ color: T.accent }}>67% of Indian women</span> struggle to find clothes that fit properly.
-                  Not because they're "hard to fit" — but because the fashion industry has been designing for an imaginary woman who doesn't exist.
+            {/* LEFT — Image with overlay text */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+              className="relative w-full md:w-[55%] h-[55vh] md:h-auto overflow-hidden"
+            >
+              <img
+                src={heroImg}
+                alt="Tubhyam Fashion"
+                className="w-full h-full object-cover object-[center_25%]"
+              />
+              {/* Overlay text on image */}
+              <div className="absolute left-6 sm:left-10 top-1/2 -translate-y-1/2 z-10">
+                <p className="text-white text-[10px] sm:text-xs tracking-[0.25em] uppercase leading-[1.8] font-medium">
+                  Indian Roots.<br />Modern<br />You.
                 </p>
-              </AnimatedSection>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent md:bg-gradient-to-r md:from-black/20 md:via-transparent md:to-transparent" />
+            </motion.div>
 
-              {/* Stats */}
-              <div className="grid sm:grid-cols-2 gap-6 my-10 sm:my-14">
-                <AnimatedSection delay={100}>
-                  <div className="premium-card p-6 sm:p-8 md:p-10 text-center">
-                    <div className="stat-number text-5xl sm:text-6xl md:text-7xl mb-3">73%</div>
-                    <p className="text-sm sm:text-base md:text-lg mb-3" style={{ color: T.textSec }}>
-                      of women report anxiety while shopping due to limited size availability
-                    </p>
-                    <p className="text-xs sm:text-sm italic" style={{ color: T.textMuted }}>
-                      Source: Body Image & Fashion Accessibility Study, 2024
-                    </p>
-                  </div>
-                </AnimatedSection>
-                <AnimatedSection delay={250}>
-                  <div className="premium-card p-6 sm:p-8 md:p-10 text-center">
-                    <div className="stat-number text-5xl sm:text-6xl md:text-7xl mb-3">8/10</div>
-                    <p className="text-sm sm:text-base md:text-lg mb-3" style={{ color: T.textSec }}>
-                      women have experienced discrimination based on their body type while shopping
-                    </p>
-                    <p className="text-xs sm:text-sm italic" style={{ color: T.textMuted }}>
-                      Source: Inclusive Fashion Report, India 2025
-                    </p>
-                  </div>
-                </AnimatedSection>
+            {/* RIGHT — Cream bg + Content */}
+            <div className="w-full md:w-[45%] flex items-center px-8 sm:px-12 md:px-14 lg:px-16 py-14 md:py-0 relative" style={{ background: '#F5EDE3' }}>
+              <div className="max-w-md w-full">
+                {/* Label */}
+                <motion.p
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.3 }}
+                  className="text-[10px] tracking-[0.3em] uppercase mb-4 flex items-center gap-2"
+                  style={{ color: '#8B5E3C' }}
+                >
+                  <span className="w-6 h-px" style={{ background: '#8B5E3C' }} />
+                  Tubhyam
+                </motion.p>
+
+                {/* Heading */}
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4, ease }}
+                  className="font-heading text-4xl sm:text-5xl md:text-[2.8rem] lg:text-[3.2rem] font-bold leading-[1.08] tracking-tight mb-5"
+                >
+                  More Than<br />Fashion.<br />
+                  <span className="text-gradient-gold">A Movement.</span>
+                </motion.h1>
+
+                {/* Description */}
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.7, delay: 0.55 }}
+                  className="text-[12px] sm:text-[13px] leading-[1.7] mb-7"
+                  style={{ color: '#6B5B4E' }}
+                >
+                  At Tubhyam, we celebrate every woman — her shape, her skin, her style. Our designs are crafted for real Indian women, from XXS to 5XL, in colors that flatter every tone.
+                </motion.p>
+
+                {/* CTA Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.7, ease }}
+                >
+                  <Link
+                    to="/shop"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold text-white transition-all duration-300 hover:scale-105"
+                    style={{ background: '#2E241F' }}
+                  >
+                    Explore Our Collection
+                    <ArrowRight size={13} />
+                  </Link>
+                </motion.div>
               </div>
 
-              {/* Quote */}
-              <AnimatedSection>
-                <div className="quote-accent rounded-xl p-6 sm:p-8 md:p-10 italic text-base sm:text-lg md:text-xl" style={{ color: T.textSec }}>
-                  "I remember standing in a changing room, holding a pair of pants marked 'XL' that wouldn't go past my thighs.
-                  The saleswoman asked if I needed help. I said no, but what I really needed was a brand that understood me."
-                  <span className="block mt-4 text-xs sm:text-sm not-italic font-medium" style={{ color: T.textMuted }}>
-                    — Real customer story that inspired Tubhyam
-                  </span>
+              {/* Decorative right edge — numbers + lotus */}
+              <div className="hidden lg:flex flex-col items-center absolute right-6 top-1/2 -translate-y-1/2 gap-6">
+                <div className="flex flex-col items-center gap-4">
+                  {['01', '02', '03'].map((n) => (
+                    <span key={n} className="text-[10px] font-medium" style={{ color: 'rgba(139,94,60,0.3)' }}>{n}</span>
+                  ))}
                 </div>
-              </AnimatedSection>
+                <div className="w-px h-8" style={{ background: 'rgba(139,94,60,0.15)' }} />
+                <div className="text-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="mx-auto mb-1" style={{ color: 'rgba(139,94,60,0.25)' }}>
+                    <path d="M12 2C12 2 8 6 8 10C8 12 9 14 12 14C15 14 16 12 16 10C16 6 12 2 12 2Z" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M12 14C12 14 6 16 6 20C6 21 8 22 12 22C16 22 18 21 18 20C18 16 12 14 12 14Z" stroke="currentColor" strokeWidth="1.5"/>
+                  </svg>
+                  <p className="text-[7px] tracking-[0.15em] uppercase" style={{ color: 'rgba(139,94,60,0.3)' }}>Designed<br />for Real<br />Women</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ================================================================ */}
-      {/*  WHY WE EXIST — 6 PILLARS                                        */}
-      {/* ================================================================ */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-28" style={{ background: isLight ? '#F5EDE4' : 'rgba(36,30,24,0.5)' }}>
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <AnimatedSection>
-              <div className="text-center mb-12 md:mb-16">
-                <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: T.accent }}>Our Promise</p>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style={{ color: T.text }}>
-                  This is <span className="text-gradient-animated">Why We Exist</span>
+        {/* ══════════════════════════════════════════════════════════
+            TRUST BADGES
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="border-b bg-white" style={{ borderColor: 'rgba(139,94,60,0.08)' }}>
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 divide-x" style={{ borderColor: 'rgba(139,94,60,0.06)' }}>
+              {[
+                { icon: Truck, label: 'Complimentary Shipping', sub: 'Above ₹2000' },
+                { icon: RotateCcw, label: 'Easy Returns', sub: 'No Questions Asked' },
+                { icon: ShieldCheck, label: 'Secure Payments', sub: '100% Safe' },
+                { icon: Award, label: 'Premium Quality', sub: 'Fabric & Stitching' },
+                { icon: Heart, label: 'Loved by 10K+', sub: 'Happy Customers' },
+              ].map((b, i) => {
+                const Icon = b.icon;
+                return (
+                  <motion.div
+                    key={b.label}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.08 }}
+                    className="py-6 md:py-7 px-3 text-center"
+                  >
+                    <Icon size={18} className="mx-auto mb-2" style={{ color: '#8B5E3C' }} />
+                    <div className="text-[11px] font-semibold tracking-wide" style={{ color: '#2E241F' }}>{b.label}</div>
+                    <div className="text-[10px] mt-0.5" style={{ color: '#999' }}>{b.sub}</div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════
+            SHOP BY CATEGORY — Find Your Perfect Fit
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="py-16 md:py-24 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <p className="text-[10px] tracking-[0.25em] uppercase mb-2" style={{ color: '#8B5E3C' }}>Shop by Category</p>
+                <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Find Your Perfect Fit</h2>
+              </div>
+              <Link to="/shop" className="hidden sm:inline-flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-60" style={{ color: '#8B5E3C' }}>
+                Explore All <ArrowRight size={12} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+              {categoryImages.map((img, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.06 }}
+                  className="group cursor-pointer"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-lg mb-3 bg-[#f0ebe5]">
+                    <img
+                      src={img}
+                      alt={categoryNames[i]}
+                      className="w-full h-full object-cover object-[center_30%] transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <h3 className="font-heading text-[11px] sm:text-xs font-semibold leading-tight mb-1">{categoryNames[i]}</h3>
+                  <Link to="/shop" className="text-[10px] font-medium transition-opacity hover:opacity-60" style={{ color: '#8B5E3C' }}>
+                    Shop Now <ArrowRight size={9} className="inline" />
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════
+            OUR STORY — Built on Belief
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="py-16 md:py-24" style={{ background: '#FAF6F1' }}>
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-12 gap-8 md:gap-6 items-center">
+
+              {/* LEFT — 3 overlapping images */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7 }}
+                className="md:col-span-5 relative"
+              >
+                <div className="relative h-[320px] sm:h-[380px]">
+                  <div className="absolute left-0 top-0 w-[55%] h-[75%] overflow-hidden rounded-lg shadow-lg z-10">
+                    <img src={storyImg1} alt="" className="w-full h-full object-cover object-[center_30%]" />
+                  </div>
+                  <div className="absolute left-[30%] top-[10%] w-[55%] h-[75%] overflow-hidden rounded-lg shadow-lg z-20">
+                    <img src={storyImg2} alt="" className="w-full h-full object-cover object-[center_30%]" />
+                  </div>
+                  <div className="absolute left-[15%] bottom-0 w-[50%] h-[55%] overflow-hidden rounded-lg shadow-lg z-30">
+                    <img src={storyImg3} alt="" className="w-full h-full object-cover object-[center_30%]" />
+                  </div>
+                  {/* Decorative leaf */}
+                  <div className="absolute -right-4 -bottom-4 z-0 opacity-20">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                      <path d="M10 70C10 70 20 30 50 10C50 10 40 50 10 70Z" fill="#8B5E3C" opacity="0.3"/>
+                      <path d="M10 70C10 70 30 50 70 40C70 40 50 60 10 70Z" fill="#8B5E3C" opacity="0.2"/>
+                    </svg>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* MIDDLE — Text */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7 }}
+                className="md:col-span-4"
+              >
+                <p className="text-[10px] tracking-[0.25em] uppercase mb-3" style={{ color: '#8B5E3C' }}>Our Story</p>
+                <h2 className="font-heading text-2xl sm:text-3xl font-bold leading-tight tracking-tight mb-4">
+                  Built on Belief.<br />Designed for You.
                 </h2>
-                <div className="section-divider mt-6 mb-6" />
-                <p className="text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed" style={{ color: T.textSec }}>
-                  Tubhyam (तुम्हारे लिए — "For You") was born from a simple yet revolutionary belief:
-                  <span className="block mt-3 font-semibold text-lg sm:text-xl md:text-2xl" style={{ color: T.text }}>
-                    Every woman deserves to feel beautiful, comfortable, and confident — without compromise.
-                  </span>
+                <p className="text-[12px] sm:text-[13px] leading-[1.7] mb-6" style={{ color: '#6B5B4E' }}>
+                  Tubhyam was born from a simple yet powerful belief — that every woman deserves to feel beautiful, confident and comfortable in her own skin. We create contemporary Indian wear that blends tradition with modernity, crafted for real bodies and real lives.
                 </p>
-              </div>
-            </AnimatedSection>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold text-white transition-all duration-300 hover:scale-105"
+                  style={{ background: '#2E241F' }}
+                >
+                  Our Journey <ArrowRight size={12} />
+                </Link>
+              </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-              {[
-                { icon: <Ruler className="w-7 h-7" />, title: 'True Size Inclusivity', desc: 'XS to 5XL — and we mean it. Not vanity sizing. Not "plus size" as an afterthought. Every single size is designed with the same care, quality, and attention to fit.' },
-                { icon: <Users className="w-7 h-7" />, title: 'Designed for Indian Women', desc: 'Our fit models represent real Indian body types — not imported standards. We understand that beauty in India comes in every shade, shape, and size.' },
-                { icon: <Palette className="w-7 h-7" />, title: 'Colors That Celebrate You', desc: 'From fair to dusky to deep complexions — our color palette is scientifically curated to complement every skin tone beautifully. Because elegance knows no color.' },
-                { icon: <Gem className="w-7 h-7" />, title: 'Premium, Not Pricey', desc: 'Luxury shouldn\'t be exclusive. We source the finest fabrics and maintain exceptional quality while keeping our prices accessible. Premium fashion for every woman.' },
-                { icon: <Feather className="w-7 h-7" />, title: 'Comfort is Non-Negotiable', desc: 'Breathable fabrics. Flexible waistbands. Thoughtful construction. You shouldn\'t have to choose between looking elegant and feeling comfortable.' },
-                { icon: <Heart className="w-7 h-7" />, title: 'Made by Women, For Women', desc: 'Our design team understands the frustration of ill-fitting clothes because we\'ve lived it. Every product is tested by real women across different sizes and skin tones.' },
-              ].map((item, i) => (
-                <AnimatedSection key={item.title} delay={i * 100}>
-                  <div className="premium-card p-6 sm:p-7 h-full flex items-start gap-4">
-                    <div className="icon-circle shrink-0">
-                      <span style={{ color: T.accent }}>{item.icon}</span>
-                    </div>
-                    <div>
-                      <h3 className="font-heading text-lg sm:text-xl font-semibold mb-2" style={{ color: T.text }}>{item.title}</h3>
-                      <p className="text-sm sm:text-base leading-relaxed" style={{ color: T.textSec }}>{item.desc}</p>
-                    </div>
+              {/* RIGHT — Quote */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7 }}
+                className="md:col-span-3"
+              >
+                <div className="relative pl-6 border-l-2" style={{ borderColor: 'rgba(139,94,60,0.3)' }}>
+                  <Quote size={20} className="mb-3" style={{ color: 'rgba(139,94,60,0.3)' }} />
+                  <p className="font-heading text-base sm:text-lg font-bold italic leading-snug tracking-tight mb-3" style={{ color: '#2E241F' }}>
+                    "Fashion should fit your life, not the other way around."
+                  </p>
+                  <p className="text-[11px]" style={{ color: '#8B5E3C' }}>— Team Tubhyam</p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════
+            TRENDING NOW
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="py-16 md:py-24 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <p className="text-[10px] tracking-[0.25em] uppercase mb-2" style={{ color: '#8B5E3C' }}>New Arrivals</p>
+                <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Trending Now</h2>
+              </div>
+              <Link to="/shop" className="hidden sm:inline-flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-60" style={{ color: '#8B5E3C' }}>
+                View All <ArrowRight size={12} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+              {trendingImages.map((img, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.06 }}
+                  className="group cursor-pointer"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-lg mb-3 bg-[#f0ebe5]">
+                    <img
+                      src={img}
+                      alt={trendingNames[i]}
+                      className="w-full h-full object-cover object-[center_30%] transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {/* Badge */}
+                    <span className="absolute top-2 left-2 text-[9px] font-semibold px-2 py-1 rounded-sm text-white" style={{ background: '#2E241F' }}>
+                      {trendingBadges[i]}
+                    </span>
+                    {/* Heart */}
+                    <button className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Heart size={12} style={{ color: '#8B5E3C' }} />
+                    </button>
                   </div>
-                </AnimatedSection>
+                  <h3 className="font-heading text-[11px] sm:text-xs font-semibold leading-tight mb-1 line-clamp-2">{trendingNames[i]}</h3>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-xs font-bold" style={{ color: '#2E241F' }}>{trendingPrices[i]}</span>
+                    <span className="text-[10px] line-through" style={{ color: '#bbb' }}>{trendingOldPrices[i]}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <Star key={j} size={8} fill={j < Math.round(trendingRatings[i]) ? '#E8652B' : '#ddd'} style={{ color: j < Math.round(trendingRatings[i]) ? '#E8652B' : '#ddd' }} />
+                    ))}
+                    <span className="text-[9px] ml-1" style={{ color: '#999' }}>({trendingReviews[i]})</span>
+                  </div>
+                </motion.div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ================================================================ */}
-      {/*  BEAUTY HAS NO STANDARD — Feature Cards                           */}
-      {/* ================================================================ */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-28">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <AnimatedSection>
-              <div className="text-center mb-12 md:mb-16">
-                <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: T.accent }}>Our Collection</p>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style={{ color: T.text }}>
-                  Beauty Has <span className="text-gradient-animated">No Standard</span>
+        {/* ═══════════════════════════════════════════════════════════
+            REAL STORIES — Testimonials
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="py-16 md:py-24" style={{ background: '#FAF6F1' }}>
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-12 gap-10 items-start">
+
+              {/* LEFT — Text */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7 }}
+                className="md:col-span-4"
+              >
+                <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight mb-4">
+                  Real Stories.<br />Real Women.
                 </h2>
-                <div className="section-divider mt-6 mb-6" />
-                <p className="text-base sm:text-lg md:text-xl max-w-3xl mx-auto" style={{ color: T.textSec }}>
-                  Real women. Real bodies. Real elegance. Our collection is designed to celebrate every unique you.
+                <p className="text-[13px] leading-[1.7] mb-6" style={{ color: '#6B5B4E' }}>
+                  Real women who found their style, confidence and comfort with Tubhyam.
                 </p>
-              </div>
-            </AnimatedSection>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold text-white transition-all duration-300 hover:scale-105"
+                  style={{ background: '#2E241F' }}
+                >
+                  Read All Reviews <ArrowRight size={12} />
+                </Link>
+              </motion.div>
 
-            {/* 3 Feature Cards */}
-            <div className="grid md:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-14">
-              {[
-                { icon: <Crown className="w-8 h-8" />, title: 'Formal Elegance', desc: 'Step into any room with confidence. Our formal collection is crafted for the modern woman who commands attention.' },
-                { icon: <Feather className="w-8 h-8" />, title: 'Effortless Comfort', desc: 'Style shouldn\'t compromise comfort. Our breathable fabrics and thoughtful designs ensure you feel amazing all day.' },
-                { icon: <Gem className="w-8 h-8" />, title: 'Radiant Colors', desc: 'Every shade in our collection is carefully chosen to complement and celebrate every beautiful skin tone.' },
-              ].map((item, i) => (
-                <AnimatedSection key={item.title} delay={i * 150}>
-                  <div className="premium-card p-8 sm:p-10 text-center h-full">
-                    <div className="icon-circle mx-auto mb-6">
-                      <span style={{ color: T.accent }}>{item.icon}</span>
-                    </div>
-                    <h3 className="font-heading text-xl sm:text-2xl font-semibold mb-3" style={{ color: T.text }}>{item.title}</h3>
-                    <p className="text-sm sm:text-base leading-relaxed" style={{ color: T.textSec }}>{item.desc}</p>
-                  </div>
-                </AnimatedSection>
-              ))}
-            </div>
-
-            {/* 4 Mini Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {[
-                { icon: <Users className="w-6 h-6" />, title: 'All Sizes', desc: 'XS to 5XL with consistent fit quality' },
-                { icon: <Palette className="w-6 h-6" />, title: 'All Skin Tones', desc: 'Colors tested on diverse complexions' },
-                { icon: <Ruler className="w-6 h-6" />, title: 'Perfect Fit', desc: 'Designed for real Indian body types' },
-                { icon: <Award className="w-6 h-6" />, title: 'Premium Quality', desc: 'Accessible luxury for everyone' },
-              ].map((item, i) => (
-                <AnimatedSection key={item.title} delay={i * 100}>
-                  <div className="premium-card p-5 sm:p-6 text-center h-full">
-                    <div className="icon-circle mx-auto mb-3" style={{ width: 48, height: 48 }}>
-                      <span style={{ color: T.accent }}>{item.icon}</span>
-                    </div>
-                    <h4 className="font-heading text-base sm:text-lg font-semibold mb-1" style={{ color: T.text }}>{item.title}</h4>
-                    <p className="text-xs sm:text-sm" style={{ color: T.textMuted }}>{item.desc}</p>
-                  </div>
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================ */}
-      {/*  HOW WE CREATE MAGIC — Process Steps                              */}
-      {/* ================================================================ */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-28" style={{ background: isLight ? '#F5EDE4' : 'rgba(36,30,24,0.5)' }}>
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <AnimatedSection>
-              <div className="text-center mb-12 md:mb-16">
-                <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: T.accent }}>Our Process</p>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style={{ color: T.text }}>
-                  How We <span className="text-gradient-animated">Create Magic</span>
-                </h2>
-                <div className="section-divider mt-6" />
-              </div>
-            </AnimatedSection>
-
-            <div className="space-y-5 sm:space-y-6">
-              {[
-                { num: '1', title: 'Research-Backed Design', desc: 'We studied over 2,000 Indian women\'s body measurements across different regions, ages, and body types. Our patterns are based on real data, not arbitrary standards. This means better fit, less return, more confidence.' },
-                { num: '2', title: 'Color Science for Indian Skin Tones', desc: 'Working with color psychologists and dermatologists, we\'ve created a palette that enhances every Indian skin tone — from wheat to wheatish-brown to dusky to deep. Each color is tested under different lighting to ensure you look radiant everywhere.' },
-                { num: '3', title: 'Premium Fabric Selection', desc: 'We source breathable, temperature-regulating fabrics perfect for India\'s climate. High thread count, wrinkle-resistant, and durable — because premium doesn\'t mean delicate. Our clothes are meant to be worn and loved, not just admired.' },
-                { num: '4', title: 'Real-Woman Testing', desc: 'Before any product reaches you, it\'s tested by women of all sizes and body types. We check for comfort during sitting, walking, bending — real-life movements. If our testers wouldn\'t wear it all day, it doesn\'t make the cut.' },
-              ].map((step, i) => (
-                <AnimatedSection key={step.num} delay={i * 120}>
-                  <div className="premium-card p-5 sm:p-7 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-                    <div className="step-badge">{step.num}</div>
-                    <div>
-                      <h3 className="font-heading text-xl sm:text-2xl font-semibold mb-2" style={{ color: T.text }}>{step.title}</h3>
-                      <p className="text-sm sm:text-base leading-relaxed" style={{ color: T.textSec }}>{step.desc}</p>
-                    </div>
-                  </div>
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================ */}
-      {/*  TESTIMONIALS                                                     */}
-      {/* ================================================================ */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-28">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <AnimatedSection>
-              <div className="text-center mb-12 md:mb-16">
-                <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: T.accent }}>Love Letters</p>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style={{ color: T.text }}>
-                  This is <span className="text-gradient-animated">Your Story</span> Too
-                </h2>
-                <div className="section-divider mt-6 mb-6" />
-                <p className="text-base sm:text-lg md:text-xl" style={{ color: T.textSec }}>
-                  Real women. Real transformations. Real confidence.
-                </p>
-              </div>
-            </AnimatedSection>
-
-            <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-              {[
-                { name: 'Priya M.', city: 'Mumbai', tag: 'Size 3XL Customer', text: 'For the first time in years, I didn\'t have to compromise. The 3XL fit perfectly, the color looked stunning on my dusky skin, and I felt confident walking into that interview. I got the job, by the way!' },
-                { name: 'Ananya R.', city: 'Bangalore', tag: 'Size XS Customer', text: 'As a petite woman, I\'ve always struggled with pants being too long or too loose. Tubhyam\'s XS fits like it was made for ME. Finally, a brand that doesn\'t treat smaller sizes as an afterthought.' },
-                { name: 'Keerthana S.', city: 'Chennai', tag: 'Repeat Customer', text: 'I have a deeper skin tone and always struggled to find colors that looked good on me. The beige formal pants from Tubhyam are STUNNING on me. I\'ve received so many compliments. Thank you for understanding us!' },
-                { name: 'Divya K.', city: 'Delhi', tag: 'First-time Buyer', text: 'Premium quality at this price? I was skeptical. But these are genuinely the most comfortable formal pants I own. The fabric is breathable, the fit is perfect, and I feel elegant without breaking the bank.' },
-              ].map((t, i) => (
-                <AnimatedSection key={t.name} delay={i * 120}>
-                  <div className="testimonial-card premium-card p-6 sm:p-8 h-full flex flex-col">
-                    <div className="flex gap-1 mb-4">
-                      {[...Array(5)].map((_, j) => (
-                        <Star key={j} className="w-4 h-4 fill-current" style={{ color: T.accent }} />
-                      ))}
-                    </div>
-                    <p className="text-sm sm:text-base italic mb-5 leading-relaxed flex-1" style={{ color: T.textSec }}>
-                      "{t.text}"
-                    </p>
-                    <div className="flex items-center gap-3 pt-4" style={{ borderTop: `1px solid ${T.border}` }}>
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${T.accent}15` }}>
-                        <Heart className="w-5 h-5" style={{ color: T.accent }} />
+              {/* RIGHT — 3 testimonial cards */}
+              <div className="md:col-span-8 grid sm:grid-cols-3 gap-4">
+                {testimonials.map((t, i) => (
+                  <motion.div
+                    key={t.name}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    className="bg-white rounded-xl p-5 border" style={{ borderColor: 'rgba(139,94,60,0.08)' }}
+                  >
+                    {/* Avatar + Name */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: '#8B5E3C' }}>
+                        {t.name[0]}
                       </div>
                       <div>
-                        <p className="font-semibold text-sm" style={{ color: T.text }}>{t.name}, {t.city}</p>
-                        <p className="text-xs" style={{ color: T.textMuted }}>{t.tag}</p>
+                        <div className="text-xs font-semibold">{t.name}</div>
+                        <div className="text-[10px]" style={{ color: '#999' }}>{t.location}</div>
                       </div>
                     </div>
-                  </div>
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================ */}
-      {/*  FAQ SECTION (AEO Boost)                                         */}
-      {/* ================================================================ */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-28" style={{ background: isLight ? '#F5EDE4' : 'rgba(36,30,24,0.5)' }}>
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <AnimatedSection>
-              <div className="text-center mb-12">
-                <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: T.accent }}>FAQ</p>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-4" style={{ color: T.text }}>
-                  Frequently Asked <span className="text-gradient-animated">Questions</span>
-                </h2>
-                <div className="section-divider mt-6" />
-              </div>
-            </AnimatedSection>
-
-            <div className="space-y-4">
-              {FAQ_DATA.map((faq, i) => (
-                <FAQItem key={i} question={faq.question} answer={faq.answer} delay={i * 100} T={T} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================ */}
-      {/*  OUR PROMISE — CTA (Dark Rich Background)                        */}
-      {/* ================================================================ */}
-      <section className="relative py-20 sm:py-24 md:py-28 lg:py-32 overflow-hidden" style={{ background: isLight ? 'linear-gradient(135deg, #2A1A0E 0%, #3A241A 40%, #1A0F08 100%)' : 'linear-gradient(135deg, #0F0D0B 0%, #1C1714 40%, #0F0D0B 100%)' }}>
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,211,172,0.3), transparent)' }} />
-        <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, #FFD3AC, transparent)' }} />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full opacity-[0.05]" style={{ background: 'radial-gradient(circle, #C9A882, transparent)' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.03]" style={{ background: 'radial-gradient(circle, #FFD3AC, transparent)' }} />
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <AnimatedSection>
-              {/* Decorative top element */}
-              <div className="flex items-center justify-center gap-3 mb-8">
-                <div className="w-12 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,211,172,0.5))' }} />
-                <Sparkles className="w-5 h-5" style={{ color: '#FFD3AC' }} />
-                <div className="w-12 h-px" style={{ background: 'linear-gradient(90deg, rgba(255,211,172,0.5), transparent)' }} />
-              </div>
-
-              <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 sm:mb-8" style={{ color: '#FFF5EB' }}>
-                Our <span className="text-gradient-animated">Promise</span> to You
-              </h2>
-            </AnimatedSection>
-
-            <div className="space-y-5 text-base sm:text-lg md:text-xl leading-relaxed mb-12">
-              <AnimatedSection>
-                <p className="font-medium text-lg sm:text-xl" style={{ color: 'rgba(255,245,235,0.9)' }}>
-                  We promise that when you open a Tubhyam package, you'll find more than just clothing.
-                </p>
-              </AnimatedSection>
-              <AnimatedSection delay={150}>
-                <p style={{ color: 'rgba(255,211,172,0.75)' }}>
-                  You'll find <span className="font-semibold" style={{ color: '#FFD3AC' }}>validation</span> that you deserve beautiful things.
-                  You'll find <span className="font-semibold" style={{ color: '#FFD3AC' }}>confidence</span> that fits just right.
-                  You'll find <span className="font-semibold" style={{ color: '#FFD3AC' }}>elegance</span> that celebrates who you are.
-                </p>
-              </AnimatedSection>
-              <AnimatedSection delay={300}>
-                <p className="font-semibold text-lg sm:text-xl" style={{ color: '#FFF5EB' }}>
-                  Because every woman — regardless of size or skin tone — deserves to feel extraordinary.
-                </p>
-              </AnimatedSection>
-            </div>
-
-            <AnimatedSection delay={400}>
-              <Link
-                to="/shop"
-                className="inline-flex items-center justify-center gap-3 px-10 py-4 sm:px-12 sm:py-5 rounded-full text-base sm:text-lg font-semibold text-white transition-all duration-300 hover:scale-105 group"
-                style={{ background: 'linear-gradient(135deg, #8B5E3C 0%, #A0714D 40%, #C9A882 100%)', boxShadow: '0 8px 32px rgba(139,94,60,0.3)' }}
-              >
-                <ShoppingBag size={20} />
-                Experience Tubhyam Today
-                <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
-              </Link>
-              <div className="flex items-center justify-center gap-6 mt-8">
-                {[
-                  { icon: <Shield className="w-4 h-4" />, text: '7-Day Returns' },
-                  { icon: <Zap className="w-4 h-4" />, text: 'Pan-India Delivery' },
-                  { icon: <Heart className="w-4 h-4" />, text: 'Made in India' },
-                ].map(item => (
-                  <div key={item.text} className="flex items-center gap-1.5" style={{ color: 'rgba(255,211,172,0.5)' }}>
-                    {item.icon}
-                    <span className="text-xs font-medium">{item.text}</span>
-                  </div>
+                    {/* Stars */}
+                    <div className="flex gap-0.5 mb-2">
+                      {Array.from({ length: t.rating }).map((_, j) => (
+                        <Star key={j} size={10} fill="#E8652B" style={{ color: '#E8652B' }} />
+                      ))}
+                    </div>
+                    {/* Text */}
+                    <p className="text-[11px] leading-[1.6]" style={{ color: '#6B5B4E' }}>
+                      "{t.text}"
+                    </p>
+                  </motion.div>
                 ))}
               </div>
-            </AnimatedSection>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════
+            NEWSLETTER + CTA
+        ═══════════════════════════════════════════════════════════ */}
+        <section className="py-16 md:py-20 bg-white border-t" style={{ borderColor: 'rgba(139,94,60,0.08)' }}>
+          <div className="container mx-auto px-4">
+            <div className="max-w-xl mx-auto text-center">
+              <Mail size={22} className="mx-auto mb-4" style={{ color: '#8B5E3C' }} />
+              <h2 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight mb-3">Stay in the Loop</h2>
+              <p className="text-[13px] mb-6" style={{ color: '#6B5B4E' }}>
+                Be the first to know about new arrivals, exclusive offers and style inspiration.
+              </p>
+              <div className="flex gap-2 max-w-md mx-auto">
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  className="flex-1 px-4 py-2.5 rounded-full text-xs border outline-none focus:border-[#8B5E3C] transition-colors"
+                  style={{ borderColor: 'rgba(139,94,60,0.2)', background: '#FAF6F1' }}
+                />
+                <button className="px-5 py-2.5 rounded-full text-xs font-semibold text-white transition-all duration-300 hover:scale-105" style={{ background: '#2E241F' }}>
+                  Subscribe
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
 
       <Footer />
     </>
   );
 };
-
-/* ------------------------------------------------------------------ */
-/*  FAQ Accordion Item                                                 */
-/* ------------------------------------------------------------------ */
-function FAQItem({ question, answer, delay, T }: { question: string; answer: string; delay: number; T: Record<string, string> }) {
-  const [open, setOpen] = useState(false);
-  const { ref, isVisible } = useInView(0.1);
-
-  return (
-    <div
-      ref={ref}
-      className={`premium-card transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-5 sm:p-6 text-left"
-      >
-        <span className="font-heading text-base sm:text-lg font-semibold pr-4" style={{ color: T.text }}>{question}</span>
-        <span
-          className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-300"
-          style={{
-            background: `${T.accent}15`,
-            color: T.accent,
-            transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </span>
-      </button>
-      <div
-        className="overflow-hidden transition-all duration-400"
-        style={{ maxHeight: open ? '300px' : '0px', opacity: open ? 1 : 0 }}
-      >
-        <div className="px-5 sm:px-6 pb-5 sm:pb-6 text-sm sm:text-base leading-relaxed" style={{ color: T.textSec }}>
-          {answer}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default WorldOfTubhyam;
