@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Instagram } from 'lucide-react';
+import { ArrowRight, Instagram } from 'lucide-react';
 import heroVideo from '@/assets/video.mp4';
 import { useTheme } from '@/context/ThemeContext';
 import { api } from '@/config/api';
@@ -117,15 +117,6 @@ const Hero = () => {
 
           <div className="relative w-full px-6 sm:px-12 lg:px-16 xl:px-24">
             <div className="max-w-lg mx-auto mt-10 lg:mx-0 space-y-6 lg:space-y-8">
-              <div className="flex justify-center lg:justify-start">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ba7336]/20 backdrop-blur-xl border border-[#ba7336]/30 shadow-lg shadow-[#ba7336]/10 animate-fade-in-up">
-                  <Star size={13} className="text-[#8b5e3c]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8b5e3c]">
-                    New Collection 2026
-                  </span>
-                </div>
-              </div>
-
               <h1 className="font-heading text-3xl sm:text-4xl lg:text-[3.5rem] xl:text-6xl font-bold leading-[1.08] text-[#2A1A0E] animate-fade-in-up text-center lg:text-left" style={{ animationDelay: '0.1s' }}>
                 <span className="text-[#c27a3c]">Premium</span>
                 <br />
@@ -321,11 +312,6 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 relative z-10 flex justify-center">
         <div className="max-w-4xl space-y-8 text-center">
-          <div className="inline-flex mt-16 sm:mt-20 items-center gap-2 px-5 py-2.5 rounded-full animate-fade-in-up mx-auto glass-card">
-            <Star size={16} className="text-primary" />
-            <span className="text-sm font-semibold tracking-wide">New Collection 2026</span>
-          </div>
-
           <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <span className="text-gradient-gold">Premium</span>
             <br />
