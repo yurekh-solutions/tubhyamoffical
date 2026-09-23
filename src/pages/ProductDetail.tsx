@@ -363,11 +363,11 @@ const ProductDetail = () => {
     );
   }
 
-  // Deterministic review count per product (2, 3, or 4) based on product ID
-  const reviewSeed = product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const maxReviews = 2 + (reviewSeed % 3); // 2, 3, or 4
-  const allReviews = [...userReviews, ...mockReviews];
-  const displayReviews = allReviews.slice(0, maxReviews);
+  // Show ALL reviews dynamically — user reviews first, then mock reviews as fallback
+  const allReviews = userReviews.length > 0
+    ? [...userReviews, ...mockReviews.filter(m => !userReviews.some(u => u.name === m.name && u.comment === m.comment))]
+    : mockReviews;
+  const displayReviews = allReviews;
   const reviewCount = displayReviews.length;
   const rating = product.rating ?? parseFloat((displayReviews.reduce((sum, r) => sum + r.rating, 0) / displayReviews.length).toFixed(1));
 
