@@ -6,8 +6,8 @@ import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
 import SEO from '@/components/SEO';
 
-/* ── Images (faceless — clothing/body shots) ── */
-const heroImg = '/images/products/brownbelt1.jpg';
+/* ── Images — verified, label-matched ── */
+const heroImg = '/images/products/cord-set-002-wine.jpg';
 const storyImg1 = '/images/products/cord-set-002-wine.jpg';
 const storyImg2 = '/images/products/cord-set-003-olive.jpg';
 
@@ -16,7 +16,7 @@ const categoryImages = [
   '/images/products/blacklacepant.jpg',
   '/images/products/brownlacepant.jpg',
   '/images/products/cord-set-002-wine.jpg',
-  '/images/products/belt-formal-beige1.jpg',
+  '/images/products/beige-formal.jpg',
   '/images/products/beggyplatedkoreanfront.jpg',
 ];
 const categoryNames = ['Wide-Leg Pants', 'Lace Wide-Leg Pants', 'Lace Statement Pants', 'Co-ord Set', 'Formal Pants', 'Baggy Pleated Pants'];
@@ -26,7 +26,7 @@ const trendingImages = [
   '/images/products/blacklacepant.jpg',
   '/images/products/belt-imported.jpg',
   '/images/products/beggyplatedkoreanfront.jpg',
-  '/images/products/brownbelt1.jpg',
+  '/images/products/beige-formal.jpg',
   '/images/products/blacklacepant2.jpg',
 ];
 const trendingNames = ['Wide-Leg Formal Pants', 'Lace Wide-Leg Statement Pants', 'Imported Belt Formal Pants', 'Imported Baggy Pleated Pants', 'Belt Formal Pants', 'Lace Wide-Leg Statement Pants'];
